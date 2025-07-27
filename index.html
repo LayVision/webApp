@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaoyou Home - ค้นหาห้องเช่า บ้านเช่า และคอนโด</title>
+    <title>ChaoYouHome - ค้นหาห้องเช่า บ้านเช่า และคอนโด</title>
     <meta name="description" content="ChaoYouHome (เช่าอยู่โฮม) - แพลตฟอร์มค้นหาห้องเช่า บ้านเช่า และคอนโดทั่วประเทศไทย ค้นหาที่พักในฝันของคุณได้ง่ายๆ วันนี้!">
     <meta name="keywords" content="เช่าอยู่, ChaoYouHome, เช่าบ้าน, เช่าคอนโด, หาห้องเช่า, บ้านเช่า, คอนโดให้เช่า, อสังหาริมทรัพย์ให้เช่า, ที่พัก, หาบ้านเช่า">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -66,6 +66,13 @@
         /* Slideshow transition */
         .slide {
             transition: opacity 1s ease-in-out;
+        }
+        .upload-preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -317,9 +324,9 @@
                     <textarea id="post-description" rows="4" class="w-full p-2 border rounded-lg" required maxlength="1000"></textarea>
                 </div>
                 <div class="md:col-span-2">
-                     <label class="block text-sm font-medium">รูปภาพ (URL)</label>
-                     <input type="text" id="post-image-url" class="w-full p-2 border rounded-lg" placeholder="ใส่ URL รูปภาพหลัก คั่นด้วยจุลภาค (,) สำหรับหลายรูป" required maxlength="2000">
-                     <small class="text-gray-500">ในเวอร์ชันทดสอบนี้ ให้ใช้ URL ของรูปภาพแทนการอัปโหลด</small>
+                     <label class="block text-sm font-medium">รูปภาพ</label>
+                     <input type="file" id="post-image-upload" class="w-full p-2 border rounded-lg" multiple accept="image/*">
+                     <div id="image-preview-container" class="mt-2 flex flex-wrap gap-2"></div>
                 </div>
                  <div>
                     <label class="block text-sm font-medium">เบอร์โทรศัพท์</label>
@@ -332,7 +339,7 @@
             </div>
             <div class="mt-6 flex justify-end gap-4">
                  <button type="button" onclick="closeModal('postModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
-                 <button type="submit" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">บันทึกประกาศ</button>
+                 <button type="submit" id="post-submit-button" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">บันทึกประกาศ</button>
             </div>
         </form>
          <p id="post-error" class="text-red-500 text-sm mt-4 text-center"></p>
@@ -426,6 +433,10 @@
         
         // --- ADMIN CONFIGURATION ---
         const ADMIN_UIDS = ["sjS5xozHNnOkVlQ55DiMCi4b7ft1"]; // Replace with actual Admin User IDs from Firebase Auth
+        
+        // --- CLOUDINARY CONFIGURATION ---
+        const CLOUDINARY_CLOUD_NAME = "dgqb5fbdh";
+        const CLOUDINARY_UPLOAD_PRESET = "chaoyouhome_preset";
 
         // --- INITIALIZATION ---
         const app = initializeApp(firebaseConfig);
@@ -463,6 +474,9 @@
         const registerForm = document.getElementById('register-form');
         const postForm = document.getElementById('post-form');
         const editProfileForm = document.getElementById('edit-profile-form');
+        const imageUploadInput = document.getElementById('post-image-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const postSubmitButton = document.getElementById('post-submit-button');
 
         // --- HELPER FUNCTIONS ---
         function translateFirebaseError(errorCode) {
@@ -744,6 +758,45 @@
             }
         };
 
+        // --- IMAGE UPLOAD ---
+        async function uploadImages(files) {
+            const uploadPromises = Array.from(files).map(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                return fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.secure_url) {
+                        return data.secure_url;
+                    } else {
+                        console.error('Cloudinary Error:', data);
+                        throw new Error('Cloudinary upload failed');
+                    }
+                });
+            });
+            return Promise.all(uploadPromises);
+        }
+
+        imageUploadInput.addEventListener('change', () => {
+            imagePreviewContainer.innerHTML = '';
+            const files = imageUploadInput.files;
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'upload-preview-img';
+                    imagePreviewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
         // --- FIRESTORE (LISTINGS) ---
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -752,30 +805,48 @@
                 return;
             }
 
-            const postId = document.getElementById('post-id').value;
-            
-            const listingData = {
-                title: document.getElementById('post-title').value,
-                type: document.getElementById('post-type').value,
-                listingType: 'เช่า', // Hardcoded to 'rent'
-                priceSale: 0, // Hardcoded to 0
-                priceRent: Number(document.getElementById('post-price-rent').value) || 0,
-                priceInitial: Number(document.getElementById('post-price-initial').value) || 0,
-                availableDate: document.getElementById('post-available-date').value || '',
-                province: document.getElementById('post-province').value,
-                district: document.getElementById('post-district').value,
-                subdistrict: document.getElementById('post-subdistrict').value,
-                description: document.getElementById('post-description').value,
-                imageUrls: document.getElementById('post-image-url').value.split(',').map(url => url.trim()).filter(url => url),
-                phone: document.getElementById('post-phone').value,
-                lineId: document.getElementById('post-line-id').value,
-                ownerUid: currentUser.uid,
-                ownerEmail: currentUser.email,
-                ownerUsername: currentUser.username,
-                updatedAt: serverTimestamp(),
-            };
+            postSubmitButton.disabled = true;
+            postSubmitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>กำลังบันทึก...`;
 
             try {
+                const files = imageUploadInput.files;
+                let imageUrls = [];
+
+                if (files.length > 0) {
+                    imageUrls = await uploadImages(files);
+                }
+
+                const postId = document.getElementById('post-id').value;
+                
+                if (postId && files.length === 0) {
+                    const docRef = doc(db, "listings", postId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        imageUrls = docSnap.data().imageUrls || [];
+                    }
+                }
+
+                const listingData = {
+                    title: document.getElementById('post-title').value,
+                    type: document.getElementById('post-type').value,
+                    listingType: 'เช่า',
+                    priceSale: 0,
+                    priceRent: Number(document.getElementById('post-price-rent').value) || 0,
+                    priceInitial: Number(document.getElementById('post-price-initial').value) || 0,
+                    availableDate: document.getElementById('post-available-date').value || '',
+                    province: document.getElementById('post-province').value,
+                    district: document.getElementById('post-district').value,
+                    subdistrict: document.getElementById('post-subdistrict').value,
+                    description: document.getElementById('post-description').value,
+                    imageUrls: imageUrls,
+                    phone: document.getElementById('post-phone').value,
+                    lineId: document.getElementById('post-line-id').value,
+                    ownerUid: currentUser.uid,
+                    ownerEmail: currentUser.email,
+                    ownerUsername: currentUser.username,
+                    updatedAt: serverTimestamp(),
+                };
+
                 if (postId) {
                     const docRef = doc(db, "listings", postId);
                     await updateDoc(docRef, listingData);
@@ -786,11 +857,15 @@
                 }
                 closeModal('postModal');
                 postForm.reset();
+                imagePreviewContainer.innerHTML = '';
                 fetchListings();
                 showAlertModal('บันทึกประกาศสำเร็จ!');
             } catch (error) {
                 console.error("Error saving listing:", error);
                 document.getElementById('post-error').textContent = "เกิดข้อผิดพลาดในการบันทึก: " + error.message;
+            } finally {
+                postSubmitButton.disabled = false;
+                postSubmitButton.innerHTML = `บันทึกประกาศ`;
             }
         });
 
@@ -985,7 +1060,18 @@
                 document.getElementById('post-price-initial').value = listing.priceInitial || '';
                 document.getElementById('post-available-date').value = listing.availableDate || '';
                 document.getElementById('post-description').value = listing.description;
-                document.getElementById('post-image-url').value = listing.imageUrls.join(', ');
+                
+                // For editing, we just show existing URLs. We don't re-upload.
+                imagePreviewContainer.innerHTML = '';
+                if (listing.imageUrls && listing.imageUrls.length > 0) {
+                    listing.imageUrls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'upload-preview-img';
+                        imagePreviewContainer.appendChild(img);
+                    });
+                }
+
                 document.getElementById('post-phone').value = listing.phone;
                 document.getElementById('post-line-id').value = listing.lineId;
                 
