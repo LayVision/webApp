@@ -775,7 +775,8 @@
                         return data.secure_url;
                     } else {
                         console.error('Cloudinary Error:', data);
-                        throw new Error('Cloudinary upload failed');
+                        const errorMsg = data.error?.message || 'Cloudinary upload failed';
+                        throw new Error(errorMsg);
                     }
                 });
             });
@@ -811,21 +812,18 @@
             try {
                 const files = imageUploadInput.files;
                 let imageUrls = [];
+                const postId = document.getElementById('post-id').value;
 
                 if (files.length > 0) {
                     imageUrls = await uploadImages(files);
-                }
-
-                const postId = document.getElementById('post-id').value;
-                
-                if (postId && files.length === 0) {
+                } else if (postId) {
                     const docRef = doc(db, "listings", postId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         imageUrls = docSnap.data().imageUrls || [];
                     }
                 }
-
+                
                 const listingData = {
                     title: document.getElementById('post-title').value,
                     type: document.getElementById('post-type').value,
@@ -1061,7 +1059,6 @@
                 document.getElementById('post-available-date').value = listing.availableDate || '';
                 document.getElementById('post-description').value = listing.description;
                 
-                // For editing, we just show existing URLs. We don't re-upload.
                 imagePreviewContainer.innerHTML = '';
                 if (listing.imageUrls && listing.imageUrls.length > 0) {
                     listing.imageUrls.forEach(url => {
