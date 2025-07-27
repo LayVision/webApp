@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FindYourHome - ค้นหาบ้านและคอนโดในฝันของคุณ</title>
+    <title>ChaoYouHome - ค้นหาห้องเช่า บ้านเช่า และคอนโด</title>
+    <meta name="description" content="ChaoYouHome (เช่าอยู่โฮม) - แพลตฟอร์มค้นหาห้องเช่า บ้านเช่า และคอนโดทั่วประเทศไทย ค้นหาที่พักในฝันของคุณได้ง่ายๆ วันนี้!">
+    <meta name="keywords" content="เช่าอยู่, ChaoYouHome, เช่าบ้าน, เช่าคอนโด, หาห้องเช่า, บ้านเช่า, คอนโดให้เช่า, อสังหาริมทรัพย์ให้เช่า, ที่พัก, หาบ้านเช่า">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         /* Base styles */
         body {
@@ -73,7 +77,7 @@
         <!-- Header -->
         <header class="relative flex justify-between items-center mb-6 pb-4 border-b">
             <h1 class="text-2xl md:text-3xl font-bold text-blue-600 cursor-pointer" onclick="navigateToHome()">
-                <i class="fas fa-home mr-2"></i>FindYourHome
+                <i class="fas fa-home mr-2"></i>ChaoYouHome
             </h1>
             
             <!-- Desktop Navigation -->
@@ -84,29 +88,37 @@
                     <button onclick="openModal('registerModal')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"><i class="fas fa-user-plus mr-2"></i>สมัครสมาชิก</button>
                 </div>
                 <!-- Logged In State -->
-                <div id="nav-logged-in-view" class="hidden relative">
-                    <button id="profile-dropdown-button" onclick="toggleProfileDropdown()" class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                        <!-- User Initial will be inserted here -->
+                <div id="nav-logged-in-view" class="hidden items-center gap-4">
+                    <button onclick="openModal('postModal')" class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>ลงประกาศ
                     </button>
-                    <!-- Dropdown Menu -->
-                    <div id="profile-dropdown-menu" class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-30 border">
-                        <div class="p-4 border-b">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                                    <span id="dropdown-user-initial"></span>
-                                </div>
-                                <div>
-                                    <p id="dropdown-username" class="font-semibold"></p>
-                                    <p id="dropdown-email" class="text-sm text-gray-500"></p>
+                    <button id="header-boost-button" class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-lg hover:bg-purple-600 flex items-center">
+                        <i class="fas fa-rocket mr-2"></i>ดันโพสต์
+                    </button>
+                    <div class="relative">
+                        <button id="profile-dropdown-button" onclick="toggleProfileDropdown()" class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                            <!-- User Initial will be inserted here -->
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="profile-dropdown-menu" class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-30 border">
+                            <div class="p-4 border-b">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                                        <span id="dropdown-user-initial"></span>
+                                    </div>
+                                    <div>
+                                        <p id="dropdown-username" class="font-semibold"></p>
+                                        <p id="dropdown-email" class="text-sm text-gray-500"></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="p-2">
-                            <a href="#" id="dropdown-profile-link" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i class="fas fa-user-circle w-5 text-center"></i>โปรไฟล์</a>
-                            <a href="#" id="dropdown-post-link" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i class="fas fa-plus w-5 text-center"></i>ลงประกาศ</a>
-                            <a href="#" id="dropdown-admin-link" class="hidden items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i class="fas fa-user-shield w-5 text-center"></i>Admin Panel</a>
-                            <hr class="my-2">
-                            <a href="#" id="dropdown-logout-link" class="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-md"><i class="fas fa-sign-out-alt w-5 text-center"></i>ออกจากระบบ</a>
+                            <div class="p-2">
+                                <a href="#" id="dropdown-profile-link" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i class="fas fa-user-circle w-5 text-center"></i>โปรไฟล์</a>
+                                <a href="#" id="dropdown-post-link" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i class="fas fa-plus w-5 text-center"></i>ลงประกาศ</a>
+                                <a href="#" id="dropdown-admin-link" class="hidden items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i class="fas fa-user-shield w-5 text-center"></i>Admin Panel</a>
+                                <hr class="my-2">
+                                <a href="#" id="dropdown-logout-link" class="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-md"><i class="fas fa-sign-out-alt w-5 text-center"></i>ออกจากระบบ</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,14 +151,14 @@
                 <!-- Banner Slideshow Section -->
                 <div id="banner-slideshow" class="relative rounded-xl overflow-hidden mb-8 h-64 md:h-96">
                     <!-- Slides -->
-                    <div class="slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1974&auto=format&fit=crop');"></div>
+                    <div class="slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop');"></div>
+                    <div class="slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=2070&auto=format&fit=crop');"></div>
                     <div class="slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop');"></div>
-                    <div class="slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070&auto=format&fit=crop');"></div>
                     
                     <!-- Text Overlay -->
                     <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center text-white p-4">
-                        <h2 class="text-3xl md:text-5xl font-bold mb-3">ค้นหาบ้านในฝันของคุณ</h2>
-                        <p class="text-md md:text-xl">แหล่งรวมประกาศ ซื้อ-ขาย-เช่า อสังหาริมทรัพย์ที่ดีที่สุดในประเทศไทย</p>
+                        <h2 class="text-3xl md:text-5xl font-bold mb-3">ค้นหาห้องเช่า บ้านเช่า และคอนโด</h2>
+                        <p class="text-md md:text-xl">แหล่งรวมประกาศให้เช่าที่ดีที่สุดสำหรับคุณ</p>
                     </div>
 
                     <!-- Navigation Buttons -->
@@ -173,14 +185,11 @@
                         </select>
                         <select id="type-filter" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
                             <option value="">ทุกประเภท</option>
+                            <option value="ห้องเช่า">ห้องเช่า</option>
+                            <option value="บ้านเช่า">บ้านเช่า</option>
                             <option value="คอนโด">คอนโด</option>
-                            <option value="บ้านเดี่ยว">บ้านเดี่ยว</option>
-                            <option value="ทาวน์เฮาส์">ทาวน์เฮาส์</option>
-                            <option value="หอพัก">หอพัก</option>
-                            <option value="ที่ดิน">ที่ดิน</option>
-                            <option value="อาคารพาณิชย์">อาคารพาณิชย์</option>
                         </select>
-                        <input type="number" id="max-price-filter" placeholder="ราคาสูงสุด (บาท)" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        <input type="number" id="max-price-filter" placeholder="ราคาสูงสุด (บาท)" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" maxlength="10" oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
                         <button onclick="applyFilters()" class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">
                             <i class="fas fa-search mr-2"></i>ค้นหา
                         </button>
@@ -223,11 +232,11 @@
         <form id="login-form">
             <div class="mb-4">
                 <label for="login-identifier" class="block text-sm font-medium text-gray-700 mb-1">อีเมล หรือ Username</label>
-                <input type="text" id="login-identifier" class="w-full p-3 border rounded-lg" placeholder="กรอกอีเมลหรือ username ของคุณ" required>
+                <input type="text" id="login-identifier" class="w-full p-3 border rounded-lg" placeholder="กรอกอีเมลหรือ username ของคุณ" required maxlength="60">
             </div>
             <div class="mb-6">
                 <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                <input type="password" id="login-password" class="w-full p-3 border rounded-lg" required>
+                <input type="password" id="login-password" class="w-full p-3 border rounded-lg" required maxlength="100">
             </div>
             <button type="submit" class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</button>
         </form>
@@ -241,19 +250,19 @@
         <form id="register-form">
             <div class="mb-4">
                 <label for="register-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                <input type="text" id="register-username" class="w-full p-3 border rounded-lg" required>
+                <input type="text" id="register-username" class="w-full p-3 border rounded-lg" required maxlength="30">
             </div>
             <div class="mb-4">
                 <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                <input type="email" id="register-email" class="w-full p-3 border rounded-lg" required>
+                <input type="email" id="register-email" class="w-full p-3 border rounded-lg" required maxlength="60">
             </div>
             <div class="mb-4">
                 <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                <input type="password" id="register-password" class="w-full p-3 border rounded-lg" required>
+                <input type="password" id="register-password" class="w-full p-3 border rounded-lg" required maxlength="100">
             </div>
              <div class="mb-6">
                 <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">ยืนยันรหัสผ่าน</label>
-                <input type="password" id="register-confirm-password" class="w-full p-3 border rounded-lg" required>
+                <input type="password" id="register-confirm-password" class="w-full p-3 border rounded-lg" required maxlength="100">
             </div>
             <button type="submit" class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">สมัครสมาชิก</button>
         </form>
@@ -269,34 +278,27 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium">หัวข้อประกาศ</label>
-                    <input type="text" id="post-title" class="w-full p-2 border rounded-lg" placeholder="เช่น คอนโดให้เช่า ใกล้ BTS อ่อนนุช" required>
+                    <input type="text" id="post-title" class="w-full p-2 border rounded-lg" placeholder="เช่น คอนโดให้เช่า ใกล้ BTS อ่อนนุช" required maxlength="120">
                 </div>
                 <div>
                     <label class="block text-sm font-medium">ประเภท</label>
                     <select id="post-type" class="w-full p-2 border rounded-lg" required>
+                        <option value="ห้องเช่า">ห้องเช่า</option>
+                        <option value="บ้านเช่า">บ้านเช่า</option>
                         <option value="คอนโด">คอนโด</option>
-                        <option value="บ้านเดี่ยว">บ้านเดี่ยว</option>
-                        <option value="ทาวน์เฮาส์">ทาวน์เฮาส์</option>
-                        <option value="หอพัก">หอพัก</option>
-                        <option value="ที่ดิน">ที่ดิน</option>
-                        <option value="อาคารพาณิชย์">อาคารพาณิชย์</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">รายการ</label>
-                    <select id="post-listing-type" class="w-full p-2 border rounded-lg" required>
-                        <option value="เช่า">ให้เช่า</option>
-                        <option value="ขาย">ขาย</option>
-                        <option value="ขายและเช่า">ขายและเช่า</option>
-                    </select>
-                </div>
-                <div>
-                     <label class="block text-sm font-medium">ราคาขาย (บาท)</label>
-                     <input type="number" id="post-price-sale" class="w-full p-2 border rounded-lg" placeholder="ถ้าไม่ขาย ใส่ 0">
+                     <label class="block text-sm font-medium">ราคาเช่า (บาท/เดือน)</label>
+                     <input type="number" id="post-price-rent" class="w-full p-2 border rounded-lg" placeholder="ระบุราคาเช่า" required maxlength="7" oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
                 </div>
                  <div>
-                     <label class="block text-sm font-medium">ราคาเช่า (บาท/เดือน)</label>
-                     <input type="number" id="post-price-rent" class="w-full p-2 border rounded-lg" placeholder="ถ้าไม่ให้เช่า ใส่ 0">
+                     <label class="block text-sm font-medium">ราคาเข้าอยู่ครั้งแรก (บาท)</label>
+                     <input type="number" id="post-price-initial" class="w-full p-2 border rounded-lg" placeholder="เช่น มัดจำ + ล่วงหน้า" maxlength="8" oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                </div>
+                <div>
+                     <label class="block text-sm font-medium">วันที่เข้าอยู่ได้</label>
+                     <input type="text" id="post-available-date" class="w-full p-2 border rounded-lg" placeholder="เลือกวันที่...">
                 </div>
                 <div>
                     <label class="block text-sm font-medium">จังหวัด</label>
@@ -312,20 +314,20 @@
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium">รายละเอียดเพิ่มเติม</label>
-                    <textarea id="post-description" rows="4" class="w-full p-2 border rounded-lg" required></textarea>
+                    <textarea id="post-description" rows="4" class="w-full p-2 border rounded-lg" required maxlength="1000"></textarea>
                 </div>
                 <div class="md:col-span-2">
                      <label class="block text-sm font-medium">รูปภาพ (URL)</label>
-                     <input type="text" id="post-image-url" class="w-full p-2 border rounded-lg" placeholder="ใส่ URL รูปภาพหลัก คั่นด้วยจุลภาค (,) สำหรับหลายรูป" required>
+                     <input type="text" id="post-image-url" class="w-full p-2 border rounded-lg" placeholder="ใส่ URL รูปภาพหลัก คั่นด้วยจุลภาค (,) สำหรับหลายรูป" required maxlength="2000">
                      <small class="text-gray-500">ในเวอร์ชันทดสอบนี้ ให้ใช้ URL ของรูปภาพแทนการอัปโหลด</small>
                 </div>
                  <div>
                     <label class="block text-sm font-medium">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="post-phone" class="w-full p-2 border rounded-lg" placeholder="เช่น 0812345678" required>
+                    <input type="tel" id="post-phone" class="w-full p-2 border rounded-lg" placeholder="เช่น 0812345678" required maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
                  <div>
                     <label class="block text-sm font-medium">Line ID</label>
-                    <input type="text" id="post-line-id" class="w-full p-2 border rounded-lg" placeholder="เช่น mylineid" required>
+                    <input type="text" id="post-line-id" class="w-full p-2 border rounded-lg" placeholder="เช่น mylineid" required maxlength="30">
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-4">
@@ -366,11 +368,11 @@
         <form id="edit-profile-form">
             <div class="mb-4">
                 <label class="block text-sm font-medium">เบอร์โทรศัพท์</label>
-                <input type="tel" id="edit-profile-phone" class="w-full p-2 border rounded-lg">
+                <input type="tel" id="edit-profile-phone" class="w-full p-2 border rounded-lg" maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium">Line ID</label>
-                <input type="text" id="edit-profile-line" class="w-full p-2 border rounded-lg">
+                <input type="text" id="edit-profile-line" class="w-full p-2 border rounded-lg" maxlength="30">
             </div>
             <div class="mt-6 flex justify-end gap-4">
                 <button type="button" onclick="closeModal('editProfileModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
@@ -400,6 +402,10 @@
 
     <!-- Modal Backdrop -->
     <div id="modal-backdrop" class="modal-backdrop" onclick="closeAllModals()"></div>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -478,6 +484,31 @@
             }
         }
 
+        function formatTimestamp(timestamp) {
+            if (!timestamp || !timestamp.seconds) {
+                return '';
+            }
+            const now = new Date();
+            const postDate = new Date(timestamp.seconds * 1000);
+            const diffInSeconds = Math.floor((now - postDate) / 1000);
+            const diffInDays = Math.floor(diffInSeconds / 86400);
+
+            if (diffInDays < 7) {
+                if (diffInSeconds < 60) return `${diffInSeconds} วินาทีที่แล้ว`;
+                const diffInMinutes = Math.floor(diffInSeconds / 60);
+                if (diffInMinutes < 60) return `${diffInMinutes} นาทีที่แล้ว`;
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) return `${diffInHours} ชั่วโมงที่แล้ว`;
+                return `${diffInDays} วันที่แล้ว`;
+            } else {
+                return postDate.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                });
+            }
+        }
+
         // --- LOCATION DATA HANDLING ---
         async function fetchThailandData() {
             try {
@@ -547,6 +578,7 @@
             if (user) {
                 // --- Update Desktop Nav ---
                 navLoggedInView.classList.remove('hidden');
+                navLoggedInView.classList.add('flex');
                 navLoggedOutView.classList.add('hidden');
                 const userInitial = user.username.charAt(0).toUpperCase();
                 profileDropdownButton.textContent = userInitial;
@@ -557,6 +589,7 @@
                 document.getElementById('dropdown-profile-link').onclick = (e) => { e.preventDefault(); navigateToProfile(user.uid); toggleProfileDropdown(); };
                 document.getElementById('dropdown-post-link').onclick = (e) => { e.preventDefault(); openModal('postModal'); toggleProfileDropdown(); };
                 document.getElementById('dropdown-logout-link').onclick = (e) => { e.preventDefault(); handleLogout(); };
+                document.getElementById('header-boost-button').onclick = () => navigateToProfile(user.uid);
 
                 const adminLink = document.getElementById('dropdown-admin-link');
                 if (ADMIN_UIDS.includes(user.uid)) {
@@ -570,6 +603,12 @@
                 // --- Update Mobile Nav ---
                 mobileNavLoggedInView.classList.remove('hidden');
                 mobileNavLoggedOutView.classList.add('hidden');
+                
+                let mobileAdminLink = '';
+                if (ADMIN_UIDS.includes(user.uid)) {
+                    mobileAdminLink = `<a href="#" onclick="openAdminPanel(); toggleMobileMenu();" class="block text-left px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100"><i class="fas fa-user-shield mr-2 w-5 text-center"></i>Admin Panel</a>`;
+                }
+
                 mobileNavLoggedInView.innerHTML = `
                     <div class="p-4 border-b">
                         <div class="flex items-center gap-3">
@@ -583,7 +622,8 @@
                     <div class="p-2 space-y-1">
                         <a href="#" onclick="navigateToProfile('${user.uid}'); toggleMobileMenu();" class="block text-left px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100"><i class="fas fa-user-circle mr-2 w-5 text-center"></i>โปรไฟล์</a>
                         <a href="#" onclick="openModal('postModal'); toggleMobileMenu();" class="block text-left px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100"><i class="fas fa-plus mr-2 w-5 text-center"></i>ลงประกาศ</a>
-                        ${ADMIN_UIDS.includes(user.uid) ? `<a href="#" onclick="openAdminPanel(); toggleMobileMenu();" class="block text-left px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100"><i class="fas fa-user-shield mr-2 w-5 text-center"></i>Admin Panel</a>` : ''}
+                        <a href="#" onclick="navigateToProfile('${user.uid}'); toggleMobileMenu();" class="block text-left px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100"><i class="fas fa-rocket mr-2 w-5 text-center"></i>ดันโพสต์</a>
+                        ${mobileAdminLink}
                         <hr class="my-1">
                         <a href="#" onclick="handleLogout(); toggleMobileMenu();" class="block text-left px-4 py-3 text-red-500 rounded-lg hover:bg-red-50"><i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i>ออกจากระบบ</a>
                     </div>
@@ -717,9 +757,11 @@
             const listingData = {
                 title: document.getElementById('post-title').value,
                 type: document.getElementById('post-type').value,
-                listingType: document.getElementById('post-listing-type').value,
-                priceSale: Number(document.getElementById('post-price-sale').value) || 0,
+                listingType: 'เช่า', // Hardcoded to 'rent'
+                priceSale: 0, // Hardcoded to 0
                 priceRent: Number(document.getElementById('post-price-rent').value) || 0,
+                priceInitial: Number(document.getElementById('post-price-initial').value) || 0,
+                availableDate: document.getElementById('post-available-date').value || '',
                 province: document.getElementById('post-province').value,
                 district: document.getElementById('post-district').value,
                 subdistrict: document.getElementById('post-subdistrict').value,
@@ -745,6 +787,7 @@
                 closeModal('postModal');
                 postForm.reset();
                 fetchListings();
+                showAlertModal('บันทึกประกาศสำเร็จ!');
             } catch (error) {
                 console.error("Error saving listing:", error);
                 document.getElementById('post-error').textContent = "เกิดข้อผิดพลาดในการบันทึก: " + error.message;
@@ -780,10 +823,7 @@
                 if (filters.maxPrice && filters.maxPrice > 0) {
                     filteredListings = filteredListings.filter(listing => {
                         const rentPrice = listing.priceRent || 0;
-                        const salePrice = listing.priceSale || 0;
-                        const rentMatch = rentPrice > 0 && rentPrice <= filters.maxPrice;
-                        const saleMatch = salePrice > 0 && salePrice <= filters.maxPrice;
-                        return rentMatch || saleMatch;
+                        return rentPrice > 0 && rentPrice <= filters.maxPrice;
                     });
                 }
 
@@ -824,21 +864,24 @@
             }
             listings.forEach(listing => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer relative';
+                card.className = 'bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer relative flex flex-col';
                 
                 const priceDisplay = getPriceDisplay(listing.priceSale, listing.priceRent, listing.listingType);
                 const imageUrl = listing.imageUrls && listing.imageUrls.length > 0 ? listing.imageUrls[0] : 'https://placehold.co/600x400/e2e8f0/64748b?text=ไม่มีรูปภาพ';
+                const dateDisplay = formatTimestamp(listing.updatedAt);
+                const updatedText = (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) ? ` <span class="text-amber-500">(updated)</span>` : '';
+
 
                 card.innerHTML = `
                     ${listing.isBoosted ? '<div class="boosted-badge"><i class="fas fa-rocket"></i> ประกาศแนะนำ</div>' : ''}
                     <img src="${imageUrl}" alt="${listing.title}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/64748b?text=รูปภาพเสียหาย';">
-                    <div class="p-4">
-                        <h4 class="font-bold text-lg truncate">${listing.title}</h4>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h4 class="font-bold text-lg break-words">${listing.title}</h4>
                         <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1"></i> ${listing.district}, ${listing.province}</p>
                         <p class="text-blue-600 font-bold text-xl mb-3">${priceDisplay}</p>
-                        <div class="flex justify-between items-center text-xs text-gray-500">
+                        <div class="mt-auto flex justify-between items-center text-xs text-gray-500 pt-2 border-t">
                             <span>${listing.type}</span>
-                            <span>${listing.listingType}</span>
+                            <span class="font-semibold">${dateDisplay}${updatedText}</span>
                         </div>
                     </div>
                 `;
@@ -848,16 +891,10 @@
         }
         
         function getPriceDisplay(sale, rent, type) {
-            const formatSale = sale > 0 ? `฿${sale.toLocaleString()}` : '';
-            const formatRent = rent > 0 ? `฿${rent.toLocaleString()}/เดือน` : '';
-
-            if (type === 'ขาย') return formatSale || 'ติดต่อผู้ขาย';
-            if (type === 'เช่า') return formatRent || 'ติดต่อผู้ขาย';
-            if (type === 'ขายและเช่า') {
-                if (formatSale && formatRent) return `${formatRent.replace('/เดือน','/ด.')} | ${formatSale}`;
-                return formatSale || formatRent || 'ติดต่อผู้ขาย';
+            if (rent > 0) {
+                return `฿${rent.toLocaleString()}/เดือน`;
             }
-            return 'ติดต่อผู้ขาย';
+            return 'ติดต่อผู้ให้เช่า';
         }
 
         async function renderListingPage(listingId) {
@@ -874,6 +911,22 @@
 
                 const priceDisplay = getPriceDisplay(listing.priceSale, listing.priceRent, listing.listingType);
                 const imageUrls = listing.imageUrls && listing.imageUrls.length > 0 ? listing.imageUrls : ['https://placehold.co/800x600/e2e8f0/64748b?text=ไม่มีรูปภาพ'];
+                const dateDisplay = formatTimestamp(listing.updatedAt);
+                const updatedText = (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) ? ' (updated)' : '';
+                const initialPriceDisplay = listing.priceInitial > 0 ? `
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="text-md text-gray-800">
+                            <i class="fas fa-file-invoice-dollar mr-2 text-green-500"></i>
+                            <strong>ราคาเข้าอยู่ครั้งแรก:</strong> ${listing.priceInitial.toLocaleString()} บาท
+                        </p>
+                    </div>` : '';
+                const availableDateDisplay = listing.availableDate ? `
+                    <div class="mt-2 p-3 bg-gray-50 rounded-lg">
+                        <p class="text-md text-gray-800">
+                            <i class="fas fa-calendar-check mr-2 text-blue-500"></i>
+                            <strong>วันที่เข้าอยู่ได้:</strong> ${new Date(listing.availableDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', calendar: 'buddhist' })}
+                        </p>
+                    </div>` : '';
                 
                 listingDetailView.innerHTML = `
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -884,12 +937,17 @@
                             </div>
                         </div>
                         <div>
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${listing.type}</span>
-                            <h3 class="text-3xl font-bold mt-2 mb-2">${listing.title}</h3>
+                            <div class="flex justify-between items-center">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">${listing.type}</span>
+                                <span class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${dateDisplay}${updatedText}</span>
+                            </div>
+                            <h3 class="text-3xl font-bold mt-2 mb-2 break-words">${listing.title}</h3>
                             <p class="text-lg text-gray-600 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>${listing.subdistrict}, ${listing.district}, ${listing.province}</p>
-                            <p class="text-3xl font-bold text-blue-600 mb-6">${priceDisplay}</p>
-                            <h5 class="font-bold text-lg mb-2">รายละเอียด</h5>
-                            <p class="text-gray-700 whitespace-pre-wrap mb-6">${listing.description}</p>
+                            <p class="text-3xl font-bold text-blue-600 mb-4">${priceDisplay}</p>
+                            ${initialPriceDisplay}
+                            ${availableDateDisplay}
+                            <h5 class="font-bold text-lg mt-6 mb-2">รายละเอียด</h5>
+                            <p class="text-gray-700 whitespace-pre-wrap break-words mb-6">${listing.description}</p>
                             <div class="bg-gray-100 p-4 rounded-lg">
                                  <h5 class="font-bold text-lg mb-2">ข้อมูลติดต่อ</h5>
                                  <p class="text-gray-800"><i class="fas fa-user mr-2"></i><a href="#" onclick="event.preventDefault(); navigateToProfile('${listing.ownerUid}')" class="text-blue-600 hover:underline">${listing.ownerUsername || listing.ownerEmail}</a></p>
@@ -923,9 +981,9 @@
                 document.getElementById('post-id').value = listing.id;
                 document.getElementById('post-title').value = listing.title;
                 document.getElementById('post-type').value = listing.type;
-                document.getElementById('post-listing-type').value = listing.listingType;
-                document.getElementById('post-price-sale').value = listing.priceSale;
                 document.getElementById('post-price-rent').value = listing.priceRent;
+                document.getElementById('post-price-initial').value = listing.priceInitial || '';
+                document.getElementById('post-available-date').value = listing.availableDate || '';
                 document.getElementById('post-description').value = listing.description;
                 document.getElementById('post-image-url').value = listing.imageUrls.join(', ');
                 document.getElementById('post-phone').value = listing.phone;
@@ -1012,15 +1070,16 @@
 
                 allListings.forEach(listing => {
                     const tr = document.createElement('tr');
-                    const updatedAt = listing.updatedAt ? new Date(listing.updatedAt.seconds * 1000).toLocaleString('th-TH') : 'N/A';
+                    const updatedAt = formatTimestamp(listing.updatedAt);
                     const priceDisplay = getPriceDisplay(listing.priceSale, listing.priceRent, listing.listingType);
+                    const updatedText = (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) ? ' (updated)' : '';
 
                     tr.innerHTML = `
                         <td class="font-medium">${listing.title}</td>
                         <td>${listing.ownerUsername || listing.ownerEmail}</td>
                         <td>${listing.type}</td>
                         <td>${priceDisplay}</td>
-                        <td>${updatedAt}</td>
+                        <td>${updatedAt}${updatedText}</td>
                         <td class="flex gap-2 items-center">
                             <button onclick="editListing('${listing.id}')" title="แก้ไข" class="text-amber-500 hover:text-amber-700"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteListing('${listing.id}')" title="ลบ" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
@@ -1051,25 +1110,32 @@
                 const userData = userDocSnap.data();
                 const joinedDate = userData.createdAt ? new Date(userData.createdAt.seconds * 1000).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : 'ไม่ระบุ';
 
-                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId), orderBy("updatedAt", "desc"));
+                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId));
                 const listingsSnapshot = await getDocs(listingsQuery);
                 let userListings = [];
                 listingsSnapshot.forEach(doc => {
                     userListings.push({ id: doc.id, ...doc.data() });
                 });
                 
+                userListings.sort((a, b) => (b.updatedAt?.toMillis() || 0) - (a.updatedAt?.toMillis() || 0));
+
                 let listingsHtml = '<div class="text-center text-gray-500 mt-6 p-8 border rounded-lg bg-white shadow-md">ผู้ใช้ยังไม่มีประกาศ</div>';
                 if (userListings.length > 0) {
                     listingsHtml = userListings.map(listing => {
                         const price = getPriceDisplay(listing.priceSale, listing.priceRent, listing.listingType);
                         const imageUrl = listing.imageUrls && listing.imageUrls.length > 0 ? listing.imageUrls[0] : 'https://placehold.co/600x400/e2e8f0/64748b?text=ไม่มีรูปภาพ';
+                        const dateDisplay = formatTimestamp(listing.updatedAt);
+                        const updatedText = (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) ? ` <span class="text-amber-500">(updated)</span>` : '';
                         return `
                             <div class="flex items-center gap-4 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer border" onclick="navigateToListing('${listing.id}')">
                                 <img src="${imageUrl}" class="w-28 h-24 object-cover rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป';">
                                 <div class="flex-1">
                                     <h5 class="font-bold text-lg">${listing.title}</h5>
                                     <p class="text-sm text-gray-500">${listing.district}, ${listing.province}</p>
-                                    <p class="text-md font-semibold text-blue-600 mt-1">${price}</p>
+                                    <div class="flex justify-between items-center mt-1">
+                                        <p class="text-md font-semibold text-blue-600">${price}</p>
+                                        <p class="text-xs text-gray-500">${dateDisplay}${updatedText}</p>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -1147,10 +1213,17 @@
         // --- MODAL CONTROLS ---
         const backdrop = document.getElementById('modal-backdrop');
         window.openModal = (modalId) => {
-            if (modalId === 'postModal' && !document.getElementById('post-id').value) {
-                document.getElementById('post-form').reset();
-                document.getElementById('post-modal-title').textContent = 'ลงประกาศอสังหาริมทรัพย์';
-                populateDistrictDropdowns('');
+            if (modalId === 'postModal') {
+                flatpickr("#post-available-date", {
+                    locale: "th",
+                    minDate: "today",
+                    dateFormat: "Y-m-d",
+                });
+                if (!document.getElementById('post-id').value) {
+                    document.getElementById('post-form').reset();
+                    document.getElementById('post-modal-title').textContent = 'ลงประกาศอสังหาริมทรัพย์';
+                    populateDistrictDropdowns('');
+                }
             }
             document.getElementById(modalId).style.display = 'block';
             backdrop.style.display = 'block';
