@@ -111,15 +111,13 @@
             align-items: center;
             justify-content: center;
         }
-
+        
         /* Admin page specific styles */
         #admin-view .admin-sidebar-link {
             transition: background-color 0.2s, color 0.2s;
         }
-
         #admin-view .admin-sidebar-link.active {
-            background-color: #3b82f6;
-            /* bg-blue-600 */
+            background-color: #3b82f6; /* bg-blue-600 */
             color: white;
             font-weight: 700;
         }
@@ -320,7 +318,7 @@
 
             <!-- User Profile View -->
             <div id="profile-view" class="hidden"></div>
-
+            
             <!-- Admin View -->
             <div id="admin-view" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">แผงควบคุมสำหรับผู้ดูแลระบบ</h2>
@@ -329,15 +327,9 @@
                     <aside class="md:col-span-1 bg-white p-4 rounded-lg shadow-md h-fit">
                         <nav>
                             <ul class="space-y-2">
-                                <li><a href="#" id="admin-dashboard-link"
-                                        class="admin-sidebar-link block px-4 py-2 rounded-md"><i
-                                            class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
-                                <li><a href="#" id="admin-listings-link"
-                                        class="admin-sidebar-link block px-4 py-2 rounded-md"><i
-                                            class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
-                                <li><a href="#" id="admin-users-link"
-                                        class="admin-sidebar-link block px-4 py-2 rounded-md"><i
-                                            class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
+                                <li><a href="#" id="admin-dashboard-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
+                                <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
+                                <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
                             </ul>
                         </nav>
                     </aside>
@@ -347,7 +339,7 @@
                     </main>
                 </div>
             </div>
-
+            
         </main>
     </div>
 
@@ -363,8 +355,8 @@
             </div>
             <div class="mb-6">
                 <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                <input type="password" id="login-password" name="login-password" class="w-full p-3 border rounded-lg"
-                    required maxlength="100">
+                <input type="password" id="login-password" name="login-password" class="w-full p-3 border rounded-lg" required
+                    maxlength="100">
             </div>
             <button type="submit"
                 class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</button>
@@ -380,24 +372,22 @@
         <form id="register-form">
             <div class="mb-4">
                 <label for="register-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                <input type="text" id="register-username" name="register-username" class="w-full p-3 border rounded-lg"
-                    required maxlength="30">
+                <input type="text" id="register-username" name="register-username" class="w-full p-3 border rounded-lg" required maxlength="30">
             </div>
             <div class="mb-4">
                 <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                <input type="email" id="register-email" name="register-email" class="w-full p-3 border rounded-lg"
-                    required maxlength="60">
+                <input type="email" id="register-email" name="register-email" class="w-full p-3 border rounded-lg" required maxlength="60">
             </div>
             <div class="mb-4">
                 <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                <input type="password" id="register-password" name="register-password"
-                    class="w-full p-3 border rounded-lg" required maxlength="100">
+                <input type="password" id="register-password" name="register-password" class="w-full p-3 border rounded-lg" required
+                    maxlength="100">
             </div>
             <div class="mb-6">
                 <label for="register-confirm-password"
                     class="block text-sm font-medium text-gray-700 mb-1">ยืนยันรหัสผ่าน</label>
-                <input type="password" id="register-confirm-password" name="register-confirm-password"
-                    class="w-full p-3 border rounded-lg" required maxlength="100">
+                <input type="password" id="register-confirm-password" name="register-confirm-password" class="w-full p-3 border rounded-lg" required
+                    maxlength="100">
             </div>
             <button type="submit"
                 class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">สมัครสมาชิก</button>
@@ -428,20 +418,20 @@
                 </div>
                 <div>
                     <label for="post-price-rent" class="block text-sm font-medium">ราคาเช่า (บาท/เดือน)</label>
-                    <input type="number" id="post-price-rent" name="post-price-rent"
-                        class="w-full p-2 border rounded-lg" placeholder="ระบุราคาเช่า" required maxlength="7"
+                    <input type="number" id="post-price-rent" name="post-price-rent" class="w-full p-2 border rounded-lg"
+                        placeholder="ระบุราคาเช่า" required maxlength="7"
                         oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
                 </div>
                 <div>
                     <label for="post-price-initial" class="block text-sm font-medium">ราคาเข้าอยู่ครั้งแรก (บาท)</label>
-                    <input type="number" id="post-price-initial" name="post-price-initial"
-                        class="w-full p-2 border rounded-lg" placeholder="เช่น มัดจำ + ล่วงหน้า" maxlength="8"
+                    <input type="number" id="post-price-initial" name="post-price-initial" class="w-full p-2 border rounded-lg"
+                        placeholder="เช่น มัดจำ + ล่วงหน้า" maxlength="8"
                         oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
                 </div>
                 <div>
                     <label for="post-available-date" class="block text-sm font-medium">วันที่เข้าอยู่ได้</label>
-                    <input type="text" id="post-available-date" name="post-available-date"
-                        class="w-full p-2 border rounded-lg" placeholder="เลือกวันที่...">
+                    <input type="text" id="post-available-date" name="post-available-date" class="w-full p-2 border rounded-lg"
+                        placeholder="เลือกวันที่...">
                 </div>
                 <div>
                     <label for="post-province" class="block text-sm font-medium">จังหวัด</label>
@@ -463,20 +453,19 @@
                 </div>
                 <div class="md:col-span-2">
                     <label for="post-description" class="block text-sm font-medium">รายละเอียดเพิ่มเติม</label>
-                    <textarea id="post-description" name="post-description" rows="4"
-                        class="w-full p-2 border rounded-lg" required maxlength="1000"></textarea>
+                    <textarea id="post-description" name="post-description" rows="4" class="w-full p-2 border rounded-lg" required
+                        maxlength="1000"></textarea>
                 </div>
                 <div class="md:col-span-2">
                     <label for="post-image-upload" class="block text-sm font-medium">รูปภาพ</label>
-                    <input type="file" id="post-image-upload" name="post-image-upload"
-                        class="w-full p-2 border rounded-lg" multiple accept="image/*">
+                    <input type="file" id="post-image-upload" name="post-image-upload" class="w-full p-2 border rounded-lg" multiple
+                        accept="image/*">
                     <div id="image-preview-container" class="mt-2 flex flex-wrap gap-2"></div>
                 </div>
                 <div>
                     <label for="post-phone" class="block text-sm font-medium">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="post-phone" name="post-phone" class="w-full p-2 border rounded-lg"
-                        placeholder="เช่น 0812345678" required maxlength="15"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input type="tel" id="post-phone" name="post-phone" class="w-full p-2 border rounded-lg" placeholder="เช่น 0812345678"
+                        required maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
                 <div>
                     <label for="post-line-id" class="block text-sm font-medium">Line ID</label>
@@ -502,13 +491,12 @@
         <form id="edit-profile-form">
             <div class="mb-4">
                 <label for="edit-profile-phone" class="block text-sm font-medium">เบอร์โทรศัพท์</label>
-                <input type="tel" id="edit-profile-phone" name="edit-profile-phone" class="w-full p-2 border rounded-lg"
-                    maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <input type="tel" id="edit-profile-phone" name="edit-profile-phone" class="w-full p-2 border rounded-lg" maxlength="15"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
             <div class="mb-4">
                 <label for="edit-profile-line" class="block text-sm font-medium">Line ID</label>
-                <input type="text" id="edit-profile-line" name="edit-profile-line" class="w-full p-2 border rounded-lg"
-                    maxlength="30">
+                <input type="text" id="edit-profile-line" name="edit-profile-line" class="w-full p-2 border rounded-lg" maxlength="30">
             </div>
             <div class="mt-6 flex justify-end gap-4">
                 <button type="button" onclick="closeModal('editProfileModal')"
@@ -563,8 +551,10 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Firebase Configuration ---
+        
+        // --- [REVERTED] Firebase Configuration is now back in the client-side code ---
+        // This is necessary for the app to work on Netlify and in the preview environment.
+        // For maximum security, this project should be deployed on Firebase Hosting.
         const firebaseConfig = {
             apiKey: "AIzaSyC1e0VTI5lcUz1y-PiBkjvIfXqRULM766Q",
             authDomain: "cnx-home-7e61b.firebaseapp.com",
@@ -763,7 +753,6 @@
                 document.getElementById('header-boost-button').onclick = () => navigateToProfile(user.uid);
 
                 const adminLink = document.getElementById('dropdown-admin-link');
-                // --- [MODIFIED] Check for admin role from Firestore user object ---
                 if (user.role === 'admin') {
                     adminLink.classList.remove('hidden');
                     adminLink.classList.add('flex');
@@ -800,7 +789,6 @@
                 linksContainer.appendChild(createMobileLink('ลงประกาศ', 'fas fa-plus', () => openModal('postModal')));
                 linksContainer.appendChild(createMobileLink('ดันโพสต์', 'fas fa-rocket', () => navigateToProfile(user.uid)));
 
-                // --- [MODIFIED] Check for admin role for mobile menu ---
                 if (user.role === 'admin') {
                     linksContainer.appendChild(createMobileLink('Admin Panel', 'fas fa-user-shield', navigateToAdmin));
                 }
@@ -827,11 +815,8 @@
                     const userDocRef = doc(db, "users", user.uid);
                     const userDocSnap = await getDoc(userDocRef);
                     if (userDocSnap.exists()) {
-                        // User document found, spread its data (including the 'role')
                         currentUser = { uid: user.uid, ...userDocSnap.data() };
                     } else {
-                        // Fallback if user doc doesn't exist (e.g., failed registration step)
-                        // No role will be assigned here.
                         currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
                     }
                 } catch (error) {
@@ -862,8 +847,6 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Create user document in Firestore. Note: 'role' is not set by default.
-                // An admin must manually add the 'role': 'admin' field in the Firestore console.
                 await setDoc(doc(db, "users", user.uid), {
                     username: username,
                     username_lowercase: usernameLower,
@@ -871,7 +854,6 @@
                     createdAt: serverTimestamp(),
                     phone: '',
                     lineId: ''
-                    // 'role' is intentionally omitted.
                 });
 
                 closeModal('registerModal');
@@ -908,17 +890,17 @@
             }
         };
 
-        // --- [MODIFIED] IMAGE UPLOAD ---
+        // --- IMAGE UPLOAD ---
         async function uploadImages(files) {
             const uploadPromises = Array.from(files).map(file => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
-                    reader.readAsDataURL(file); // แปลงไฟล์เป็น base64 string
+                    reader.readAsDataURL(file); // Convert file to base64 string
                     reader.onload = async () => {
                         try {
                             const base64File = reader.result;
-
-                            // ส่งคำขอไปยัง Function ของเราบน Netlify
+                            
+                            // Send request to our Netlify Function
                             const response = await fetch('/.netlify/functions/upload', {
                                 method: 'POST',
                                 body: JSON.stringify({ file: base64File }),
@@ -926,11 +908,11 @@
 
                             if (!response.ok) {
                                 const errorData = await response.json();
-                                throw new Error(errorData.error || 'การอัปโหลดล้มเหลว');
+                                throw new Error(errorData.error || 'Upload failed');
                             }
 
                             const result = await response.json();
-                            resolve(result.secure_url); // รับ URL กลับมา
+                            resolve(result.secure_url); // Get URL back
                         } catch (error) {
                             console.error('Error calling upload function:', error);
                             reject(error);
@@ -1204,7 +1186,6 @@
                 contactBox.appendChild(lineP);
                 detailsCol.appendChild(contactBox);
 
-                // --- [MODIFIED] Check for admin role for action buttons ---
                 if (currentUser && (currentUser.uid === listing.ownerUid || currentUser.role === 'admin')) {
                     const actionsDiv = createElement('div', ['mt-6', 'flex', 'gap-4']);
                     const editBtn = createElement('button', ['flex-1', 'py-3', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไข');
@@ -1556,7 +1537,6 @@
                 profileView.classList.remove('hidden');
                 renderProfilePage(userId);
             } else if (hash === '#admin') {
-                // --- [MODIFIED] Check for admin role for routing ---
                 if (currentUser && currentUser.role === 'admin') {
                     adminView.classList.remove('hidden');
                     renderAdminView();
