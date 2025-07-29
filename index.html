@@ -1265,10 +1265,12 @@
                     thumbnailGrid.appendChild(thumb);
                 });
                 imageCol.append(mainImage, thumbnailGrid);
-                const detailsHeader = createElement('div', ['flex', 'justify-between', 'items-center']);
-                detailsHeader.appendChild(createElement('span', ['bg-blue-100', 'text-blue-800', 'text-xs', 'font-medium', 'px-2.5', 'py-0.5', 'rounded'], listing.type));
                 
-                const dateSpan = createElement('span', ['text-sm', 'text-gray-500'], `ลงประกาศเมื่อ ${formatTimestamp(listing.createdAt)}`);
+                // [FIXED] Responsive header for details
+                const detailsHeader = createElement('div', ['flex', 'flex-col', 'sm:flex-row', 'sm:justify-between', 'sm:items-center', 'gap-2', 'mb-2']);
+                detailsHeader.appendChild(createElement('span', ['bg-blue-100', 'text-blue-800', 'text-xs', 'font-medium', 'px-2.5', 'py-0.5', 'rounded', 'self-start'], listing.type));
+                
+                const dateSpan = createElement('span', ['text-sm', 'text-gray-500', 'self-start', 'sm:self-center'], `ลงประกาศเมื่อ ${formatTimestamp(listing.createdAt)}`);
                 dateSpan.prepend(createElement('i', ['fas', 'fa-calendar-alt', 'mr-1']));
                 if (listing.updatedAt && listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) { 
                     dateSpan.append(` (แก้ไขล่าสุด ${formatTimestamp(listing.updatedAt)})`); 
