@@ -324,7 +324,7 @@
             </div>
 
             <!-- Listing Detail View -->
-            <div id="listing-detail-view" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-md"></div>
+            <div id="listing-detail-view" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-md relative"></div>
 
             <!-- User Profile View -->
             <div id="profile-view" class="hidden"></div>
@@ -562,7 +562,7 @@
         <button onclick="closeModal('boostModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-    <!-- [NEW] Admin Approve Boost Modal -->
+    <!-- Admin Approve Boost Modal -->
     <div id="adminApproveBoostModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 class="text-2xl font-bold mb-4 text-center">อนุมัติการดันประกาศ</h3>
         <p class="text-center mb-1">รหัสประกาศ:</p>
@@ -744,7 +744,6 @@
             }
         }
         
-        // [NEW] Helper function to format remaining time
         function formatTimeRemaining(expiryDate) {
             if (!expiryDate) return '';
             const now = new Date();
@@ -1084,6 +1083,8 @@
                 if (selectedFiles.length > 0) { newImageUrls = await uploadImages(selectedFiles); }
                 const finalImageUrls = [...existingImageUrls, ...newImageUrls];
                 if (finalImageUrls.length === 0) { throw new Error("กรุณาอัปโหลดรูปภาพอย่างน้อย 1 รูป"); }
+                
+                // [MODIFIED] Separate data for creation vs. update
                 const listingData = {
                     title: document.getElementById('post-title').value,
                     type: document.getElementById('post-type').value,
@@ -1102,6 +1103,7 @@
                     ownerUsername: currentUser.username,
                     updatedAt: serverTimestamp(),
                 };
+
                 if (postId) {
                     const docRef = doc(db, "listings", postId);
                     await updateDoc(docRef, listingData);
@@ -1209,11 +1211,14 @@
                 contentDiv.appendChild(createElement('p', ['text-blue-600', 'font-bold', 'text-xl', 'mb-3'], getPriceDisplay(listing.priceRent)));
                 const footerDiv = createElement('div', ['mt-auto', 'flex', 'justify-between', 'items-center', 'text-xs', 'text-gray-500', 'pt-2', 'border-t']);
                 footerDiv.appendChild(createElement('span', [], listing.type));
-                const dateSpan = createElement('span', ['font-semibold'], formatTimestamp(listing.updatedAt));
-                if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
-                    dateSpan.appendChild(createElement('span', ['text-amber-500'], ' (updated)'));
+                
+                // [MODIFIED] Display createdAt time instead of updatedAt
+                const dateSpan = createElement('span', ['font-semibold'], formatTimestamp(listing.createdAt));
+                if (listing.updatedAt && listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
+                    dateSpan.appendChild(createElement('span', ['text-amber-500', 'ml-1'], '(แก้ไขล่าสุด)'));
                 }
                 footerDiv.appendChild(dateSpan);
+                
                 contentDiv.appendChild(footerDiv);
                 card.append(image, contentDiv);
                 card.addEventListener('click', () => navigateToListing(listing.id));
@@ -1233,7 +1238,13 @@
                 if (!docSnap.exists()) { listingDetailView.innerHTML = `<p class="text-center text-red-500">ไม่พบประกาศนี้</p>`; return; }
                 const listing = { id: docSnap.id, ...docSnap.data() };
                 listingDetailView.innerHTML = '';
-                const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-2', 'gap-8']);
+
+                // [NEW] Close button
+                const closeBtn = createElement('button', ['absolute', 'top-4', 'right-4', 'text-2xl', 'text-gray-500', 'hover:text-gray-800'], '×', { title: 'ปิด' });
+                closeBtn.onclick = () => window.history.back();
+                listingDetailView.appendChild(closeBtn);
+
+                const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-2', 'gap-8', 'mt-4']);
                 const imageCol = createElement('div');
                 const detailsCol = createElement('div');
                 const imageUrls = listing.imageUrls?.length > 0 ? listing.imageUrls : ['https://placehold.co/800x600/e2e8f0/64748b?text=ไม่มีรูปภาพ'];
@@ -1250,10 +1261,15 @@
                 imageCol.append(mainImage, thumbnailGrid);
                 const detailsHeader = createElement('div', ['flex', 'justify-between', 'items-center']);
                 detailsHeader.appendChild(createElement('span', ['bg-blue-100', 'text-blue-800', 'text-xs', 'font-medium', 'px-2.5', 'py-0.5', 'rounded'], listing.type));
-                const dateSpan = createElement('span', ['text-sm', 'text-gray-500'], formatTimestamp(listing.updatedAt));
-                dateSpan.prepend(createElement('i', ['fas', 'fa-clock', 'mr-1']));
-                if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) { dateSpan.append(' (updated)'); }
+                
+                // [MODIFIED] Display createdAt time instead of updatedAt
+                const dateSpan = createElement('span', ['text-sm', 'text-gray-500'], `ลงประกาศเมื่อ ${formatTimestamp(listing.createdAt)}`);
+                dateSpan.prepend(createElement('i', ['fas', 'fa-calendar-alt', 'mr-1']));
+                if (listing.updatedAt && listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) { 
+                    dateSpan.append(` (แก้ไขล่าสุด ${formatTimestamp(listing.updatedAt)})`); 
+                }
                 detailsHeader.appendChild(dateSpan);
+
                 detailsCol.appendChild(detailsHeader);
                 detailsCol.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-2', 'mb-2', 'break-words'], listing.title));
                 const locationP = createElement('p', ['text-lg', 'text-gray-600', 'mb-4'], `${listing.subdistrict}, ${listing.district}, ${listing.province}`);
@@ -1567,7 +1583,6 @@
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 deleteBtn.onclick = () => deleteListing(listing.id);
 
-                // [NEW] Admin can remove boost from here too
                 const now = new Date();
                 const isBoostedAndActive = listing.isBoosted && (!listing.boostExpiryDate || listing.boostExpiryDate.toDate() > now);
                 if(isBoostedAndActive) {
@@ -1688,7 +1703,6 @@
             container.appendChild(table);
         }
         
-        // [NEW] Admin opens modal to select duration
         function openAdminApproveModal(listingId, listingTitle, requestedTierId) {
             document.getElementById('admin-boost-listing-id').textContent = listingId;
             const form = document.getElementById('admin-approve-boost-form');
@@ -1743,7 +1757,6 @@
             }, 'bg-green-500 hover:bg-green-600');
         }
         
-        // [NEW] Admin can remove a boost
         async function removeBoost(listingId) {
              openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการเอาโพสต์ "${listingId}" ลงจากการดัน?`, async () => {
                 try {
@@ -1809,19 +1822,21 @@
                     userListings.forEach(listing => {
                         const listingCard = createElement('div', ['p-4', 'bg-white', 'rounded-xl', 'shadow-md', 'hover:shadow-lg', 'transition-shadow', 'border']);
                         const cardContent = createElement('div', ['flex', 'items-center', 'gap-4']);
-                        cardContent.onclick = () => navigateToListing(listing.id);
                         
                         const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป';
                         const image = createElement('img', ['w-28', 'h-24', 'object-cover', 'rounded-lg', 'cursor-pointer'], '', { src: imageUrl });
                         image.onerror = () => { image.src = 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป'; };
+                        image.onclick = () => navigateToListing(listing.id);
+
                         const textDiv = createElement('div', ['flex-1', 'cursor-pointer']);
+                        textDiv.onclick = () => navigateToListing(listing.id);
                         textDiv.appendChild(createElement('h5', ['font-bold', 'text-lg'], listing.title));
                         textDiv.appendChild(createElement('p', ['text-sm', 'text-gray-500'], `${listing.district}, ${listing.province}`));
                         const footerDiv = createElement('div', ['flex', 'justify-between', 'items-center', 'mt-1']);
                         footerDiv.appendChild(createElement('p', ['text-md', 'font-semibold', 'text-blue-600'], getPriceDisplay(listing.priceRent)));
-                        const dateP = createElement('p', ['text-xs', 'text-gray-500'], formatTimestamp(listing.updatedAt));
-                        if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
-                            dateP.innerHTML += ` <span class="text-amber-500">(updated)</span>`;
+                        const dateP = createElement('p', ['text-xs', 'text-gray-500'], formatTimestamp(listing.createdAt));
+                        if (listing.updatedAt && listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
+                            dateP.innerHTML += ` <span class="text-amber-500">(แก้ไขล่าสุด)</span>`;
                         }
                         footerDiv.appendChild(dateP);
                         textDiv.appendChild(footerDiv);
