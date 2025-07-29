@@ -110,7 +110,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 60; /* [FIXED] Increase z-index to appear above other modals */
+            z-index: 60; /* Increased z-index */
         }
         
         /* Admin page specific styles */
@@ -1161,7 +1161,7 @@
                 filteredListings.sort((a, b) => {
                     if (a.isBoosted && !b.isBoosted) return -1;
                     if (!a.isBoosted && b.isBoosted) return 1;
-                    return (b.updatedAt?.toMillis() || 0) - (a.updatedAt?.toMillis() || 0);
+                    return (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0);
                 });
                 renderListings(filteredListings, Object.values(filters).some(v => v));
             } catch (error) {
@@ -1214,7 +1214,6 @@
                 const footerDiv = createElement('div', ['mt-auto', 'flex', 'justify-between', 'items-center', 'text-xs', 'text-gray-500', 'pt-2', 'border-t']);
                 footerDiv.appendChild(createElement('span', [], listing.type));
                 
-                // [MODIFIED] Display createdAt time instead of updatedAt
                 const dateSpan = createElement('span', ['font-semibold'], formatTimestamp(listing.createdAt));
                 if (listing.updatedAt && listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
                     dateSpan.appendChild(createElement('span', ['text-amber-500', 'ml-1'], '(แก้ไขล่าสุด)'));
@@ -1245,7 +1244,6 @@
                 const listing = { id: docSnap.id, ...docSnap.data() };
                 listingDetailModal.innerHTML = ''; // Clear spinner
 
-                // [MODIFIED] Close button now calls closeModal
                 const closeBtn = createElement('button', ['absolute', 'top-4', 'right-4', 'text-2xl', 'text-gray-500', 'hover:text-gray-800', 'z-10'], '×', { title: 'ปิด' });
                 closeBtn.onclick = () => closeModal('listingDetailModal');
                 listingDetailModal.appendChild(closeBtn);
@@ -1266,7 +1264,6 @@
                 });
                 imageCol.append(mainImage, thumbnailGrid);
                 
-                // [FIXED] Responsive header for details
                 const detailsHeader = createElement('div', ['flex', 'flex-col', 'sm:flex-row', 'sm:justify-between', 'sm:items-center', 'gap-2', 'mb-2']);
                 detailsHeader.appendChild(createElement('span', ['bg-blue-100', 'text-blue-800', 'text-xs', 'font-medium', 'px-2.5', 'py-0.5', 'rounded', 'self-start'], listing.type));
                 
@@ -1798,7 +1795,7 @@
                 const listingsSnapshot = await getDocs(listingsQuery);
                 let userListings = [];
                 listingsSnapshot.forEach(doc => { userListings.push({ id: doc.id, ...doc.data() }); });
-                userListings.sort((a, b) => (b.updatedAt?.toMillis() || 0) - (a.updatedAt?.toMillis() || 0));
+                userListings.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 profileView.innerHTML = '';
                 const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8']);
                 const profileCol = createElement('div', ['lg:col-span-1', 'bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'text-center', 'h-fit']);
