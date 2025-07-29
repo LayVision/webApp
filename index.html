@@ -169,16 +169,16 @@
                     </button>
                     <div class="relative">
                         <button id="profile-dropdown-button" onclick="toggleProfileDropdown()"
-                            class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                            <!-- User Initial will be inserted here -->
+                            class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden">
+                            <!-- User Initial or Picture will be inserted here -->
                         </button>
                         <!-- Dropdown Menu -->
                         <div id="profile-dropdown-menu"
                             class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-30 border">
                             <div class="p-4 border-b">
                                 <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                                    <div id="dropdown-profile-pic-container"
+                                        class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer">
                                         <span id="dropdown-user-initial"></span>
                                     </div>
                                     <div>
@@ -583,6 +583,23 @@
         <!-- Content will be injected by JS -->
     </div>
 
+    <!-- [NEW] Profile Picture Options Modal -->
+    <div id="profilePictureModal" class="modal w-11/12 sm:w-1/3 md:w-1/4 bg-white rounded-xl shadow-2xl p-4">
+        <div class="flex flex-col items-center">
+            <div id="profile-pic-modal-preview-container" class="w-48 h-48 rounded-full object-cover mb-4 border-4 border-gray-200 bg-gray-300 flex items-center justify-center">
+                <!-- Image or Initial will be injected here -->
+            </div>
+            <div class="w-full space-y-2">
+                <button id="view-profile-pic-btn" class="w-full text-left px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center"><i class="fas fa-eye w-5 mr-2"></i>ดูรูปภาพ</button>
+                <button id="change-profile-pic-btn" class="w-full text-left px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center"><i class="fas fa-camera w-5 mr-2"></i>เปลี่ยนรูปภาพ</button>
+                <button id="remove-profile-pic-btn" class="w-full text-left px-4 py-3 text-red-500 bg-red-50 rounded-lg hover:bg-red-100 flex items-center"><i class="fas fa-trash-alt w-5 mr-2"></i>ลบรูปภาพ</button>
+            </div>
+        </div>
+        <button onclick="closeModal('profilePictureModal')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    <!-- Hidden file input for profile picture upload -->
+    <input type="file" id="profile-picture-upload" class="hidden" accept="image/*">
+
 
     <!-- Custom Alert Modal -->
     <div id="alertModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
@@ -673,6 +690,8 @@
         const mobileNavLoggedOutView = document.getElementById('mobile-nav-logged-out-view');
         const mobileNavLoggedInView = document.getElementById('mobile-nav-logged-in-view');
         const listingDetailModal = document.getElementById('listingDetailModal');
+        const profilePictureUploadInput = document.getElementById('profile-picture-upload');
+
 
         // --- MODAL & FORM ELEMENTS ---
         const loginForm = document.getElementById('login-form');
@@ -832,15 +851,33 @@
         // --- UI UPDATE FUNCTIONS ---
         function updateNavUI(user) {
             if (user) {
-                // --- Update Desktop Nav ---
                 navLoggedInView.classList.remove('hidden');
                 navLoggedInView.classList.add('flex');
                 navLoggedOutView.classList.add('hidden');
+                
                 const userInitial = user.username.charAt(0).toUpperCase();
-                profileDropdownButton.textContent = userInitial;
-                dropdownUserInitial.textContent = userInitial;
                 dropdownUsername.textContent = user.username;
                 dropdownEmail.textContent = user.email;
+
+                // Update header dropdown button
+                profileDropdownButton.innerHTML = '';
+                if (user.photoURL) {
+                    const img = createElement('img', ['w-full', 'h-full', 'object-cover'], '', { src: user.photoURL, alt: 'Profile' });
+                    profileDropdownButton.appendChild(img);
+                } else {
+                    profileDropdownButton.textContent = userInitial;
+                }
+
+                // Update dropdown menu picture/initial
+                const dropdownPicContainer = document.getElementById('dropdown-profile-pic-container');
+                dropdownPicContainer.innerHTML = '';
+                if (user.photoURL) {
+                    const img = createElement('img', ['w-full', 'h-full', 'object-cover'], '', { src: user.photoURL, alt: 'Profile' });
+                    dropdownPicContainer.appendChild(img);
+                } else {
+                    dropdownPicContainer.appendChild(createElement('span', [], userInitial));
+                }
+                dropdownPicContainer.onclick = () => openProfilePictureModal();
 
                 document.getElementById('dropdown-profile-link').onclick = (e) => { e.preventDefault(); navigateToProfile(user.uid); toggleProfileDropdown(); };
                 document.getElementById('dropdown-post-link').onclick = (e) => { e.preventDefault(); openModal('postModal'); toggleProfileDropdown(); };
@@ -863,11 +900,18 @@
 
                 const infoContainer = createElement('div', ['p-4', 'border-b']);
                 const flexContainer = createElement('div', ['flex', 'items-center', 'gap-3']);
-                const initialDiv = createElement('div', ['w-12', 'h-12', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-2xl', 'font-bold'], userInitial);
+                
+                const mobilePicContainer = createElement('div', ['w-12', 'h-12', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-2xl', 'font-bold', 'overflow-hidden']);
+                if(user.photoURL) {
+                    mobilePicContainer.appendChild(createElement('img', ['w-full', 'h-full', 'object-cover'], '', { src: user.photoURL }));
+                } else {
+                    mobilePicContainer.appendChild(createElement('span', [], userInitial));
+                }
+
                 const textContainer = createElement('div');
                 textContainer.appendChild(createElement('p', ['font-semibold'], user.username));
                 textContainer.appendChild(createElement('p', ['text-sm', 'text-gray-500'], user.email));
-                flexContainer.append(initialDiv, textContainer);
+                flexContainer.append(mobilePicContainer, textContainer);
                 infoContainer.appendChild(flexContainer);
 
                 const linksContainer = createElement('div', ['p-2', 'space-y-1']);
@@ -948,7 +992,8 @@
                     email: user.email,
                     createdAt: serverTimestamp(),
                     phone: '',
-                    lineId: ''
+                    lineId: '',
+                    photoURL: ''
                 });
 
                 closeModal('registerModal');
@@ -1784,7 +1829,6 @@
              }, 'bg-red-500 hover:bg-red-600');
         }
 
-        // [NEW] Render table for currently boosted posts
         async function renderAdminBoostedTable() {
             const adminMainContent = document.getElementById('admin-main-content');
             adminMainContent.innerHTML = '';
@@ -1861,8 +1905,26 @@
                 const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8']);
                 const profileCol = createElement('div', ['lg:col-span-1', 'bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'text-center', 'h-fit']);
                 const listingsCol = createElement('div', ['lg:col-span-3']);
-                const userInitial = userData.username.charAt(0).toUpperCase();
-                profileCol.appendChild(createElement('div', ['w-32', 'h-32', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-5xl', 'font-bold', 'mx-auto'], userInitial));
+                
+                const profilePicContainer = createElement('div', ['relative', 'w-32', 'h-32', 'mx-auto']);
+                const profilePicDisplay = createElement('div', ['w-32', 'h-32', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-5xl', 'font-bold', 'mx-auto', 'overflow-hidden']);
+                
+                if (userData.photoURL) {
+                    profilePicDisplay.appendChild(createElement('img', ['w-full', 'h-full', 'object-cover'], '', {src: userData.photoURL}));
+                } else {
+                    profilePicDisplay.textContent = userData.username.charAt(0).toUpperCase();
+                }
+                profilePicContainer.appendChild(profilePicDisplay);
+
+                if (currentUser && currentUser.uid === userId) {
+                    profilePicDisplay.classList.add('cursor-pointer', 'hover:opacity-80');
+                    profilePicDisplay.onclick = () => openProfilePictureModal();
+                    const cameraIcon = createElement('div', ['absolute', 'bottom-0', 'right-0', 'bg-white', 'rounded-full', 'p-2', 'shadow-md']);
+                    cameraIcon.innerHTML = `<i class="fas fa-camera text-gray-600"></i>`;
+                    profilePicContainer.appendChild(cameraIcon);
+                }
+
+                profileCol.appendChild(profilePicContainer);
                 profileCol.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-4'], userData.username));
                 profileCol.appendChild(createElement('p', ['text-gray-500', 'mt-1'], userData.email));
                 const joinedDate = userData.createdAt ? formatTimestamp(userData.createdAt, true) : 'ไม่ระบุ';
@@ -2114,6 +2176,86 @@
                 showAlertModal('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
             }
         });
+
+        // --- [NEW] PROFILE PICTURE LOGIC ---
+        function openProfilePictureModal() {
+            const previewContainer = document.getElementById('profile-pic-modal-preview-container');
+            previewContainer.innerHTML = '';
+            
+            if (currentUser.photoURL) {
+                previewContainer.appendChild(createElement('img', ['w-full', 'h-full', 'object-cover', 'rounded-full'], '', {src: currentUser.photoURL}));
+                document.getElementById('view-profile-pic-btn').style.display = 'flex';
+                document.getElementById('remove-profile-pic-btn').style.display = 'flex';
+            } else {
+                previewContainer.appendChild(createElement('span', ['text-6xl', 'font-bold', 'text-gray-500'], currentUser.username.charAt(0).toUpperCase()));
+                document.getElementById('view-profile-pic-btn').style.display = 'none';
+                document.getElementById('remove-profile-pic-btn').style.display = 'none';
+            }
+            openModal('profilePictureModal');
+        }
+
+        document.getElementById('view-profile-pic-btn').onclick = () => {
+            if (currentUser && currentUser.photoURL) {
+                openLightbox(currentUser.photoURL);
+            }
+        };
+
+        document.getElementById('change-profile-pic-btn').onclick = () => {
+            profilePictureUploadInput.click();
+        };
+
+        document.getElementById('remove-profile-pic-btn').onclick = () => {
+            openConfirmModal('คุณแน่ใจหรือไม่ว่าต้องการลบรูปโปรไฟล์?', async () => {
+                try {
+                    const userDocRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(userDocRef, { photoURL: '' });
+                    currentUser.photoURL = '';
+                    updateNavUI(currentUser);
+                    if (window.location.hash.includes('#profile')) {
+                        renderProfilePage(currentUser.uid);
+                    }
+                    closeModal('profilePictureModal');
+                    showAlertModal('ลบรูปโปรไฟล์สำเร็จ');
+                } catch (error) {
+                    console.error("Error removing profile picture:", error);
+                    showAlertModal('เกิดข้อผิดพลาดในการลบรูปภาพ');
+                }
+            }, 'bg-red-500 hover:bg-red-600');
+        };
+
+        profilePictureUploadInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            closeModal('profilePictureModal');
+            showAlertModal('กำลังอัปโหลดรูปภาพใหม่...', 'กรุณารอสักครู่');
+
+            try {
+                const imageUrls = await uploadImages([file]);
+                const newPhotoURL = imageUrls[0];
+
+                if (newPhotoURL) {
+                    const userDocRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(userDocRef, { photoURL: newPhotoURL });
+                    currentUser.photoURL = newPhotoURL;
+                    updateNavUI(currentUser);
+                    if (window.location.hash.includes('#profile')) {
+                        renderProfilePage(currentUser.uid);
+                    }
+                    closeModal('alertModal');
+                    showAlertModal('เปลี่ยนรูปโปรไฟล์สำเร็จ!');
+                } else {
+                    throw new Error("ไม่ได้รับ URL จากการอัปโหลด");
+                }
+            } catch (error) {
+                console.error("Error uploading profile picture:", error);
+                showAlertModal('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+            } finally {
+                // Clear the input value to allow re-uploading the same file
+                profilePictureUploadInput.value = '';
+            }
+        });
+
 
         // --- INITIAL LOAD & ROUTE HANDLING ---
         window.addEventListener('hashchange', router);
