@@ -1,9 +1,11 @@
 const cloudinary = require('cloudinary').v2;
 
 exports.handler = async function (event, context) {
-  // สร้าง Object สำหรับเก็บค่า Config โดยเฉพาะ
+  // --- [TESTING] เราจะลองใส่ค่า cloud_name เข้าไปโดยตรง ---
+  const hardcodedCloudName = "dgqb5fbdh";
+
   const cloudinaryConfig = {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    cloud_name: hardcodedCloudName, // ใช้ค่าที่ใส่โดยตรง
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   };
@@ -17,7 +19,7 @@ exports.handler = async function (event, context) {
     
     // อัปโหลดไฟล์ไปยัง Cloudinary โดยส่ง Config เข้าไปด้วยโดยตรง
     const result = await cloudinary.uploader.upload(file, {
-      ...cloudinaryConfig, // ส่งค่า Config ทั้งหมดเข้าไป
+      ...cloudinaryConfig,
       upload_preset: 'chaoyouhome_preset',
     });
 
