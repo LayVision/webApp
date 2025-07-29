@@ -1,34 +1,35 @@
-const cloudinary = require('cloudinary').v2;
+const axios = require('axios');
+const FormData = require('form-data');
 
 exports.handler = async function (event, context) {
-  // --- [TESTING] เราจะลองใส่ค่า cloud_name เข้าไปโดยตรง ---
-  const hardcodedCloudName = "dgqb5fbdh";
-
-  const cloudinaryConfig = {
-    cloud_name: hardcodedCloudName, // ใช้ค่าที่ใส่โดยตรง
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  };
-
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
-    const { file } = JSON.parse(event.body);
-    
-    // อัปโหลดไฟล์ไปยัง Cloudinary โดยส่ง Config เข้าไปด้วยโดยตรง
-    const result = await cloudinary.uploader.upload(file, {
-      ...cloudinaryConfig,
-      upload_preset: 'chaoyouhome_preset',
-    });
+    // รับ base64 string จากหน้าเว็บ และตัดส่วนหัว "data:image/..." ออก
+    const base64File = JSON.parse(event.body).file.split(',')[1];
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ secure_url: result.secure_url }),
-    };
+    const formData = new FormData();
+    formData.append('image', base64File);
+
+    const response = await axios.post(
+      `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+      formData,
+      { headers: formData.getHeaders() }
+    );
+
+    if (response.data.success) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ secure_url: response.data.data.url }),
+      };
+    } else {
+      throw new Error(response.data.error.message || 'ImgBB upload failed');
+    }
+
   } catch (error) {
-    console.error("Cloudinary Upload Error:", error);
+    console.error("ImgBB Upload Error:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: `Server error: ${error.message}` }),
