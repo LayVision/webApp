@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 
-// ตั้งค่า Cloudinary โดยใช้ Environment Variables ที่เราจะไปตั้งค่าในเว็บ Netlify
+// ตั้งค่า Cloudinary โดยใช้ Environment Variables ที่เราตั้งไว้ในเว็บ Netlify
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -15,7 +15,7 @@ exports.handler = async function (event, context) {
 
   try {
     const { file } = JSON.parse(event.body);
-
+    
     // อัปโหลดไฟล์ไปยัง Cloudinary
     const result = await cloudinary.uploader.upload(file, {
       upload_preset: 'chaoyouhome_preset', // ใส่ Upload Preset ของคุณ
@@ -31,4 +31,4 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ error: error.message }),
     };
   }
-};  
+};
