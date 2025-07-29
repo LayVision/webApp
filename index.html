@@ -111,13 +111,15 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         /* Admin page specific styles */
         #admin-view .admin-sidebar-link {
             transition: background-color 0.2s, color 0.2s;
         }
+
         #admin-view .admin-sidebar-link.active {
-            background-color: #3b82f6; /* bg-blue-600 */
+            background-color: #3b82f6;
+            /* bg-blue-600 */
             color: white;
             font-weight: 700;
         }
@@ -318,7 +320,7 @@
 
             <!-- User Profile View -->
             <div id="profile-view" class="hidden"></div>
-            
+
             <!-- Admin View -->
             <div id="admin-view" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">แผงควบคุมสำหรับผู้ดูแลระบบ</h2>
@@ -327,9 +329,15 @@
                     <aside class="md:col-span-1 bg-white p-4 rounded-lg shadow-md h-fit">
                         <nav>
                             <ul class="space-y-2">
-                                <li><a href="#" id="admin-dashboard-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
-                                <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
-                                <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
+                                <li><a href="#" id="admin-dashboard-link"
+                                        class="admin-sidebar-link block px-4 py-2 rounded-md"><i
+                                            class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
+                                <li><a href="#" id="admin-listings-link"
+                                        class="admin-sidebar-link block px-4 py-2 rounded-md"><i
+                                            class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
+                                <li><a href="#" id="admin-users-link"
+                                        class="admin-sidebar-link block px-4 py-2 rounded-md"><i
+                                            class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
                             </ul>
                         </nav>
                     </aside>
@@ -339,7 +347,7 @@
                     </main>
                 </div>
             </div>
-            
+
         </main>
     </div>
 
@@ -355,8 +363,8 @@
             </div>
             <div class="mb-6">
                 <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                <input type="password" id="login-password" name="login-password" class="w-full p-3 border rounded-lg" required
-                    maxlength="100">
+                <input type="password" id="login-password" name="login-password" class="w-full p-3 border rounded-lg"
+                    required maxlength="100">
             </div>
             <button type="submit"
                 class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</button>
@@ -372,22 +380,24 @@
         <form id="register-form">
             <div class="mb-4">
                 <label for="register-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                <input type="text" id="register-username" name="register-username" class="w-full p-3 border rounded-lg" required maxlength="30">
+                <input type="text" id="register-username" name="register-username" class="w-full p-3 border rounded-lg"
+                    required maxlength="30">
             </div>
             <div class="mb-4">
                 <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                <input type="email" id="register-email" name="register-email" class="w-full p-3 border rounded-lg" required maxlength="60">
+                <input type="email" id="register-email" name="register-email" class="w-full p-3 border rounded-lg"
+                    required maxlength="60">
             </div>
             <div class="mb-4">
                 <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                <input type="password" id="register-password" name="register-password" class="w-full p-3 border rounded-lg" required
-                    maxlength="100">
+                <input type="password" id="register-password" name="register-password"
+                    class="w-full p-3 border rounded-lg" required maxlength="100">
             </div>
             <div class="mb-6">
                 <label for="register-confirm-password"
                     class="block text-sm font-medium text-gray-700 mb-1">ยืนยันรหัสผ่าน</label>
-                <input type="password" id="register-confirm-password" name="register-confirm-password" class="w-full p-3 border rounded-lg" required
-                    maxlength="100">
+                <input type="password" id="register-confirm-password" name="register-confirm-password"
+                    class="w-full p-3 border rounded-lg" required maxlength="100">
             </div>
             <button type="submit"
                 class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">สมัครสมาชิก</button>
@@ -418,20 +428,20 @@
                 </div>
                 <div>
                     <label for="post-price-rent" class="block text-sm font-medium">ราคาเช่า (บาท/เดือน)</label>
-                    <input type="number" id="post-price-rent" name="post-price-rent" class="w-full p-2 border rounded-lg"
-                        placeholder="ระบุราคาเช่า" required maxlength="7"
+                    <input type="number" id="post-price-rent" name="post-price-rent"
+                        class="w-full p-2 border rounded-lg" placeholder="ระบุราคาเช่า" required maxlength="7"
                         oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
                 </div>
                 <div>
                     <label for="post-price-initial" class="block text-sm font-medium">ราคาเข้าอยู่ครั้งแรก (บาท)</label>
-                    <input type="number" id="post-price-initial" name="post-price-initial" class="w-full p-2 border rounded-lg"
-                        placeholder="เช่น มัดจำ + ล่วงหน้า" maxlength="8"
+                    <input type="number" id="post-price-initial" name="post-price-initial"
+                        class="w-full p-2 border rounded-lg" placeholder="เช่น มัดจำ + ล่วงหน้า" maxlength="8"
                         oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
                 </div>
                 <div>
                     <label for="post-available-date" class="block text-sm font-medium">วันที่เข้าอยู่ได้</label>
-                    <input type="text" id="post-available-date" name="post-available-date" class="w-full p-2 border rounded-lg"
-                        placeholder="เลือกวันที่...">
+                    <input type="text" id="post-available-date" name="post-available-date"
+                        class="w-full p-2 border rounded-lg" placeholder="เลือกวันที่...">
                 </div>
                 <div>
                     <label for="post-province" class="block text-sm font-medium">จังหวัด</label>
@@ -453,19 +463,20 @@
                 </div>
                 <div class="md:col-span-2">
                     <label for="post-description" class="block text-sm font-medium">รายละเอียดเพิ่มเติม</label>
-                    <textarea id="post-description" name="post-description" rows="4" class="w-full p-2 border rounded-lg" required
-                        maxlength="1000"></textarea>
+                    <textarea id="post-description" name="post-description" rows="4"
+                        class="w-full p-2 border rounded-lg" required maxlength="1000"></textarea>
                 </div>
                 <div class="md:col-span-2">
                     <label for="post-image-upload" class="block text-sm font-medium">รูปภาพ</label>
-                    <input type="file" id="post-image-upload" name="post-image-upload" class="w-full p-2 border rounded-lg" multiple
-                        accept="image/*">
+                    <input type="file" id="post-image-upload" name="post-image-upload"
+                        class="w-full p-2 border rounded-lg" multiple accept="image/*">
                     <div id="image-preview-container" class="mt-2 flex flex-wrap gap-2"></div>
                 </div>
                 <div>
                     <label for="post-phone" class="block text-sm font-medium">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="post-phone" name="post-phone" class="w-full p-2 border rounded-lg" placeholder="เช่น 0812345678"
-                        required maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input type="tel" id="post-phone" name="post-phone" class="w-full p-2 border rounded-lg"
+                        placeholder="เช่น 0812345678" required maxlength="15"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
                 <div>
                     <label for="post-line-id" class="block text-sm font-medium">Line ID</label>
@@ -491,12 +502,13 @@
         <form id="edit-profile-form">
             <div class="mb-4">
                 <label for="edit-profile-phone" class="block text-sm font-medium">เบอร์โทรศัพท์</label>
-                <input type="tel" id="edit-profile-phone" name="edit-profile-phone" class="w-full p-2 border rounded-lg" maxlength="15"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <input type="tel" id="edit-profile-phone" name="edit-profile-phone" class="w-full p-2 border rounded-lg"
+                    maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
             <div class="mb-4">
                 <label for="edit-profile-line" class="block text-sm font-medium">Line ID</label>
-                <input type="text" id="edit-profile-line" name="edit-profile-line" class="w-full p-2 border rounded-lg" maxlength="30">
+                <input type="text" id="edit-profile-line" name="edit-profile-line" class="w-full p-2 border rounded-lg"
+                    maxlength="30">
             </div>
             <div class="mt-6 flex justify-end gap-4">
                 <button type="button" onclick="closeModal('editProfileModal')"
@@ -551,7 +563,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyC1e0VTI5lcUz1y-PiBkjvIfXqRULM766Q",
@@ -561,9 +573,9 @@
             messagingSenderId: "788017278292",
             appId: "1:788017278292:web:6aef703d5dfb5f735facc1"
         };
-        
+
         // --- [REMOVED] Admin Configuration is now handled by Firestore Roles ---
-        
+
         // --- Cloudinary Configuration ---
         const CLOUDINARY_CLOUD_NAME = "dgqb5fbdh";
         const CLOUDINARY_UPLOAD_PRESET = "chaoyouhome_preset";
@@ -614,7 +626,7 @@
         const postSubmitButton = document.getElementById('post-submit-button');
 
         // --- HELPER FUNCTIONS ---
-        
+
         function createElement(tag, classNames = [], textContent = '', attributes = {}) {
             const el = document.createElement(tag);
             if (classNames.length > 0) el.classList.add(...classNames);
@@ -643,15 +655,15 @@
                     return 'เกิดข้อผิดพลาดที่ไม่รู้จัก กรุณาลองใหม่อีกครั้ง';
             }
         }
-        
+
         function formatTimestamp(timestamp, full = false) {
             if (!timestamp || !timestamp.seconds) {
                 return '';
             }
             const postDate = new Date(timestamp.seconds * 1000);
-            
+
             if (full) {
-                 return postDate.toLocaleDateString('th-TH', {
+                return postDate.toLocaleDateString('th-TH', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -769,8 +781,8 @@
                 // --- Update Mobile Nav ---
                 mobileNavLoggedInView.classList.remove('hidden');
                 mobileNavLoggedOutView.classList.add('hidden');
-                mobileNavLoggedInView.innerHTML = ''; 
-                
+                mobileNavLoggedInView.innerHTML = '';
+
                 const infoContainer = createElement('div', ['p-4', 'border-b']);
                 const flexContainer = createElement('div', ['flex', 'items-center', 'gap-3']);
                 const initialDiv = createElement('div', ['w-12', 'h-12', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-2xl', 'font-bold'], userInitial);
@@ -779,10 +791,10 @@
                 textContainer.appendChild(createElement('p', ['text-sm', 'text-gray-500'], user.email));
                 flexContainer.append(initialDiv, textContainer);
                 infoContainer.appendChild(flexContainer);
-                
+
                 const linksContainer = createElement('div', ['p-2', 'space-y-1']);
                 const createMobileLink = (text, iconClass, handler) => {
-                    const link = createElement('a', ['block', 'text-left', 'px-4', 'py-3', 'text-gray-700', 'rounded-lg', 'hover:bg-gray-100'], '', {href: '#'});
+                    const link = createElement('a', ['block', 'text-left', 'px-4', 'py-3', 'text-gray-700', 'rounded-lg', 'hover:bg-gray-100'], '', { href: '#' });
                     const icon = createElement('i', ['mr-2', 'w-5', 'text-center', ...iconClass.split(' ')]);
                     link.appendChild(icon);
                     link.append(text);
@@ -793,7 +805,7 @@
                 linksContainer.appendChild(createMobileLink('โปรไฟล์', 'fas fa-user-circle', () => navigateToProfile(user.uid)));
                 linksContainer.appendChild(createMobileLink('ลงประกาศ', 'fas fa-plus', () => openModal('postModal')));
                 linksContainer.appendChild(createMobileLink('ดันโพสต์', 'fas fa-rocket', () => navigateToProfile(user.uid)));
-                
+
                 // --- [MODIFIED] Check for admin role for mobile menu ---
                 if (user.role === 'admin') {
                     linksContainer.appendChild(createMobileLink('Admin Panel', 'fas fa-user-shield', navigateToAdmin));
@@ -813,7 +825,7 @@
                 mobileNavLoggedOutView.classList.remove('hidden');
             }
         }
-        
+
         // --- AUTHENTICATION ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -912,14 +924,14 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.secure_url) {
-                        return data.secure_url;
-                    } else {
-                        throw new Error(data.error?.message || 'Cloudinary upload failed');
-                    }
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.secure_url) {
+                            return data.secure_url;
+                        } else {
+                            throw new Error(data.error?.message || 'Cloudinary upload failed');
+                        }
+                    });
             });
             return Promise.all(uploadPromises);
         }
@@ -948,7 +960,7 @@
                 if (isCover) img.classList.add('is-cover');
                 const removeBtn = createElement('button', ['absolute', 'top-1', 'left-1', 'bg-red-600', 'text-white', 'rounded-full', 'w-5', 'h-5', 'flex', 'items-center', 'justify-center', 'text-xs', 'font-bold'], '×', { title: 'ลบรูปนี้', type: 'button' });
                 removeBtn.onclick = () => {
-                    if (item.type === 'existing') { existingImageUrls.splice(index, 1); } 
+                    if (item.type === 'existing') { existingImageUrls.splice(index, 1); }
                     else { selectedFiles.splice(index - existingImageUrls.length, 1); }
                     renderImagePreviews();
                 };
@@ -956,7 +968,7 @@
                     const coverBtn = createElement('button', ['set-cover-btn'], '', { title: "ตั้งเป็นรูปปก", type: "button" });
                     coverBtn.innerHTML = '<i class="fas fa-star"></i>';
                     coverBtn.onclick = () => {
-                         if (item.type === 'existing') {
+                        if (item.type === 'existing') {
                             const [movedItem] = existingImageUrls.splice(index, 1);
                             existingImageUrls.unshift(movedItem);
                         } else {
@@ -967,7 +979,7 @@
                     };
                     container.appendChild(coverBtn);
                 }
-                if (item.type === 'existing') { img.src = item.data; } 
+                if (item.type === 'existing') { img.src = item.data; }
                 else {
                     const reader = new FileReader();
                     reader.onload = e => { img.src = e.target.result; };
@@ -1031,7 +1043,7 @@
                 postSubmitButton.textContent = `บันทึกประกาศ`;
             }
         });
-        
+
         async function fetchListings(filters = {}) {
             loadingSpinner.style.display = 'block';
             listingsGrid.innerHTML = '';
@@ -1062,7 +1074,7 @@
                 loadingSpinner.style.display = 'none';
             }
         }
-        
+
         function renderListings(listings, isSearchView = false) {
             listingsGrid.innerHTML = '';
             generalListingsGrid.innerHTML = '';
@@ -1079,7 +1091,7 @@
                 generalListingsContainer.style.display = 'block';
             }
         }
-        
+
         function populateGrid(gridElement, listings, emptyMessage) {
             gridElement.innerHTML = '';
             if (listings.length === 0) {
@@ -1089,7 +1101,7 @@
             listings.forEach(listing => {
                 const card = createElement('div', ['bg-white', 'rounded-xl', 'shadow-lg', 'overflow-hidden', 'transform', 'hover:-translate-y-1', 'transition-transform', 'duration-300', 'cursor-pointer', 'relative', 'flex', 'flex-col']);
                 const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=ไม่มีรูปภาพ';
-                const image = createElement('img', ['w-full', 'h-48', 'object-cover'], '', {src: imageUrl, alt: listing.title });
+                const image = createElement('img', ['w-full', 'h-48', 'object-cover'], '', { src: imageUrl, alt: listing.title });
                 image.onerror = () => { image.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=รูปภาพเสียหาย'; };
                 if (listing.isBoosted) {
                     const badge = createElement('div', ['boosted-badge'], ' ประกาศแนะนำ');
@@ -1115,7 +1127,7 @@
                 gridElement.appendChild(card);
             });
         }
-        
+
         function getPriceDisplay(rent) {
             return rent > 0 ? `฿${rent.toLocaleString()}/เดือน` : 'ติดต่อผู้ให้เช่า';
         }
@@ -1163,11 +1175,11 @@
                     detailsCol.appendChild(initialPriceDiv);
                 }
                 if (listing.availableDate) {
-                     const availableDateDiv = createElement('div', ['mt-2', 'p-3', 'bg-gray-50', 'rounded-lg']);
-                     const availableDateP = createElement('p', ['text-md', 'text-gray-800'], `วันที่เข้าอยู่ได้: ${new Date(listing.availableDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', calendar: 'buddhist' })}`);
-                     availableDateP.prepend(createElement('i', ['fas', 'fa-calendar-check', 'mr-2', 'text-blue-500']), createElement('strong', [], ''));
-                     availableDateDiv.appendChild(availableDateP);
-                     detailsCol.appendChild(availableDateDiv);
+                    const availableDateDiv = createElement('div', ['mt-2', 'p-3', 'bg-gray-50', 'rounded-lg']);
+                    const availableDateP = createElement('p', ['text-md', 'text-gray-800'], `วันที่เข้าอยู่ได้: ${new Date(listing.availableDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', calendar: 'buddhist' })}`);
+                    availableDateP.prepend(createElement('i', ['fas', 'fa-calendar-check', 'mr-2', 'text-blue-500']), createElement('strong', [], ''));
+                    availableDateDiv.appendChild(availableDateP);
+                    detailsCol.appendChild(availableDateDiv);
                 }
                 detailsCol.appendChild(createElement('h5', ['font-bold', 'text-lg', 'mt-6', 'mb-2'], 'รายละเอียด'));
                 detailsCol.appendChild(createElement('p', ['text-gray-700', 'whitespace-pre-wrap', 'break-words', 'mb-6'], listing.description));
@@ -1196,7 +1208,7 @@
                     const boostBtn = createElement('button', ['flex-1', 'py-3', 'text-white', 'font-bold', 'rounded-lg'], listing.isBoosted ? 'ดันโพสต์แล้ว' : 'ดันโพสต์');
                     boostBtn.prepend(createElement('i', ['fas', 'fa-rocket', 'mr-2']));
                     boostBtn.onclick = () => boostListing(listing.id, listing.isBoosted);
-                    if(listing.isBoosted) {
+                    if (listing.isBoosted) {
                         boostBtn.classList.add('bg-gray-400', 'opacity-50', 'cursor-not-allowed');
                         boostBtn.disabled = true;
                     } else {
@@ -1212,13 +1224,13 @@
                 listingDetailView.innerHTML = `<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูลประกาศ</p>`;
             }
         }
-        
+
         window.editListing = async function (id) {
             const docRef = doc(db, "listings", id);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 const listing = { id: docSnap.id, ...docSnap.data() };
-                closeAllModals(); 
+                closeAllModals();
                 postForm.reset();
                 document.getElementById('post-modal-title').textContent = 'แก้ไขประกาศ';
                 document.getElementById('post-id').value = listing.id;
@@ -1231,7 +1243,7 @@
                 document.getElementById('post-phone').value = listing.phone;
                 document.getElementById('post-line-id').value = listing.lineId;
                 imageUploadInput.value = '';
-                selectedFiles = []; 
+                selectedFiles = [];
                 existingImageUrls = listing.imageUrls || [];
                 renderImagePreviews();
                 const postProvince = document.getElementById('post-province');
@@ -1253,7 +1265,7 @@
             openConfirmModal('คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้?', async () => {
                 try {
                     await deleteDoc(doc(db, "listings", id));
-                    if (window.location.hash === '#admin') { renderAdminView('listings'); } 
+                    if (window.location.hash === '#admin') { renderAdminView('listings'); }
                     else { navigateToHome(); }
                 } catch (error) {
                     console.error("Error deleting document: ", error);
@@ -1294,11 +1306,11 @@
             adminMainContent.innerHTML = `<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i></div>`;
             document.querySelectorAll('.admin-sidebar-link').forEach(link => link.classList.remove('active'));
             document.getElementById(`admin-${activeTab}-link`).classList.add('active');
-            if (activeTab === 'dashboard') { await renderAdminDashboard(); } 
-            else if (activeTab === 'listings') { await renderAdminListingsTable(); } 
+            if (activeTab === 'dashboard') { await renderAdminDashboard(); }
+            else if (activeTab === 'listings') { await renderAdminListingsTable(); }
             else if (activeTab === 'users') { await renderAdminUsersTable(); }
         }
-        
+
         async function renderAdminDashboard() {
             const adminMainContent = document.getElementById('admin-main-content');
             try {
@@ -1336,7 +1348,7 @@
             const adminMainContent = document.getElementById('admin-main-content');
             adminMainContent.innerHTML = '';
             const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', {id: 'admin-listings-search', name: 'admin-listings-search', type: 'text', placeholder: 'ค้นหาประกาศด้วยชื่อ หรืออีเมลผู้ใช้...'});
+            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', { id: 'admin-listings-search', name: 'admin-listings-search', type: 'text', placeholder: 'ค้นหาประกาศด้วยชื่อ หรืออีเมลผู้ใช้...' });
             const tableContainer = createElement('div', ['overflow-x-auto']);
             container.append(searchInput, tableContainer);
             adminMainContent.appendChild(container);
@@ -1347,8 +1359,8 @@
                 querySnapshot.forEach((doc) => { currentAdminListings.push({ id: doc.id, ...doc.data() }); });
                 searchInput.addEventListener('input', (e) => {
                     const searchTerm = e.target.value.toLowerCase();
-                    const filtered = currentAdminListings.filter(l => 
-                        l.title.toLowerCase().includes(searchTerm) || 
+                    const filtered = currentAdminListings.filter(l =>
+                        l.title.toLowerCase().includes(searchTerm) ||
                         l.ownerUsername.toLowerCase().includes(searchTerm) ||
                         l.ownerEmail.toLowerCase().includes(searchTerm)
                     );
@@ -1360,7 +1372,7 @@
                 tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาด (อาจไม่มีสิทธิ์เข้าถึง)</div>`;
             }
         }
-        
+
         function populateAdminListingsTable(container, listings) {
             container.innerHTML = '';
             if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบประกาศ</p>`; return; }
@@ -1375,13 +1387,13 @@
                 tr.appendChild(createElement('td', ['p-3'], getPriceDisplay(listing.priceRent)));
                 tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.updatedAt)));
                 const actionsCell = createElement('td', ['p-3', 'flex', 'gap-3', 'items-center']);
-                const viewBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], '', {title: 'ดูประกาศ'});
+                const viewBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], '', { title: 'ดูประกาศ' });
                 viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
                 viewBtn.onclick = () => navigateToListing(listing.id);
-                const editBtn = createElement('button', ['text-amber-500', 'hover:text-amber-700'], '', {title: 'แก้ไข'});
+                const editBtn = createElement('button', ['text-amber-500', 'hover:text-amber-700'], '', { title: 'แก้ไข' });
                 editBtn.innerHTML = '<i class="fas fa-edit"></i>';
                 editBtn.onclick = () => editListing(listing.id);
-                const deleteBtn = createElement('button', ['text-red-500', 'hover:text-red-700'], '', {title: 'ลบ'});
+                const deleteBtn = createElement('button', ['text-red-500', 'hover:text-red-700'], '', { title: 'ลบ' });
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 deleteBtn.onclick = () => deleteListing(listing.id);
                 actionsCell.append(viewBtn, editBtn, deleteBtn);
@@ -1396,7 +1408,7 @@
             const adminMainContent = document.getElementById('admin-main-content');
             adminMainContent.innerHTML = '';
             const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', {id: 'admin-users-search', name: 'admin-users-search', type: 'text', placeholder: 'ค้นหาผู้ใช้ด้วย Username หรืออีเมล...'});
+            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', { id: 'admin-users-search', name: 'admin-users-search', type: 'text', placeholder: 'ค้นหาผู้ใช้ด้วย Username หรืออีเมล...' });
             const tableContainer = createElement('div', ['overflow-x-auto']);
             container.append(searchInput, tableContainer);
             adminMainContent.appendChild(container);
@@ -1418,7 +1430,7 @@
         }
 
         function populateAdminUsersTable(container, users) {
-             container.innerHTML = '';
+            container.innerHTML = '';
             if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบผู้ใช้</p>`; return; }
             const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
             table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">อีเมล</th><th class="p-3">วันที่สมัคร</th><th class="p-3">จัดการ</th></tr></thead>`;
@@ -1429,7 +1441,7 @@
                 tr.appendChild(createElement('td', ['p-3'], user.email));
                 tr.appendChild(createElement('td', ['p-3'], formatTimestamp(user.createdAt, true)));
                 const actionsCell = createElement('td', ['p-3']);
-                const viewProfileBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], ' ดูโปรไฟล์', {title: 'ดูโปรไฟล์'});
+                const viewProfileBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], ' ดูโปรไฟล์', { title: 'ดูโปรไฟล์' });
                 viewProfileBtn.prepend(createElement('i', ['fas', 'fa-user-circle', 'mr-1']));
                 viewProfileBtn.onclick = () => navigateToProfile(user.id);
                 actionsCell.append(viewProfileBtn);
@@ -1488,7 +1500,7 @@
                         const listingCard = createElement('div', ['flex', 'items-center', 'gap-4', 'p-4', 'bg-white', 'rounded-xl', 'shadow-md', 'hover:shadow-lg', 'transition-shadow', 'cursor-pointer', 'border']);
                         listingCard.onclick = () => navigateToListing(listing.id);
                         const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป';
-                        const image = createElement('img', ['w-28', 'h-24', 'object-cover', 'rounded-lg'], '', {src: imageUrl});
+                        const image = createElement('img', ['w-28', 'h-24', 'object-cover', 'rounded-lg'], '', { src: imageUrl });
                         image.onerror = () => { image.src = 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป'; };
                         const textDiv = createElement('div', ['flex-1']);
                         textDiv.appendChild(createElement('h5', ['font-bold', 'text-lg'], listing.title));
@@ -1497,7 +1509,7 @@
                         footerDiv.appendChild(createElement('p', ['text-md', 'font-semibold', 'text-blue-600'], getPriceDisplay(listing.priceRent)));
                         const dateP = createElement('p', ['text-xs', 'text-gray-500'], formatTimestamp(listing.updatedAt));
                         if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
-                           dateP.innerHTML += ` <span class="text-amber-500">(updated)</span>`;
+                            dateP.innerHTML += ` <span class="text-amber-500">(updated)</span>`;
                         }
                         footerDiv.appendChild(dateP);
                         textDiv.appendChild(footerDiv);
@@ -1678,7 +1690,7 @@
                 currentUser.phone = phone;
                 currentUser.lineId = lineId;
                 closeModal('editProfileModal');
-                router(); 
+                router();
             } catch (error) {
                 console.error("Error updating profile:", error);
                 showAlertModal('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
