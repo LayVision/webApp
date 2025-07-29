@@ -1,1 +1,2 @@
-external_node_modules = ["cloudinary"]
+[build]
+  functions = "netlify/functions"
