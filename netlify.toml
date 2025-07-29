@@ -1,1 +1,1 @@
-command = "npm install"
+external_node_modules = ["cloudinary"]
