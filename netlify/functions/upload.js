@@ -1,14 +1,21 @@
 const cloudinary = require('cloudinary').v2;
 
-// ตั้งค่า Cloudinary โดยใช้ Environment Variables ที่เราตั้งไว้ในเว็บ Netlify
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 exports.handler = async function (event, context) {
-  // ตรวจสอบว่ามีข้อมูลส่งมาหรือไม่
+  // --- Start Debugging ---
+  // บันทึก Log เพื่อตรวจสอบว่า Function อ่านค่า Environment Variables มาได้หรือไม่
+  // คุณสามารถดู Log นี้ได้ในหน้าเว็บ Netlify
+  console.log("Cloud Name from env:", process.env.CLOUDINARY_CLOUD_NAME);
+  console.log("API Key from env:", process.env.CLOUDINARY_API_KEY ? "Loaded" : "MISSING");
+  console.log("API Secret from env:", process.env.CLOUDINARY_API_SECRET ? "Loaded" : "MISSING");
+  // --- End Debugging ---
+
+  // ตั้งค่า Cloudinary ภายใน handler เพื่อความแน่นอน
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -26,9 +33,13 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ secure_url: result.secure_url }),
     };
   } catch (error) {
+    // บันทึก Log error ที่เกิดขึ้นฝั่งเซิร์ฟเวอร์
+    console.error("Cloudinary Upload Error:", error);
+    
+    // ส่งข้อความ error กลับไปให้หน้าเว็บ
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: `Server error: ${error.message}` }),
     };
   }
 };
