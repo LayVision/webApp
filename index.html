@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChaoYouHome - ค้นหาห้องเช่า บ้านเช่า และคอนโด</title>
+    <meta name="description"
+        content="ChaoYouHome (เช่าอยู่โฮม) - แพลตฟอร์มค้นหาห้องเช่า บ้านเช่า และคอนโดทั่วประเทศไทย ค้นหาที่พักในฝันของคุณได้ง่ายๆ วันนี้!">
+    <meta name="keywords"
+        content="เช่าอยู่, ChaoYouHome, เช่าบ้าน, เช่าคอนโด, หาห้องเช่า, บ้านเช่า, คอนโดให้เช่า, อสังหาริมทรัพย์ให้เช่า, ที่พัก, หาบ้านเช่า">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Modal styles */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Custom badge for boosted listings */
+        .boosted-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #ffc107;
+            color: #212529;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        /* Slideshow transition */
+        .slide {
+            transition: opacity 1s ease-in-out;
+        }
+
+        .upload-preview-container {
+            position: relative;
+        }
+
+        .upload-preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 2px solid #ddd;
+        }
+
+        .upload-preview-img.is-cover {
+            border-color: #f59e0b;
+            /* amber-500 */
+        }
+
+        .set-cover-btn {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            width: 1.75rem;
+            height: 1.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .set-cover-btn.is-cover {
+            background-color: #f59e0b;
+        }
+
+        #lightboxModal {
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Admin page specific styles */
+        #admin-view .admin-sidebar-link {
+            transition: background-color 0.2s, color 0.2s;
+        }
+        #admin-view .admin-sidebar-link.active {
+            background-color: #3b82f6; /* bg-blue-600 */
+            color: white;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body class="text-gray-800">
+
+    <!-- Main Container -->
+    <div id="app" class="container mx-auto p-4 md:p-6">
+
+        <!-- Header -->
+        <header class="relative flex justify-between items-center mb-6 pb-4 border-b">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-600 cursor-pointer" onclick="navigateToHome()">
+                <i class="fas fa-home mr-2"></i>ChaoYouHome
+            </h1>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:block">
+                <!-- Logged Out State -->
+                <div id="nav-logged-out-view" class="flex items-center gap-2 md:gap-4">
+                    <button onclick="openModal('loginModal')"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100"><i
+                            class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ</button>
+                    <button onclick="openModal('registerModal')"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"><i
+                            class="fas fa-user-plus mr-2"></i>สมัครสมาชิก</button>
+                </div>
+                <!-- Logged In State -->
+                <div id="nav-logged-in-view" class="hidden items-center gap-4">
+                    <button onclick="openModal('postModal')"
+                        class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>ลงประกาศ
+                    </button>
+                    <button id="header-boost-button"
+                        class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-lg hover:bg-purple-600 flex items-center">
+                        <i class="fas fa-rocket mr-2"></i>ดันโพสต์
+                    </button>
+                    <div class="relative">
+                        <button id="profile-dropdown-button" onclick="toggleProfileDropdown()"
+                            class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                            <!-- User Initial will be inserted here -->
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="profile-dropdown-menu"
+                            class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-30 border">
+                            <div class="p-4 border-b">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                                        <span id="dropdown-user-initial"></span>
+                                    </div>
+                                    <div>
+                                        <p id="dropdown-username" class="font-semibold"></p>
+                                        <p id="dropdown-email" class="text-sm text-gray-500"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-2">
+                                <a href="#" id="dropdown-profile-link"
+                                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
+                                        class="fas fa-user-circle w-5 text-center"></i>โปรไฟล์</a>
+                                <a href="#" id="dropdown-post-link"
+                                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
+                                        class="fas fa-plus w-5 text-center"></i>ลงประกาศ</a>
+                                <a href="#" id="dropdown-admin-link"
+                                    class="hidden items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
+                                        class="fas fa-user-shield w-5 text-center"></i>Admin Panel</a>
+                                <hr class="my-2">
+                                <a href="#" id="dropdown-logout-link"
+                                    class="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-md"><i
+                                        class="fas fa-sign-out-alt w-5 text-center"></i>ออกจากระบบ</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Hamburger Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" onclick="toggleMobileMenu()" class="text-2xl p-2">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-white absolute top-[85px] left-0 right-0 z-30 shadow-lg border-t">
+            <div id="mobile-nav-logged-out-view" class="p-4 space-y-2">
+                <button onclick="openModal('loginModal'); toggleMobileMenu();"
+                    class="w-full text-left px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"><i
+                        class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ</button>
+                <button onclick="openModal('registerModal'); toggleMobileMenu();"
+                    class="w-full text-left px-4 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700"><i
+                        class="fas fa-user-plus mr-2"></i>สมัครสมาชิก</button>
+            </div>
+            <div id="mobile-nav-logged-in-view" class="hidden">
+                <!-- Mobile Logged In Links will be populated by JS -->
+            </div>
+        </div>
+
+
+        <!-- Page Views Container -->
+        <main id="view-container">
+            <!-- Home View -->
+            <div id="home-view">
+                <!-- Banner Slideshow Section -->
+                <div id="banner-slideshow" class="relative rounded-xl overflow-hidden mb-8 h-64 md:h-96">
+                    <!-- Slides -->
+                    <div class="slide absolute inset-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop');">
+                    </div>
+                    <div class="slide absolute inset-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=2070&auto=format&fit=crop');">
+                    </div>
+                    <div class="slide absolute inset-0 bg-cover bg-center"
+                        style="background-image: url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop');">
+                    </div>
+
+                    <!-- Text Overlay -->
+                    <div
+                        class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center text-white p-4">
+                        <h2 class="text-3xl md:text-5xl font-bold mb-3">ค้นหาห้องเช่า บ้านเช่า และคอนโด</h2>
+                        <p class="text-md md:text-xl">แหล่งรวมประกาศให้เช่าที่ดีที่สุดสำหรับคุณ</p>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <button id="prev-slide"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-2 rounded-full z-10">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="next-slide"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-2 rounded-full z-10">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+
+                    <!-- Dots -->
+                    <div id="slide-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
+                </div>
+
+                <!-- Search Section -->
+                <div id="search-section" class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-xl font-bold mb-4">ค้นหาอสังหาริมทรัพย์ในฝันของคุณ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <select id="province-filter"
+                            class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                            <option value="">ทุกจังหวัด</option>
+                        </select>
+                        <select id="district-filter"
+                            class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                            <option value="">ทุกอำเภอ/เขต</option>
+                        </select>
+                        <select id="type-filter"
+                            class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                            <option value="">ทุกประเภท</option>
+                            <option value="ห้องเช่า">ห้องเช่า</option>
+                            <option value="บ้านเช่า">บ้านเช่า</option>
+                            <option value="คอนโด">คอนโด</option>
+                        </select>
+                        <input type="number" id="max-price-filter" placeholder="ราคาสูงสุด (บาท)"
+                            class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                            maxlength="10"
+                            oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                        <button onclick="applyFilters()"
+                            class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-search mr-2"></i>ค้นหา
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Listings Sections -->
+                <div id="listings-section-container">
+                    <div id="boosted-listings-container">
+                        <h3 class="text-2xl font-bold mb-6" id="listings-title">ประกาศแนะนำ <i
+                                class="fas fa-star text-yellow-400"></i></h3>
+                        <div id="listings-grid"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <div id="loading-spinner" class="col-span-full text-center p-10">
+                                <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+                                <p class="mt-2">กำลังโหลดข้อมูล...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="general-listings-container" class="mt-12">
+                        <h3 class="text-2xl font-bold mb-6" id="general-listings-title">ประกาศทั่วไป</h3>
+                        <div id="general-listings-grid"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <!-- General listings will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Listing Detail View -->
+            <div id="listing-detail-view" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-md"></div>
+
+            <!-- User Profile View -->
+            <div id="profile-view" class="hidden"></div>
+            
+            <!-- Admin View -->
+            <div id="admin-view" class="hidden">
+                <h2 class="text-3xl font-bold mb-6">แผงควบคุมสำหรับผู้ดูแลระบบ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Sidebar -->
+                    <aside class="md:col-span-1 bg-white p-4 rounded-lg shadow-md h-fit">
+                        <nav>
+                            <ul class="space-y-2">
+                                <li><a href="#" id="admin-dashboard-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
+                                <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
+                                <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
+                            </ul>
+                        </nav>
+                    </aside>
+                    <!-- Main Content -->
+                    <main class="md:col-span-3" id="admin-main-content">
+                        <!-- Admin content will be rendered here -->
+                    </main>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
+        <h3 class="text-2xl font-bold mb-6 text-center">เข้าสู่ระบบ</h3>
+        <form id="login-form">
+            <div class="mb-4">
+                <label for="login-identifier" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                <input type="email" id="login-identifier" name="login-identifier" class="w-full p-3 border rounded-lg"
+                    placeholder="กรอกอีเมลของคุณ" required maxlength="60">
+            </div>
+            <div class="mb-6">
+                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                <input type="password" id="login-password" name="login-password" class="w-full p-3 border rounded-lg" required
+                    maxlength="100">
+            </div>
+            <button type="submit"
+                class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</button>
+        </form>
+        <p id="login-error" class="text-red-500 text-sm mt-4 text-center"></p>
+        <button onclick="closeModal('loginModal')"
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
+        <h3 class="text-2xl font-bold mb-6 text-center">สมัครสมาชิก</h3>
+        <form id="register-form">
+            <div class="mb-4">
+                <label for="register-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text" id="register-username" name="register-username" class="w-full p-3 border rounded-lg" required maxlength="30">
+            </div>
+            <div class="mb-4">
+                <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                <input type="email" id="register-email" name="register-email" class="w-full p-3 border rounded-lg" required maxlength="60">
+            </div>
+            <div class="mb-4">
+                <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                <input type="password" id="register-password" name="register-password" class="w-full p-3 border rounded-lg" required
+                    maxlength="100">
+            </div>
+            <div class="mb-6">
+                <label for="register-confirm-password"
+                    class="block text-sm font-medium text-gray-700 mb-1">ยืนยันรหัสผ่าน</label>
+                <input type="password" id="register-confirm-password" name="register-confirm-password" class="w-full p-3 border rounded-lg" required
+                    maxlength="100">
+            </div>
+            <button type="submit"
+                class="w-full p-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">สมัครสมาชิก</button>
+        </form>
+        <p id="register-error" class="text-red-500 text-sm mt-4 text-center"></p>
+        <button onclick="closeModal('registerModal')"
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+
+    <!-- Post/Edit Listing Modal -->
+    <div id="postModal" class="modal w-11/12 md:w-2/3 lg:w-1/2 bg-white rounded-xl shadow-2xl p-8">
+        <h3 id="post-modal-title" class="text-2xl font-bold mb-6 text-center">ลงประกาศอสังหาริมทรัพย์</h3>
+        <form id="post-form">
+            <input type="hidden" id="post-id" name="post-id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label for="post-title" class="block text-sm font-medium">หัวข้อประกาศ</label>
+                    <input type="text" id="post-title" name="post-title" class="w-full p-2 border rounded-lg"
+                        placeholder="เช่น คอนโดให้เช่า ใกล้ BTS อ่อนนุช" required maxlength="120">
+                </div>
+                <div>
+                    <label for="post-type" class="block text-sm font-medium">ประเภท</label>
+                    <select id="post-type" name="post-type" class="w-full p-2 border rounded-lg" required>
+                        <option value="ห้องเช่า">ห้องเช่า</option>
+                        <option value="บ้านเช่า">บ้านเช่า</option>
+                        <option value="คอนโด">คอนโด</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="post-price-rent" class="block text-sm font-medium">ราคาเช่า (บาท/เดือน)</label>
+                    <input type="number" id="post-price-rent" name="post-price-rent" class="w-full p-2 border rounded-lg"
+                        placeholder="ระบุราคาเช่า" required maxlength="7"
+                        oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                </div>
+                <div>
+                    <label for="post-price-initial" class="block text-sm font-medium">ราคาเข้าอยู่ครั้งแรก (บาท)</label>
+                    <input type="number" id="post-price-initial" name="post-price-initial" class="w-full p-2 border rounded-lg"
+                        placeholder="เช่น มัดจำ + ล่วงหน้า" maxlength="8"
+                        oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                </div>
+                <div>
+                    <label for="post-available-date" class="block text-sm font-medium">วันที่เข้าอยู่ได้</label>
+                    <input type="text" id="post-available-date" name="post-available-date" class="w-full p-2 border rounded-lg"
+                        placeholder="เลือกวันที่...">
+                </div>
+                <div>
+                    <label for="post-province" class="block text-sm font-medium">จังหวัด</label>
+                    <select id="post-province" name="post-province" class="w-full p-2 border rounded-lg" required>
+                        <option value="">-- เลือกจังหวัด --</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="post-district" class="block text-sm font-medium">อำเภอ/เขต</label>
+                    <select id="post-district" name="post-district" class="w-full p-2 border rounded-lg" required>
+                        <option value="">-- เลือกอำเภอ/เขต --</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="post-subdistrict" class="block text-sm font-medium">ตำบล/แขวง</label>
+                    <select id="post-subdistrict" name="post-subdistrict" class="w-full p-2 border rounded-lg" required>
+                        <option value="">-- เลือกตำบล/แขวง --</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="post-description" class="block text-sm font-medium">รายละเอียดเพิ่มเติม</label>
+                    <textarea id="post-description" name="post-description" rows="4" class="w-full p-2 border rounded-lg" required
+                        maxlength="1000"></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="post-image-upload" class="block text-sm font-medium">รูปภาพ</label>
+                    <input type="file" id="post-image-upload" name="post-image-upload" class="w-full p-2 border rounded-lg" multiple
+                        accept="image/*">
+                    <div id="image-preview-container" class="mt-2 flex flex-wrap gap-2"></div>
+                </div>
+                <div>
+                    <label for="post-phone" class="block text-sm font-medium">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="post-phone" name="post-phone" class="w-full p-2 border rounded-lg" placeholder="เช่น 0812345678"
+                        required maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+                <div>
+                    <label for="post-line-id" class="block text-sm font-medium">Line ID</label>
+                    <input type="text" id="post-line-id" name="post-line-id" class="w-full p-2 border rounded-lg"
+                        placeholder="เช่น mylineid" required maxlength="30">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-4">
+                <button type="button" onclick="closeModal('postModal')"
+                    class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
+                <button type="submit" id="post-submit-button"
+                    class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">บันทึกประกาศ</button>
+            </div>
+        </form>
+        <p id="post-error" class="text-red-500 text-sm mt-4 text-center"></p>
+        <button onclick="closeModal('postModal')"
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
+        <h3 class="text-2xl font-bold mb-6">แก้ไขข้อมูลส่วนตัว</h3>
+        <form id="edit-profile-form">
+            <div class="mb-4">
+                <label for="edit-profile-phone" class="block text-sm font-medium">เบอร์โทรศัพท์</label>
+                <input type="tel" id="edit-profile-phone" name="edit-profile-phone" class="w-full p-2 border rounded-lg" maxlength="15"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+            <div class="mb-4">
+                <label for="edit-profile-line" class="block text-sm font-medium">Line ID</label>
+                <input type="text" id="edit-profile-line" name="edit-profile-line" class="w-full p-2 border rounded-lg" maxlength="30">
+            </div>
+            <div class="mt-6 flex justify-end gap-4">
+                <button type="button" onclick="closeModal('editProfileModal')"
+                    class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
+                <button type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">บันทึก</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alertModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
+        <h3 id="alert-modal-title" class="text-xl font-bold mb-4 text-center">แจ้งเตือน</h3>
+        <p id="alert-modal-text" class="text-center mb-6"></p>
+        <div class="flex justify-center">
+            <button id="alert-modal-ok-btn"
+                class="px-8 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirmModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
+        <h3 id="confirm-modal-title" class="text-xl font-bold mb-4 text-center">ยืนยันการกระทำ</h3>
+        <p id="confirm-modal-text" class="text-center mb-6"></p>
+        <div class="flex justify-center gap-4">
+            <button id="confirm-modal-cancel-btn"
+                class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">ยกเลิก</button>
+            <button id="confirm-modal-confirm-btn" class="px-6 py-2 text-white font-bold rounded-lg">ยืนยัน</button>
+        </div>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div id="lightboxModal" class="modal-backdrop items-center justify-center p-4"
+        onclick="closeModal('lightboxModal')">
+        <div class="relative" onclick="event.stopPropagation()">
+            <img id="lightboxImage" src="" class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg">
+            <button onclick="closeModal('lightboxModal')"
+                class="absolute -top-3 -right-3 bg-white rounded-full h-8 w-8 flex items-center justify-center text-2xl text-black leading-none">&times;</button>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div id="modal-backdrop" class="modal-backdrop" onclick="closeAllModals()"></div>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1e0VTI5lcUz1y-PiBkjvIfXqRULM766Q",
+            authDomain: "cnx-home-7e61b.firebaseapp.com",
+            projectId: "cnx-home-7e61b",
+            storageBucket: "cnx-home-7e61b.appspot.com",
+            messagingSenderId: "788017278292",
+            appId: "1:788017278292:web:6aef703d5dfb5f735facc1"
+        };
+        
+        // --- [REMOVED] Admin Configuration is now handled by Firestore Roles ---
+        
+        // --- Cloudinary Configuration ---
+        const CLOUDINARY_CLOUD_NAME = "dgqb5fbdh";
+        const CLOUDINARY_UPLOAD_PRESET = "chaoyouhome_preset";
+
+        // --- INITIALIZATION ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const listingsCollection = collection(db, "listings");
+        const usersCollection = collection(db, "users");
+
+        let currentUser = null;
+        let thailandData = {};
+        let confirmCallback = null;
+        let selectedFiles = [];
+        let existingImageUrls = [];
+        let currentAdminListings = [];
+        let currentAdminUsers = [];
+
+        // --- UI ELEMENTS ---
+        const homeView = document.getElementById('home-view');
+        const listingDetailView = document.getElementById('listing-detail-view');
+        const profileView = document.getElementById('profile-view');
+        const adminView = document.getElementById('admin-view');
+        const navLoggedOutView = document.getElementById('nav-logged-out-view');
+        const navLoggedInView = document.getElementById('nav-logged-in-view');
+        const profileDropdownButton = document.getElementById('profile-dropdown-button');
+        const dropdownUserInitial = document.getElementById('dropdown-user-initial');
+        const dropdownUsername = document.getElementById('dropdown-username');
+        const dropdownEmail = document.getElementById('dropdown-email');
+        const listingsGrid = document.getElementById('listings-grid');
+        const generalListingsGrid = document.getElementById('general-listings-grid');
+        const boostedListingsContainer = document.getElementById('boosted-listings-container');
+        const generalListingsContainer = document.getElementById('general-listings-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const listingsTitle = document.getElementById('listings-title');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLoggedOutView = document.getElementById('mobile-nav-logged-out-view');
+        const mobileNavLoggedInView = document.getElementById('mobile-nav-logged-in-view');
+
+        // --- MODAL & FORM ELEMENTS ---
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const postForm = document.getElementById('post-form');
+        const editProfileForm = document.getElementById('edit-profile-form');
+        const imageUploadInput = document.getElementById('post-image-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const postSubmitButton = document.getElementById('post-submit-button');
+
+        // --- HELPER FUNCTIONS ---
+        
+        function createElement(tag, classNames = [], textContent = '', attributes = {}) {
+            const el = document.createElement(tag);
+            if (classNames.length > 0) el.classList.add(...classNames);
+            if (textContent) el.textContent = textContent;
+            for (const key in attributes) {
+                el.setAttribute(key, attributes[key]);
+            }
+            return el;
+        }
+
+        function translateFirebaseError(errorCode) {
+            switch (errorCode) {
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                    return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                case 'auth/invalid-email':
+                    return 'รูปแบบอีเมลไม่ถูกต้อง';
+                case 'auth/email-already-in-use':
+                    return 'อีเมลนี้ถูกใช้งานแล้ว';
+                case 'auth/weak-password':
+                    return 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+                case 'auth/too-many-requests':
+                    return 'ตรวจพบกิจกรรมที่น่าสงสัย บัญชีของคุณถูกระงับชั่วคราว';
+                default:
+                    return 'เกิดข้อผิดพลาดที่ไม่รู้จัก กรุณาลองใหม่อีกครั้ง';
+            }
+        }
+        
+        function formatTimestamp(timestamp, full = false) {
+            if (!timestamp || !timestamp.seconds) {
+                return '';
+            }
+            const postDate = new Date(timestamp.seconds * 1000);
+            
+            if (full) {
+                 return postDate.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                });
+            }
+
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - postDate) / 1000);
+            const diffInDays = Math.floor(diffInSeconds / 86400);
+
+            if (diffInDays < 7) {
+                if (diffInSeconds < 60) return `${diffInSeconds} วินาทีที่แล้ว`;
+                const diffInMinutes = Math.floor(diffInSeconds / 60);
+                if (diffInMinutes < 60) return `${diffInMinutes} นาทีที่แล้ว`;
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) return `${diffInHours} ชั่วโมงที่แล้ว`;
+                return `${diffInDays} วันที่แล้ว`;
+            } else {
+                return postDate.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                });
+            }
+        }
+
+        // --- LOCATION DATA HANDLING ---
+        async function fetchThailandData() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province_with_amphure_tambon.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+
+                thailandData = data.reduce((acc, province) => {
+                    acc[province.name_th] = province.amphure.reduce((amphureAcc, amphure) => {
+                        amphureAcc[amphure.name_th] = amphure.tambon.map(tambon => tambon.name_th);
+                        return amphureAcc;
+                    }, {});
+                    return acc;
+                }, {});
+
+                populateProvinceDropdowns();
+            } catch (error) {
+                console.error("Failed to fetch Thailand location data:", error);
+                thailandData = { "กรุงเทพมหานคร": { "เขตพระนคร": ["พระบรมมหาราชวัง"] } };
+                populateProvinceDropdowns();
+            }
+        }
+
+        function populateProvinceDropdowns() {
+            const provinces = Object.keys(thailandData).sort();
+            const provinceFilter = document.getElementById('province-filter');
+            const postProvince = document.getElementById('post-province');
+            provinceFilter.length = 1;
+            postProvince.length = 1;
+            provinces.forEach(prov => {
+                provinceFilter.add(new Option(prov, prov));
+                postProvince.add(new Option(prov, prov));
+            });
+            postProvince.addEventListener('change', () => populateDistrictDropdowns(postProvince.value));
+        }
+
+        function populateDistrictDropdowns(province) {
+            const postDistrict = document.getElementById('post-district');
+            postDistrict.length = 1;
+            document.getElementById('post-subdistrict').length = 1;
+            if (province && thailandData[province]) {
+                const districts = Object.keys(thailandData[province]).sort();
+                districts.forEach(dist => {
+                    postDistrict.add(new Option(dist, dist));
+                });
+            }
+            postDistrict.addEventListener('change', () => populateSubdistrictDropdowns(province, postDistrict.value));
+        }
+
+        function populateSubdistrictDropdowns(province, district) {
+            const postSubdistrict = document.getElementById('post-subdistrict');
+            postSubdistrict.length = 1;
+            if (province && district && thailandData[province] && thailandData[province][district]) {
+                const subdistricts = thailandData[province][district].sort();
+                subdistricts.forEach(sub => {
+                    postSubdistrict.add(new Option(sub, sub));
+                });
+            }
+        }
+
+        // --- UI UPDATE FUNCTIONS ---
+        function updateNavUI(user) {
+            if (user) {
+                // --- Update Desktop Nav ---
+                navLoggedInView.classList.remove('hidden');
+                navLoggedInView.classList.add('flex');
+                navLoggedOutView.classList.add('hidden');
+                const userInitial = user.username.charAt(0).toUpperCase();
+                profileDropdownButton.textContent = userInitial;
+                dropdownUserInitial.textContent = userInitial;
+                dropdownUsername.textContent = user.username;
+                dropdownEmail.textContent = user.email;
+
+                document.getElementById('dropdown-profile-link').onclick = (e) => { e.preventDefault(); navigateToProfile(user.uid); toggleProfileDropdown(); };
+                document.getElementById('dropdown-post-link').onclick = (e) => { e.preventDefault(); openModal('postModal'); toggleProfileDropdown(); };
+                document.getElementById('dropdown-logout-link').onclick = (e) => { e.preventDefault(); handleLogout(); };
+                document.getElementById('header-boost-button').onclick = () => navigateToProfile(user.uid);
+
+                const adminLink = document.getElementById('dropdown-admin-link');
+                // --- [MODIFIED] Check for admin role from Firestore user object ---
+                if (user.role === 'admin') {
+                    adminLink.classList.remove('hidden');
+                    adminLink.classList.add('flex');
+                    adminLink.onclick = (e) => { e.preventDefault(); navigateToAdmin(); toggleProfileDropdown(); };
+                } else {
+                    adminLink.classList.add('hidden');
+                }
+
+                // --- Update Mobile Nav ---
+                mobileNavLoggedInView.classList.remove('hidden');
+                mobileNavLoggedOutView.classList.add('hidden');
+                mobileNavLoggedInView.innerHTML = ''; 
+                
+                const infoContainer = createElement('div', ['p-4', 'border-b']);
+                const flexContainer = createElement('div', ['flex', 'items-center', 'gap-3']);
+                const initialDiv = createElement('div', ['w-12', 'h-12', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-2xl', 'font-bold'], userInitial);
+                const textContainer = createElement('div');
+                textContainer.appendChild(createElement('p', ['font-semibold'], user.username));
+                textContainer.appendChild(createElement('p', ['text-sm', 'text-gray-500'], user.email));
+                flexContainer.append(initialDiv, textContainer);
+                infoContainer.appendChild(flexContainer);
+                
+                const linksContainer = createElement('div', ['p-2', 'space-y-1']);
+                const createMobileLink = (text, iconClass, handler) => {
+                    const link = createElement('a', ['block', 'text-left', 'px-4', 'py-3', 'text-gray-700', 'rounded-lg', 'hover:bg-gray-100'], '', {href: '#'});
+                    const icon = createElement('i', ['mr-2', 'w-5', 'text-center', ...iconClass.split(' ')]);
+                    link.appendChild(icon);
+                    link.append(text);
+                    link.onclick = (e) => { e.preventDefault(); handler(); toggleMobileMenu(); };
+                    return link;
+                };
+
+                linksContainer.appendChild(createMobileLink('โปรไฟล์', 'fas fa-user-circle', () => navigateToProfile(user.uid)));
+                linksContainer.appendChild(createMobileLink('ลงประกาศ', 'fas fa-plus', () => openModal('postModal')));
+                linksContainer.appendChild(createMobileLink('ดันโพสต์', 'fas fa-rocket', () => navigateToProfile(user.uid)));
+                
+                // --- [MODIFIED] Check for admin role for mobile menu ---
+                if (user.role === 'admin') {
+                    linksContainer.appendChild(createMobileLink('Admin Panel', 'fas fa-user-shield', navigateToAdmin));
+                }
+
+                linksContainer.appendChild(createElement('hr', ['my-1']));
+                const logoutLink = createMobileLink('ออกจากระบบ', 'fas fa-sign-out-alt', handleLogout);
+                logoutLink.classList.remove('text-gray-700', 'hover:bg-gray-100');
+                logoutLink.classList.add('text-red-500', 'hover:bg-red-50');
+                linksContainer.appendChild(logoutLink);
+                mobileNavLoggedInView.append(infoContainer, linksContainer);
+
+            } else {
+                navLoggedInView.classList.add('hidden');
+                navLoggedOutView.classList.remove('hidden');
+                mobileNavLoggedInView.classList.add('hidden');
+                mobileNavLoggedOutView.classList.remove('hidden');
+            }
+        }
+        
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        // User document found, spread its data (including the 'role')
+                        currentUser = { uid: user.uid, ...userDocSnap.data() };
+                    } else {
+                        // Fallback if user doc doesn't exist (e.g., failed registration step)
+                        // No role will be assigned here.
+                        currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                    currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
+                }
+            } else {
+                currentUser = null;
+            }
+            updateNavUI(currentUser);
+            router();
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value.trim();
+            const usernameLower = username.toLowerCase();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            const errorEl = document.getElementById('register-error');
+            errorEl.textContent = '';
+
+            if (!username) { errorEl.textContent = 'กรุณาใส่ Username'; return; }
+            if (password !== confirmPassword) { errorEl.textContent = 'รหัสผ่านไม่ตรงกัน'; return; }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Create user document in Firestore. Note: 'role' is not set by default.
+                // An admin must manually add the 'role': 'admin' field in the Firestore console.
+                await setDoc(doc(db, "users", user.uid), {
+                    username: username,
+                    username_lowercase: usernameLower,
+                    email: user.email,
+                    createdAt: serverTimestamp(),
+                    phone: '',
+                    lineId: ''
+                    // 'role' is intentionally omitted.
+                });
+
+                closeModal('registerModal');
+                registerForm.reset();
+            } catch (error) {
+                console.error("Register error:", error);
+                errorEl.textContent = translateFirebaseError(error.code);
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailToLogin = document.getElementById('login-identifier').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            errorEl.textContent = '';
+            if (!emailToLogin || !password) { errorEl.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน'; return; }
+            try {
+                await signInWithEmailAndPassword(auth, emailToLogin, password);
+                closeModal('loginModal');
+                loginForm.reset();
+            } catch (error) {
+                console.error("Login error:", error);
+                errorEl.textContent = translateFirebaseError(error.code);
+            }
+        });
+
+        const handleLogout = async () => {
+            try {
+                await signOut(auth);
+                navigateToHome();
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+
+        // --- IMAGE UPLOAD ---
+        async function uploadImages(files) {
+            const uploadPromises = Array.from(files).map(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                return fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.secure_url) {
+                        return data.secure_url;
+                    } else {
+                        throw new Error(data.error?.message || 'Cloudinary upload failed');
+                    }
+                });
+            });
+            return Promise.all(uploadPromises);
+        }
+
+        imageUploadInput.addEventListener('change', () => {
+            const newFiles = Array.from(imageUploadInput.files);
+            const totalImages = existingImageUrls.length + selectedFiles.length + newFiles.length;
+            if (totalImages > 10) {
+                showAlertModal('คุณสามารถอัปโหลดรูปภาพได้สูงสุด 10 รูป');
+                return;
+            }
+            selectedFiles = [...selectedFiles, ...newFiles];
+            renderImagePreviews();
+        });
+
+        function renderImagePreviews() {
+            imagePreviewContainer.innerHTML = '';
+            const allItems = [
+                ...existingImageUrls.map(url => ({ type: 'existing', data: url })),
+                ...selectedFiles.map(file => ({ type: 'new', data: file }))
+            ];
+            allItems.forEach((item, index) => {
+                const container = createElement('div', ['upload-preview-container']);
+                const isCover = index === 0;
+                const img = createElement('img', ['upload-preview-img']);
+                if (isCover) img.classList.add('is-cover');
+                const removeBtn = createElement('button', ['absolute', 'top-1', 'left-1', 'bg-red-600', 'text-white', 'rounded-full', 'w-5', 'h-5', 'flex', 'items-center', 'justify-center', 'text-xs', 'font-bold'], '×', { title: 'ลบรูปนี้', type: 'button' });
+                removeBtn.onclick = () => {
+                    if (item.type === 'existing') { existingImageUrls.splice(index, 1); } 
+                    else { selectedFiles.splice(index - existingImageUrls.length, 1); }
+                    renderImagePreviews();
+                };
+                if (!isCover) {
+                    const coverBtn = createElement('button', ['set-cover-btn'], '', { title: "ตั้งเป็นรูปปก", type: "button" });
+                    coverBtn.innerHTML = '<i class="fas fa-star"></i>';
+                    coverBtn.onclick = () => {
+                         if (item.type === 'existing') {
+                            const [movedItem] = existingImageUrls.splice(index, 1);
+                            existingImageUrls.unshift(movedItem);
+                        } else {
+                            const [movedItem] = selectedFiles.splice(index - existingImageUrls.length, 1);
+                            selectedFiles.unshift(movedItem);
+                        }
+                        renderImagePreviews();
+                    };
+                    container.appendChild(coverBtn);
+                }
+                if (item.type === 'existing') { img.src = item.data; } 
+                else {
+                    const reader = new FileReader();
+                    reader.onload = e => { img.src = e.target.result; };
+                    reader.readAsDataURL(item.data);
+                }
+                container.append(img, removeBtn);
+                imagePreviewContainer.appendChild(container);
+            });
+        }
+
+        // --- FIRESTORE (LISTINGS) ---
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) { showAlertModal("กรุณาเข้าสู่ระบบก่อนลงประกาศ"); return; }
+            postSubmitButton.disabled = true;
+            postSubmitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>กำลังบันทึก...`;
+            try {
+                let newImageUrls = [];
+                const postId = document.getElementById('post-id').value;
+                if (selectedFiles.length > 0) { newImageUrls = await uploadImages(selectedFiles); }
+                const finalImageUrls = [...existingImageUrls, ...newImageUrls];
+                if (finalImageUrls.length === 0) { throw new Error("กรุณาอัปโหลดรูปภาพอย่างน้อย 1 รูป"); }
+                const listingData = {
+                    title: document.getElementById('post-title').value,
+                    type: document.getElementById('post-type').value,
+                    priceRent: Number(document.getElementById('post-price-rent').value) || 0,
+                    priceInitial: Number(document.getElementById('post-price-initial').value) || 0,
+                    availableDate: document.getElementById('post-available-date').value || '',
+                    province: document.getElementById('post-province').value,
+                    district: document.getElementById('post-district').value,
+                    subdistrict: document.getElementById('post-subdistrict').value,
+                    description: document.getElementById('post-description').value,
+                    imageUrls: finalImageUrls,
+                    phone: document.getElementById('post-phone').value,
+                    lineId: document.getElementById('post-line-id').value,
+                    ownerUid: currentUser.uid,
+                    ownerEmail: currentUser.email,
+                    ownerUsername: currentUser.username,
+                    updatedAt: serverTimestamp(),
+                };
+                if (postId) {
+                    const docRef = doc(db, "listings", postId);
+                    await updateDoc(docRef, listingData);
+                } else {
+                    listingData.createdAt = serverTimestamp();
+                    listingData.isBoosted = false;
+                    await addDoc(listingsCollection, listingData);
+                }
+                closeModal('postModal');
+                postForm.reset();
+                imagePreviewContainer.innerHTML = '';
+                selectedFiles = [];
+                existingImageUrls = [];
+                fetchListings();
+                showAlertModal('บันทึกประกาศสำเร็จ!');
+            } catch (error) {
+                console.error("Error saving listing:", error);
+                document.getElementById('post-error').textContent = "เกิดข้อผิดพลาด: " + error.message;
+            } finally {
+                postSubmitButton.disabled = false;
+                postSubmitButton.textContent = `บันทึกประกาศ`;
+            }
+        });
+        
+        async function fetchListings(filters = {}) {
+            loadingSpinner.style.display = 'block';
+            listingsGrid.innerHTML = '';
+            generalListingsGrid.innerHTML = '';
+            try {
+                const querySnapshot = await getDocs(query(listingsCollection));
+                let allListings = [];
+                querySnapshot.forEach((doc) => {
+                    allListings.push({ id: doc.id, ...doc.data() });
+                });
+                let filteredListings = allListings.filter(l => {
+                    const provinceMatch = !filters.province || l.province === filters.province;
+                    const districtMatch = !filters.district || l.district === filters.district;
+                    const typeMatch = !filters.type || l.type === filters.type;
+                    const priceMatch = !filters.maxPrice || (l.priceRent > 0 && l.priceRent <= filters.maxPrice);
+                    return provinceMatch && districtMatch && typeMatch && priceMatch;
+                });
+                filteredListings.sort((a, b) => {
+                    if (a.isBoosted && !b.isBoosted) return -1;
+                    if (!a.isBoosted && b.isBoosted) return 1;
+                    return (b.updatedAt?.toMillis() || 0) - (a.updatedAt?.toMillis() || 0);
+                });
+                renderListings(filteredListings, Object.values(filters).some(v => v));
+            } catch (error) {
+                console.error("Error fetching listings: ", error);
+                listingsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">เกิดข้อผิดพลาด: ${error.message}</p>`;
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+        
+        function renderListings(listings, isSearchView = false) {
+            listingsGrid.innerHTML = '';
+            generalListingsGrid.innerHTML = '';
+            if (isSearchView) {
+                populateGrid(listingsGrid, listings, "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา");
+                boostedListingsContainer.style.display = 'block';
+                generalListingsContainer.style.display = 'none';
+            } else {
+                const boostedListings = listings.filter(l => l.isBoosted);
+                const generalListings = listings.filter(l => !l.isBoosted);
+                populateGrid(listingsGrid, boostedListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
+                populateGrid(generalListingsGrid, generalListings, "ไม่พบประกาศทั่วไป");
+                boostedListingsContainer.style.display = 'block';
+                generalListingsContainer.style.display = 'block';
+            }
+        }
+        
+        function populateGrid(gridElement, listings, emptyMessage) {
+            gridElement.innerHTML = '';
+            if (listings.length === 0) {
+                gridElement.appendChild(createElement('p', ['col-span-full', 'text-center', 'text-gray-500', 'py-10'], emptyMessage));
+                return;
+            }
+            listings.forEach(listing => {
+                const card = createElement('div', ['bg-white', 'rounded-xl', 'shadow-lg', 'overflow-hidden', 'transform', 'hover:-translate-y-1', 'transition-transform', 'duration-300', 'cursor-pointer', 'relative', 'flex', 'flex-col']);
+                const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=ไม่มีรูปภาพ';
+                const image = createElement('img', ['w-full', 'h-48', 'object-cover'], '', {src: imageUrl, alt: listing.title });
+                image.onerror = () => { image.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=รูปภาพเสียหาย'; };
+                if (listing.isBoosted) {
+                    const badge = createElement('div', ['boosted-badge'], ' ประกาศแนะนำ');
+                    badge.prepend(createElement('i', ['fas', 'fa-rocket']));
+                    card.appendChild(badge);
+                }
+                const contentDiv = createElement('div', ['p-4', 'flex', 'flex-col', 'flex-grow']);
+                contentDiv.appendChild(createElement('h4', ['font-bold', 'text-lg', 'break-words'], listing.title));
+                const locationP = createElement('p', ['text-sm', 'text-gray-500', 'mb-2'], ` ${listing.district}, ${listing.province}`);
+                locationP.prepend(createElement('i', ['fas', 'fa-map-marker-alt', 'mr-1']));
+                contentDiv.appendChild(locationP);
+                contentDiv.appendChild(createElement('p', ['text-blue-600', 'font-bold', 'text-xl', 'mb-3'], getPriceDisplay(listing.priceRent)));
+                const footerDiv = createElement('div', ['mt-auto', 'flex', 'justify-between', 'items-center', 'text-xs', 'text-gray-500', 'pt-2', 'border-t']);
+                footerDiv.appendChild(createElement('span', [], listing.type));
+                const dateSpan = createElement('span', ['font-semibold'], formatTimestamp(listing.updatedAt));
+                if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
+                    dateSpan.appendChild(createElement('span', ['text-amber-500'], ' (updated)'));
+                }
+                footerDiv.appendChild(dateSpan);
+                contentDiv.appendChild(footerDiv);
+                card.append(image, contentDiv);
+                card.addEventListener('click', () => navigateToListing(listing.id));
+                gridElement.appendChild(card);
+            });
+        }
+        
+        function getPriceDisplay(rent) {
+            return rent > 0 ? `฿${rent.toLocaleString()}/เดือน` : 'ติดต่อผู้ให้เช่า';
+        }
+
+        async function renderListingPage(listingId) {
+            listingDetailView.innerHTML = `<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-3xl"></i></div>`;
+            try {
+                const docRef = doc(db, "listings", listingId);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) { listingDetailView.innerHTML = `<p class="text-center text-red-500">ไม่พบประกาศนี้</p>`; return; }
+                const listing = { id: docSnap.id, ...docSnap.data() };
+                listingDetailView.innerHTML = '';
+                const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-2', 'gap-8']);
+                const imageCol = createElement('div');
+                const detailsCol = createElement('div');
+                const imageUrls = listing.imageUrls?.length > 0 ? listing.imageUrls : ['https://placehold.co/800x600/e2e8f0/64748b?text=ไม่มีรูปภาพ'];
+                const mainImage = createElement('img', ['w-full', 'h-96', 'object-cover', 'rounded-lg', 'shadow-md', 'mb-4', 'cursor-pointer'], '', { id: 'main-detail-image', src: imageUrls[0] });
+                mainImage.onclick = () => openLightbox(mainImage.src);
+                mainImage.onerror = () => { mainImage.src = 'https://placehold.co/800x600/e2e8f0/64748b?text=รูปภาพเสียหาย'; };
+                const thumbnailGrid = createElement('div', ['grid', 'grid-cols-4', 'gap-2']);
+                imageUrls.forEach(url => {
+                    const thumb = createElement('img', ['h-24', 'w-full', 'object-cover', 'rounded-md', 'cursor-pointer', 'border-2', 'border-transparent', 'hover:border-blue-500'], '', { src: url });
+                    thumb.onclick = () => mainImage.src = url;
+                    thumb.onerror = () => thumb.style.display = 'none';
+                    thumbnailGrid.appendChild(thumb);
+                });
+                imageCol.append(mainImage, thumbnailGrid);
+                const detailsHeader = createElement('div', ['flex', 'justify-between', 'items-center']);
+                detailsHeader.appendChild(createElement('span', ['bg-blue-100', 'text-blue-800', 'text-xs', 'font-medium', 'px-2.5', 'py-0.5', 'rounded'], listing.type));
+                const dateSpan = createElement('span', ['text-sm', 'text-gray-500'], formatTimestamp(listing.updatedAt));
+                dateSpan.prepend(createElement('i', ['fas', 'fa-clock', 'mr-1']));
+                if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) { dateSpan.append(' (updated)'); }
+                detailsHeader.appendChild(dateSpan);
+                detailsCol.appendChild(detailsHeader);
+                detailsCol.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-2', 'mb-2', 'break-words'], listing.title));
+                const locationP = createElement('p', ['text-lg', 'text-gray-600', 'mb-4'], `${listing.subdistrict}, ${listing.district}, ${listing.province}`);
+                locationP.prepend(createElement('i', ['fas', 'fa-map-marker-alt', 'mr-2']));
+                detailsCol.appendChild(locationP);
+                detailsCol.appendChild(createElement('p', ['text-3xl', 'font-bold', 'text-blue-600', 'mb-4'], getPriceDisplay(listing.priceRent)));
+                if (listing.priceInitial > 0) {
+                    const initialPriceDiv = createElement('div', ['mt-4', 'p-3', 'bg-gray-50', 'rounded-lg']);
+                    const initialPriceP = createElement('p', ['text-md', 'text-gray-800'], `ราคาเข้าอยู่ครั้งแรก: ${listing.priceInitial.toLocaleString()} บาท`);
+                    initialPriceP.prepend(createElement('i', ['fas', 'fa-file-invoice-dollar', 'mr-2', 'text-green-500']), createElement('strong', [], ''));
+                    initialPriceDiv.appendChild(initialPriceP);
+                    detailsCol.appendChild(initialPriceDiv);
+                }
+                if (listing.availableDate) {
+                     const availableDateDiv = createElement('div', ['mt-2', 'p-3', 'bg-gray-50', 'rounded-lg']);
+                     const availableDateP = createElement('p', ['text-md', 'text-gray-800'], `วันที่เข้าอยู่ได้: ${new Date(listing.availableDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', calendar: 'buddhist' })}`);
+                     availableDateP.prepend(createElement('i', ['fas', 'fa-calendar-check', 'mr-2', 'text-blue-500']), createElement('strong', [], ''));
+                     availableDateDiv.appendChild(availableDateP);
+                     detailsCol.appendChild(availableDateDiv);
+                }
+                detailsCol.appendChild(createElement('h5', ['font-bold', 'text-lg', 'mt-6', 'mb-2'], 'รายละเอียด'));
+                detailsCol.appendChild(createElement('p', ['text-gray-700', 'whitespace-pre-wrap', 'break-words', 'mb-6'], listing.description));
+                const contactBox = createElement('div', ['bg-gray-100', 'p-4', 'rounded-lg']);
+                contactBox.appendChild(createElement('h5', ['font-bold', 'text-lg', 'mb-2'], 'ข้อมูลติดต่อ'));
+                const ownerP = createElement('p', ['text-gray-800']);
+                ownerP.innerHTML = `<i class="fas fa-user mr-2"></i><a href="#" onclick="event.preventDefault(); navigateToProfile('${listing.ownerUid}')" class="text-blue-600 hover:underline">${listing.ownerUsername || listing.ownerEmail}</a>`;
+                contactBox.appendChild(ownerP);
+                const phoneP = createElement('p', ['text-gray-800']);
+                phoneP.innerHTML = `<i class="fas fa-phone mr-2"></i><a href="tel:${listing.phone}" class="text-blue-600 hover:underline">${listing.phone || '-'}</a>`;
+                contactBox.appendChild(phoneP);
+                const lineP = createElement('p', ['text-gray-800']);
+                lineP.innerHTML = `<i class="fab fa-line mr-2"></i><a href="https://line.me/ti/p/~${listing.lineId}" target="_blank" rel="noopener noreferrer" class="text-green-500 hover:underline">${listing.lineId || '-'}</a>`;
+                contactBox.appendChild(lineP);
+                detailsCol.appendChild(contactBox);
+
+                // --- [MODIFIED] Check for admin role for action buttons ---
+                if (currentUser && (currentUser.uid === listing.ownerUid || currentUser.role === 'admin')) {
+                    const actionsDiv = createElement('div', ['mt-6', 'flex', 'gap-4']);
+                    const editBtn = createElement('button', ['flex-1', 'py-3', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไข');
+                    editBtn.prepend(createElement('i', ['fas', 'fa-edit', 'mr-2']));
+                    editBtn.onclick = () => editListing(listing.id);
+                    const deleteBtn = createElement('button', ['flex-1', 'py-3', 'bg-red-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-red-600'], 'ลบ');
+                    deleteBtn.prepend(createElement('i', ['fas', 'fa-trash', 'mr-2']));
+                    deleteBtn.onclick = () => deleteListing(listing.id);
+                    const boostBtn = createElement('button', ['flex-1', 'py-3', 'text-white', 'font-bold', 'rounded-lg'], listing.isBoosted ? 'ดันโพสต์แล้ว' : 'ดันโพสต์');
+                    boostBtn.prepend(createElement('i', ['fas', 'fa-rocket', 'mr-2']));
+                    boostBtn.onclick = () => boostListing(listing.id, listing.isBoosted);
+                    if(listing.isBoosted) {
+                        boostBtn.classList.add('bg-gray-400', 'opacity-50', 'cursor-not-allowed');
+                        boostBtn.disabled = true;
+                    } else {
+                        boostBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                    }
+                    actionsDiv.append(editBtn, deleteBtn, boostBtn);
+                    detailsCol.appendChild(actionsDiv);
+                }
+                mainGrid.append(imageCol, detailsCol);
+                listingDetailView.appendChild(mainGrid);
+            } catch (error) {
+                console.error("Error rendering listing page:", error);
+                listingDetailView.innerHTML = `<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูลประกาศ</p>`;
+            }
+        }
+        
+        window.editListing = async function (id) {
+            const docRef = doc(db, "listings", id);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const listing = { id: docSnap.id, ...docSnap.data() };
+                closeAllModals(); 
+                postForm.reset();
+                document.getElementById('post-modal-title').textContent = 'แก้ไขประกาศ';
+                document.getElementById('post-id').value = listing.id;
+                document.getElementById('post-title').value = listing.title;
+                document.getElementById('post-type').value = listing.type;
+                document.getElementById('post-price-rent').value = listing.priceRent;
+                document.getElementById('post-price-initial').value = listing.priceInitial || '';
+                document.getElementById('post-available-date').value = listing.availableDate || '';
+                document.getElementById('post-description').value = listing.description;
+                document.getElementById('post-phone').value = listing.phone;
+                document.getElementById('post-line-id').value = listing.lineId;
+                imageUploadInput.value = '';
+                selectedFiles = []; 
+                existingImageUrls = listing.imageUrls || [];
+                renderImagePreviews();
+                const postProvince = document.getElementById('post-province');
+                postProvince.value = listing.province;
+                populateDistrictDropdowns(listing.province);
+                setTimeout(() => {
+                    const postDistrict = document.getElementById('post-district');
+                    postDistrict.value = listing.district;
+                    populateSubdistrictDropdowns(listing.province, listing.district);
+                    setTimeout(() => {
+                        document.getElementById('post-subdistrict').value = listing.subdistrict;
+                    }, 50);
+                }, 50);
+                openModal('postModal');
+            }
+        }
+
+        window.deleteListing = async function (id) {
+            openConfirmModal('คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้?', async () => {
+                try {
+                    await deleteDoc(doc(db, "listings", id));
+                    if (window.location.hash === '#admin') { renderAdminView('listings'); } 
+                    else { navigateToHome(); }
+                } catch (error) {
+                    console.error("Error deleting document: ", error);
+                    showAlertModal('เกิดข้อผิดพลาดในการลบ');
+                }
+            }, 'bg-red-500 hover:bg-red-600');
+        }
+
+        window.boostListing = async function (id, isAlreadyBoosted) {
+            if (isAlreadyBoosted) { showAlertModal('ประกาศนี้เป็นประกาศแนะนำอยู่แล้ว'); return; }
+            openConfirmModal('การดันโพสต์มีค่าใช้จ่าย คุณต้องการดำเนินการต่อหรือไม่? (นี่เป็นเพียงการจำลอง)', async () => {
+                try {
+                    const docRef = doc(db, "listings", id);
+                    await updateDoc(docRef, { isBoosted: true, updatedAt: serverTimestamp() });
+                    showAlertModal('ดันโพสต์สำเร็จ!');
+                    router();
+                } catch (error) {
+                    console.error("Error boosting post: ", error);
+                    showAlertModal('เกิดข้อผิดพลาดในการดันโพสต์');
+                }
+            }, 'bg-purple-600 hover:bg-purple-700');
+        }
+
+        window.applyFilters = function () {
+            const filters = {
+                province: document.getElementById('province-filter').value,
+                district: document.getElementById('district-filter').value,
+                type: document.getElementById('type-filter').value,
+                maxPrice: Number(document.getElementById('max-price-filter').value) || null,
+            };
+            listingsTitle.textContent = 'ผลการค้นหา';
+            fetchListings(filters);
+        }
+
+        // --- ADMIN PANEL ---
+        async function renderAdminView(activeTab = 'dashboard') {
+            const adminMainContent = document.getElementById('admin-main-content');
+            adminMainContent.innerHTML = `<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i></div>`;
+            document.querySelectorAll('.admin-sidebar-link').forEach(link => link.classList.remove('active'));
+            document.getElementById(`admin-${activeTab}-link`).classList.add('active');
+            if (activeTab === 'dashboard') { await renderAdminDashboard(); } 
+            else if (activeTab === 'listings') { await renderAdminListingsTable(); } 
+            else if (activeTab === 'users') { await renderAdminUsersTable(); }
+        }
+        
+        async function renderAdminDashboard() {
+            const adminMainContent = document.getElementById('admin-main-content');
+            try {
+                const [listingsSnapshot, usersSnapshot] = await Promise.all([
+                    getDocs(query(listingsCollection)),
+                    getDocs(query(usersCollection))
+                ]);
+                const totalListings = listingsSnapshot.size;
+                const totalUsers = usersSnapshot.size;
+                let boostedListings = 0;
+                listingsSnapshot.forEach(doc => { if (doc.data().isBoosted) { boostedListings++; } });
+                adminMainContent.innerHTML = '';
+                const dashboardGrid = createElement('div', ['grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'gap-6']);
+                const createStatCard = (title, value, iconClass, colorClass) => {
+                    const card = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md', 'flex', 'items-center', 'gap-4']);
+                    const iconDiv = createElement('div', [`w-12`, `h-12`, 'rounded-full', 'flex', 'items-center', 'justify-center', colorClass]);
+                    iconDiv.innerHTML = `<i class="fas ${iconClass} text-white text-xl"></i>`;
+                    const textDiv = createElement('div');
+                    textDiv.appendChild(createElement('p', ['text-3xl', 'font-bold'], value.toLocaleString()));
+                    textDiv.appendChild(createElement('p', ['text-gray-500'], title));
+                    card.append(iconDiv, textDiv);
+                    return card;
+                }
+                dashboardGrid.appendChild(createStatCard('ประกาศทั้งหมด', totalListings, 'fa-list-alt', 'bg-blue-500'));
+                dashboardGrid.appendChild(createStatCard('ผู้ใช้ทั้งหมด', totalUsers, 'fa-users', 'bg-green-500'));
+                dashboardGrid.appendChild(createStatCard('ประกาศแนะนำ', boostedListings, 'fa-rocket', 'bg-purple-500'));
+                adminMainContent.appendChild(dashboardGrid);
+            } catch (error) {
+                console.error("Error loading admin dashboard:", error);
+                adminMainContent.innerHTML = `<div class="bg-white p-6 rounded-lg shadow-md text-red-500">เกิดข้อผิดพลาด: ${error.message}</div>`;
+            }
+        }
+
+        async function renderAdminListingsTable() {
+            const adminMainContent = document.getElementById('admin-main-content');
+            adminMainContent.innerHTML = '';
+            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
+            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', {id: 'admin-listings-search', name: 'admin-listings-search', type: 'text', placeholder: 'ค้นหาประกาศด้วยชื่อ หรืออีเมลผู้ใช้...'});
+            const tableContainer = createElement('div', ['overflow-x-auto']);
+            container.append(searchInput, tableContainer);
+            adminMainContent.appendChild(container);
+            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
+            try {
+                const querySnapshot = await getDocs(query(listingsCollection, orderBy("updatedAt", "desc")));
+                currentAdminListings = [];
+                querySnapshot.forEach((doc) => { currentAdminListings.push({ id: doc.id, ...doc.data() }); });
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filtered = currentAdminListings.filter(l => 
+                        l.title.toLowerCase().includes(searchTerm) || 
+                        l.ownerUsername.toLowerCase().includes(searchTerm) ||
+                        l.ownerEmail.toLowerCase().includes(searchTerm)
+                    );
+                    populateAdminListingsTable(tableContainer, filtered);
+                });
+                populateAdminListingsTable(tableContainer, currentAdminListings);
+            } catch (error) {
+                console.error("Error fetching for admin panel:", error);
+                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาด (อาจไม่มีสิทธิ์เข้าถึง)</div>`;
+            }
+        }
+        
+        function populateAdminListingsTable(container, listings) {
+            container.innerHTML = '';
+            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบประกาศ</p>`; return; }
+            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อประกาศ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">ประเภท</th><th class="p-3">ราคา</th><th class="p-3">อัปเดตล่าสุด</th><th class="p-3">จัดการ</th></tr></thead>`;
+            const tbody = createElement('tbody');
+            listings.forEach(listing => {
+                const tr = createElement('tr', ['border-b']);
+                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
+                tr.appendChild(createElement('td', ['p-3'], listing.ownerUsername || listing.ownerEmail));
+                tr.appendChild(createElement('td', ['p-3'], listing.type));
+                tr.appendChild(createElement('td', ['p-3'], getPriceDisplay(listing.priceRent)));
+                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.updatedAt)));
+                const actionsCell = createElement('td', ['p-3', 'flex', 'gap-3', 'items-center']);
+                const viewBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], '', {title: 'ดูประกาศ'});
+                viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                viewBtn.onclick = () => navigateToListing(listing.id);
+                const editBtn = createElement('button', ['text-amber-500', 'hover:text-amber-700'], '', {title: 'แก้ไข'});
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.onclick = () => editListing(listing.id);
+                const deleteBtn = createElement('button', ['text-red-500', 'hover:text-red-700'], '', {title: 'ลบ'});
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.onclick = () => deleteListing(listing.id);
+                actionsCell.append(viewBtn, editBtn, deleteBtn);
+                tr.appendChild(actionsCell);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            container.appendChild(table);
+        }
+
+        async function renderAdminUsersTable() {
+            const adminMainContent = document.getElementById('admin-main-content');
+            adminMainContent.innerHTML = '';
+            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
+            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', {id: 'admin-users-search', name: 'admin-users-search', type: 'text', placeholder: 'ค้นหาผู้ใช้ด้วย Username หรืออีเมล...'});
+            const tableContainer = createElement('div', ['overflow-x-auto']);
+            container.append(searchInput, tableContainer);
+            adminMainContent.appendChild(container);
+            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
+            try {
+                const querySnapshot = await getDocs(query(usersCollection, orderBy("createdAt", "desc")));
+                currentAdminUsers = [];
+                querySnapshot.forEach((doc) => { currentAdminUsers.push({ id: doc.id, ...doc.data() }); });
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filtered = currentAdminUsers.filter(u => u.username.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm));
+                    populateAdminUsersTable(tableContainer, filtered);
+                });
+                populateAdminUsersTable(tableContainer, currentAdminUsers);
+            } catch (error) {
+                console.error("Error fetching users for admin panel:", error);
+                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาด (อาจไม่มีสิทธิ์เข้าถึง)</div>`;
+            }
+        }
+
+        function populateAdminUsersTable(container, users) {
+             container.innerHTML = '';
+            if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบผู้ใช้</p>`; return; }
+            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">อีเมล</th><th class="p-3">วันที่สมัคร</th><th class="p-3">จัดการ</th></tr></thead>`;
+            const tbody = createElement('tbody');
+            users.forEach(user => {
+                const tr = createElement('tr', ['border-b']);
+                tr.appendChild(createElement('td', ['p-3', 'font-medium'], user.username));
+                tr.appendChild(createElement('td', ['p-3'], user.email));
+                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(user.createdAt, true)));
+                const actionsCell = createElement('td', ['p-3']);
+                const viewProfileBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], ' ดูโปรไฟล์', {title: 'ดูโปรไฟล์'});
+                viewProfileBtn.prepend(createElement('i', ['fas', 'fa-user-circle', 'mr-1']));
+                viewProfileBtn.onclick = () => navigateToProfile(user.id);
+                actionsCell.append(viewProfileBtn);
+                tr.appendChild(actionsCell);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            container.appendChild(table);
+        }
+
+        // --- USER PROFILE PAGE ---
+        async function renderProfilePage(userId) {
+            profileView.innerHTML = `<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-3xl"></i></div>`;
+            try {
+                const userDocRef = doc(db, "users", userId);
+                const userDocSnap = await getDoc(userDocRef);
+                if (!userDocSnap.exists()) { profileView.innerHTML = `<p class="text-center text-red-500">ไม่พบข้อมูลผู้ใช้</p>`; return; }
+                const userData = userDocSnap.data();
+                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId));
+                const listingsSnapshot = await getDocs(listingsQuery);
+                let userListings = [];
+                listingsSnapshot.forEach(doc => { userListings.push({ id: doc.id, ...doc.data() }); });
+                userListings.sort((a, b) => (b.updatedAt?.toMillis() || 0) - (a.updatedAt?.toMillis() || 0));
+                profileView.innerHTML = '';
+                const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8']);
+                const profileCol = createElement('div', ['lg:col-span-1', 'bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'text-center', 'h-fit']);
+                const listingsCol = createElement('div', ['lg:col-span-3']);
+                const userInitial = userData.username.charAt(0).toUpperCase();
+                profileCol.appendChild(createElement('div', ['w-32', 'h-32', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-5xl', 'font-bold', 'mx-auto'], userInitial));
+                profileCol.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-4'], userData.username));
+                profileCol.appendChild(createElement('p', ['text-gray-500', 'mt-1'], userData.email));
+                const joinedDate = userData.createdAt ? formatTimestamp(userData.createdAt, true) : 'ไม่ระบุ';
+                const joinedP = createElement('p', ['text-sm', 'text-gray-400', 'mt-4'], `เข้าร่วมเมื่อ ${joinedDate}`);
+                joinedP.prepend(createElement('i', ['fas', 'fa-calendar-alt', 'mr-2']));
+                profileCol.appendChild(joinedP);
+                const contactDiv = createElement('div', ['text-left', 'mt-6', 'pt-4', 'border-t']);
+                contactDiv.appendChild(createElement('h4', ['font-semibold', 'mb-2'], 'ข้อมูลติดต่อสาธารณะ'));
+                const phoneP = createElement('p', ['text-gray-800', 'text-sm', 'mb-1'], `${userData.phone || 'ยังไม่ได้ระบุ'}`);
+                phoneP.prepend(createElement('i', ['fas', 'fa-phone', 'mr-2', 'w-4', 'text-center']));
+                contactDiv.appendChild(phoneP);
+                const lineP = createElement('p', ['text-gray-800', 'text-sm'], `${userData.lineId || 'ยังไม่ได้ระบุ'}`);
+                lineP.prepend(createElement('i', ['fab', 'fa-line', 'mr-2', 'w-4', 'text-center']));
+                contactDiv.appendChild(lineP);
+                profileCol.appendChild(contactDiv);
+                if (currentUser && currentUser.uid === userId) {
+                    const editBtn = createElement('button', ['mt-4', 'w-full', 'py-2', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไขโปรไฟล์');
+                    editBtn.onclick = openEditProfileModal;
+                    profileCol.appendChild(editBtn);
+                }
+                listingsCol.appendChild(createElement('h4', ['text-2xl', 'font-bold', 'mb-4'], `ประกาศทั้งหมด (${userListings.length})`));
+                const listingsContainer = createElement('div', ['space-y-4']);
+                if (userListings.length === 0) {
+                    listingsContainer.innerHTML = '<div class="text-center text-gray-500 mt-6 p-8 border rounded-lg bg-white shadow-md">ผู้ใช้ยังไม่มีประกาศ</div>';
+                } else {
+                    userListings.forEach(listing => {
+                        const listingCard = createElement('div', ['flex', 'items-center', 'gap-4', 'p-4', 'bg-white', 'rounded-xl', 'shadow-md', 'hover:shadow-lg', 'transition-shadow', 'cursor-pointer', 'border']);
+                        listingCard.onclick = () => navigateToListing(listing.id);
+                        const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป';
+                        const image = createElement('img', ['w-28', 'h-24', 'object-cover', 'rounded-lg'], '', {src: imageUrl});
+                        image.onerror = () => { image.src = 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป'; };
+                        const textDiv = createElement('div', ['flex-1']);
+                        textDiv.appendChild(createElement('h5', ['font-bold', 'text-lg'], listing.title));
+                        textDiv.appendChild(createElement('p', ['text-sm', 'text-gray-500'], `${listing.district}, ${listing.province}`));
+                        const footerDiv = createElement('div', ['flex', 'justify-between', 'items-center', 'mt-1']);
+                        footerDiv.appendChild(createElement('p', ['text-md', 'font-semibold', 'text-blue-600'], getPriceDisplay(listing.priceRent)));
+                        const dateP = createElement('p', ['text-xs', 'text-gray-500'], formatTimestamp(listing.updatedAt));
+                        if (listing.createdAt && listing.updatedAt.seconds > listing.createdAt.seconds + 10) {
+                           dateP.innerHTML += ` <span class="text-amber-500">(updated)</span>`;
+                        }
+                        footerDiv.appendChild(dateP);
+                        textDiv.appendChild(footerDiv);
+                        listingCard.append(image, textDiv);
+                        listingsContainer.appendChild(listingCard);
+                    });
+                }
+                listingsCol.appendChild(listingsContainer);
+                mainGrid.append(profileCol, listingsCol);
+                profileView.appendChild(mainGrid);
+            } catch (error) {
+                console.error("Error showing user profile:", error);
+                profileView.innerHTML = `<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูลโปรไฟล์</p>`;
+            }
+        }
+
+        // --- ROUTING ---
+        function hideAllViews() {
+            homeView.classList.add('hidden');
+            listingDetailView.classList.add('hidden');
+            profileView.classList.add('hidden');
+            adminView.classList.add('hidden');
+        }
+
+        function router() {
+            const hash = window.location.hash;
+            hideAllViews();
+            mobileMenu.classList.add('hidden');
+
+            if (hash.startsWith('#listing/')) {
+                const listingId = hash.substring('#listing/'.length);
+                listingDetailView.classList.remove('hidden');
+                renderListingPage(listingId);
+            } else if (hash.startsWith('#profile/')) {
+                const userId = hash.substring('#profile/'.length);
+                profileView.classList.remove('hidden');
+                renderProfilePage(userId);
+            } else if (hash === '#admin') {
+                // --- [MODIFIED] Check for admin role for routing ---
+                if (currentUser && currentUser.role === 'admin') {
+                    adminView.classList.remove('hidden');
+                    renderAdminView();
+                } else {
+                    navigateToHome();
+                    if (currentUser) { // Only show alert if user is logged in but not an admin
+                        showAlertModal('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+                    }
+                }
+            } else {
+                homeView.classList.remove('hidden');
+                listingsTitle.innerHTML = 'ประกาศแนะนำ <i class="fas fa-star text-yellow-400"></i>';
+                generalListingsContainer.classList.remove('hidden');
+                boostedListingsContainer.classList.remove('hidden');
+                fetchListings();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        window.navigateToHome = () => window.location.hash = '';
+        window.navigateToListing = (id) => window.location.hash = `#listing/${id}`;
+        window.navigateToProfile = (id) => window.location.hash = `#profile/${id}`;
+        window.navigateToAdmin = () => window.location.hash = '#admin';
+
+        // --- MODAL CONTROLS ---
+        const backdrop = document.getElementById('modal-backdrop');
+        window.openModal = (modalId) => {
+            if (modalId === 'postModal') {
+                flatpickr("#post-available-date", { locale: "th", minDate: "today", dateFormat: "Y-m-d" });
+                if (!document.getElementById('post-id').value) {
+                    postForm.reset();
+                    document.getElementById('post-modal-title').textContent = 'ลงประกาศอสังหาริมทรัพย์';
+                    document.getElementById('post-id').value = '';
+                    populateDistrictDropdowns('');
+                    imagePreviewContainer.innerHTML = '';
+                    selectedFiles = [];
+                    existingImageUrls = [];
+                }
+            }
+            document.getElementById(modalId).style.display = 'block';
+            backdrop.style.display = 'block';
+        };
+        window.closeModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+            const anyModalOpen = document.querySelector('.modal[style*="display: block"]');
+            if (!anyModalOpen) { backdrop.style.display = 'none'; }
+            document.querySelectorAll('#login-error, #register-error, #post-error').forEach(el => el.textContent = '');
+        };
+        window.closeAllModals = () => {
+            document.querySelectorAll('.modal, .modal-backdrop').forEach(el => { el.style.display = 'none'; });
+        };
+
+        // --- CUSTOM ALERT & CONFIRM MODALS ---
+        window.showAlertModal = (message, title = 'แจ้งเตือน') => {
+            document.getElementById('alert-modal-title').textContent = title;
+            document.getElementById('alert-modal-text').textContent = message;
+            openModal('alertModal');
+        };
+        window.openConfirmModal = (message, onConfirm, confirmButtonClass = 'bg-red-500 hover:bg-red-600') => {
+            document.getElementById('confirm-modal-text').textContent = message;
+            const confirmBtn = document.getElementById('confirm-modal-confirm-btn');
+            confirmBtn.className = `px-6 py-2 text-white font-bold rounded-lg ${confirmButtonClass}`;
+            confirmCallback = onConfirm;
+            openModal('confirmModal');
+        };
+        window.openLightbox = function (src) {
+            document.getElementById('lightboxImage').src = src;
+            document.getElementById('lightboxModal').style.display = 'flex';
+        }
+
+        // --- EVENT LISTENERS ---
+        document.getElementById('province-filter').addEventListener('change', (e) => {
+            const districtFilter = document.getElementById('district-filter');
+            districtFilter.length = 1;
+            const province = e.target.value;
+            if (province && thailandData[province]) {
+                const districts = Object.keys(thailandData[province]).sort();
+                districts.forEach(dist => { districtFilter.add(new Option(dist, dist)); });
+            }
+        });
+        document.getElementById('confirm-modal-cancel-btn').addEventListener('click', () => {
+            closeModal('confirmModal');
+            confirmCallback = null;
+        });
+        document.getElementById('confirm-modal-confirm-btn').addEventListener('click', () => {
+            if (typeof confirmCallback === 'function') { confirmCallback(); }
+            closeModal('confirmModal');
+            confirmCallback = null;
+        });
+        document.getElementById('alert-modal-ok-btn').addEventListener('click', () => { closeModal('alertModal'); });
+
+        // --- SLIDESHOW LOGIC ---
+        let currentSlide = 0;
+        let slideInterval;
+        const slides = document.querySelectorAll('#banner-slideshow .slide');
+        const dotsContainer = document.getElementById('slide-dots');
+        function showSlide(n) {
+            slides.forEach((slide, index) => { slide.style.opacity = index === n ? '1' : '0'; });
+            document.querySelectorAll('#slide-dots .dot').forEach((dot, index) => {
+                dot.classList.toggle('bg-white', index === n);
+                dot.classList.toggle('bg-white/50', index !== n);
+            });
+            currentSlide = n;
+        }
+        function nextSlide() { showSlide((currentSlide + 1) % slides.length); }
+        function prevSlide() { showSlide((currentSlide - 1 + slides.length) % slides.length); }
+        function startSlideshow() { stopSlideshow(); slideInterval = setInterval(nextSlide, 5000); }
+        function stopSlideshow() { clearInterval(slideInterval); }
+
+        // --- PROFILE DROPDOWN & MOBILE MENU ---
+        const profileDropdownMenu = document.getElementById('profile-dropdown-menu');
+        window.toggleProfileDropdown = () => { profileDropdownMenu.classList.toggle('hidden'); }
+        window.toggleMobileMenu = () => { mobileMenu.classList.toggle('hidden'); }
+        document.addEventListener('click', (event) => {
+            const profileButton = document.getElementById('profile-dropdown-button');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            if (profileButton && !profileButton.contains(event.target) && !profileDropdownMenu.contains(event.target)) {
+                profileDropdownMenu.classList.add('hidden');
+            }
+            if (mobileMenuButton && !mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target) && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // --- EDIT PROFILE ---
+        window.openEditProfileModal = () => {
+            document.getElementById('edit-profile-phone').value = currentUser.phone || '';
+            document.getElementById('edit-profile-line').value = currentUser.lineId || '';
+            openModal('editProfileModal');
+        };
+        editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('edit-profile-phone').value;
+            const lineId = document.getElementById('edit-profile-line').value;
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userDocRef, { phone, lineId });
+                currentUser.phone = phone;
+                currentUser.lineId = lineId;
+                closeModal('editProfileModal');
+                router(); 
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                showAlertModal('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            }
+        });
+
+        // --- INITIAL LOAD & ROUTE HANDLING ---
+        window.addEventListener('hashchange', router);
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchThailandData();
+            document.getElementById('admin-dashboard-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('dashboard'); });
+            document.getElementById('admin-listings-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('listings'); });
+            document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('users'); });
+            if (slides.length > 0) {
+                slides.forEach((_, i) => {
+                    const dot = createElement('button', ['dot', 'w-3', 'h-3', 'rounded-full', 'transition-colors']);
+                    dot.addEventListener('click', () => { showSlide(i); stopSlideshow(); startSlideshow(); });
+                    dotsContainer.appendChild(dot);
+                });
+                document.getElementById('prev-slide').addEventListener('click', () => { prevSlide(); stopSlideshow(); startSlideshow(); });
+                document.getElementById('next-slide').addEventListener('click', () => { nextSlide(); stopSlideshow(); startSlideshow(); });
+                showSlide(0);
+                startSlideshow();
+            }
+        });
+    </script>
+</body>
+
+</html>
