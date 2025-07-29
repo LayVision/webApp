@@ -339,7 +339,6 @@
                                 <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
                                 <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
                                 <li><a href="#" id="admin-boosts-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-rocket w-6 mr-2"></i>จัดการดันโพสต์</a></li>
-                                <!-- [NEW] Manage Active Boosts Link -->
                                 <li><a href="#" id="admin-boosted-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-star w-6 mr-2"></i>โพสต์ที่ถูกดัน</a></li>
                             </ul>
                         </nav>
@@ -1783,6 +1782,65 @@
                     showAlertModal("เกิดข้อผิดพลาด");
                 }
              }, 'bg-red-500 hover:bg-red-600');
+        }
+
+        // [NEW] Render table for currently boosted posts
+        async function renderAdminBoostedTable() {
+            const adminMainContent = document.getElementById('admin-main-content');
+            adminMainContent.innerHTML = '';
+            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
+            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'ประกาศทั้งหมดที่กำลังดันอยู่'));
+            const tableContainer = createElement('div', ['overflow-x-auto']);
+            container.appendChild(tableContainer);
+            adminMainContent.appendChild(container);
+            
+            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
+            try {
+                const q = query(listingsCollection, where("isBoosted", "==", true));
+                const querySnapshot = await getDocs(q);
+                let boostedListings = [];
+                const now = new Date();
+                querySnapshot.forEach(doc => {
+                    const listing = { id: doc.id, ...doc.data() };
+                    // Only include posts that are actually active
+                    if (listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now) {
+                        boostedListings.push(listing);
+                    }
+                });
+
+                boostedListings.sort((a, b) => (a.boostExpiryDate?.toMillis() || 0) - (b.boostExpiryDate?.toMillis() || 0));
+
+                populateAdminBoostedTable(tableContainer, boostedListings);
+            } catch (error) {
+                console.error("Error fetching boosted listings:", error);
+                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
+            }
+        }
+
+        function populateAdminBoostedTable(container, listings) {
+            container.innerHTML = '';
+            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีประกาศที่กำลังดันอยู่</p>`; return; }
+            
+            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">เวลาที่เหลือ</th><th class="p-3">วันหมดอายุ</th><th class="p-3">จัดการ</th></tr></thead>`;
+            const tbody = createElement('tbody');
+            
+            listings.forEach(listing => {
+                const tr = createElement('tr', ['border-b']);
+                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
+                tr.appendChild(createElement('td', ['p-3'], listing.ownerUsername));
+                tr.appendChild(createElement('td', ['p-3', 'font-semibold'], formatTimeRemaining(listing.boostExpiryDate)));
+                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.boostExpiryDate, true)));
+                
+                const actionsCell = createElement('td', ['p-3']);
+                const removeBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'เอาลง');
+                removeBtn.onclick = () => removeBoost(listing.id);
+                actionsCell.appendChild(removeBtn);
+                tr.appendChild(actionsCell);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            container.appendChild(table);
         }
 
 
