@@ -339,6 +339,8 @@
                                 <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
                                 <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
                                 <li><a href="#" id="admin-boosts-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-rocket w-6 mr-2"></i>จัดการดันโพสต์</a></li>
+                                <!-- [NEW] Manage Active Boosts Link -->
+                                <li><a href="#" id="admin-boosted-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-star w-6 mr-2"></i>โพสต์ที่ถูกดัน</a></li>
                             </ul>
                         </nav>
                     </aside>
@@ -1503,6 +1505,7 @@
             else if (activeTab === 'listings') { await renderAdminListingsTable(); } 
             else if (activeTab === 'users') { await renderAdminUsersTable(); }
             else if (activeTab === 'boosts') { await renderAdminBoostsTable(); }
+            else if (activeTab === 'boosted') { await renderAdminBoostedTable(); }
         }
         
         async function renderAdminDashboard() {
@@ -1548,7 +1551,7 @@
             adminMainContent.appendChild(container);
             tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
             try {
-                const querySnapshot = await getDocs(query(listingsCollection, orderBy("updatedAt", "desc")));
+                const querySnapshot = await getDocs(query(listingsCollection, orderBy("createdAt", "desc")));
                 currentAdminListings = [];
                 querySnapshot.forEach((doc) => { currentAdminListings.push({ id: doc.id, ...doc.data() }); });
                 searchInput.addEventListener('input', (e) => {
@@ -1571,7 +1574,7 @@
              container.innerHTML = '';
             if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบประกาศ</p>`; return; }
             const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อประกาศ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">ประเภท</th><th class="p-3">ราคา</th><th class="p-3">อัปเดตล่าสุด</th><th class="p-3">จัดการ</th></tr></thead>`;
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อประกาศ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">ประเภท</th><th class="p-3">ราคา</th><th class="p-3">วันที่ลง</th><th class="p-3">จัดการ</th></tr></thead>`;
             const tbody = createElement('tbody');
             listings.forEach(listing => {
                 const tr = createElement('tr', ['border-b']);
@@ -1579,7 +1582,7 @@
                 tr.appendChild(createElement('td', ['p-3'], listing.ownerUsername || listing.ownerEmail));
                 tr.appendChild(createElement('td', ['p-3'], listing.type));
                 tr.appendChild(createElement('td', ['p-3'], getPriceDisplay(listing.priceRent)));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.updatedAt)));
+                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.createdAt)));
                 const actionsCell = createElement('td', ['p-3', 'flex', 'gap-3', 'items-center']);
                 const viewBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], '', {title: 'ดูประกาศ'});
                 viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
@@ -2062,6 +2065,7 @@
             document.getElementById('admin-listings-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('listings'); });
             document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('users'); });
             document.getElementById('admin-boosts-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosts'); });
+            document.getElementById('admin-boosted-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosted'); });
 
             if (slides.length > 0) {
                 slides.forEach((_, i) => {
