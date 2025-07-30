@@ -533,17 +533,17 @@
             <div id="payment-details-container" class="hidden">
                  <h4 class="font-bold text-lg mb-4 text-center">ขั้นตอนการชำระเงิน</h4>
                  <div class="flex flex-col md:flex-row gap-6 items-center">
-                     <div class="w-full md:w-1/2 text-center">
-                        <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-                        <img id="qr-code-image" src="img/p_qr_bank.png" alt="QR Code" class="mx-auto rounded-lg shadow-md">
-                        <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
-                     </div>
-                     <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                         <p class="font-bold text-red-600 text-lg mb-2">สำคัญมาก!</p>
-                         <p class="mb-4">กรุณาใส่ "รหัสประกาศ" ด้านล่างนี้ในช่อง <strong class="text-blue-600">"บันทึกช่วยจำ"</strong> หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
-                         <p class="text-sm text-gray-600">รหัสประกาศ (Post ID):</p>
-                         <p id="payment-post-id" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
-                     </div>
+                       <div class="w-full md:w-1/2 text-center">
+                            <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
+                            <img id="qr-code-image" src="img/p_qr_bank.png" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+                            <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
+                       </div>
+                       <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                           <p class="font-bold text-red-600 text-lg mb-2">สำคัญมาก!</p>
+                           <p class="mb-4">กรุณาใส่ "รหัสประกาศ" ด้านล่างนี้ในช่อง <strong class="text-blue-600">"บันทึกช่วยจำ"</strong> หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
+                           <p class="text-sm text-gray-600">รหัสประกาศ (Post ID):</p>
+                           <p id="payment-post-id" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
+                       </div>
                  </div>
             </div>
 
@@ -1540,6 +1540,7 @@
             else if (activeTab === 'users') { await renderAdminUsersTable(); }
             else if (activeTab === 'boosts') { await renderAdminBoostsTable(); }
             else if (activeTab === 'boosted') { await renderAdminBoostedTable(); }
+            else if (activeTab === 'assistant') { renderAdminAssistant(); }
         }
         
         async function renderAdminDashboard() {
@@ -1808,19 +1809,19 @@
         
         async function removeBoost(listingId) {
              openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการเอาโพสต์ "${listingId}" ลงจากการดัน?`, async () => {
-                try {
-                    const docRef = doc(db, "listings", listingId);
-                    await updateDoc(docRef, {
-                        isBoosted: false,
-                        boostStatus: 'expired' // Or 'removed_by_admin'
-                    });
-                    showAlertModal("นำโพสต์ลงจากการดันสำเร็จ!");
-                    router(); // Refresh current view
-                } catch (error) {
-                     console.error("Error removing boost:", error);
-                    showAlertModal("เกิดข้อผิดพลาด");
-                }
-             }, 'bg-red-500 hover:bg-red-600');
+                 try {
+                     const docRef = doc(db, "listings", listingId);
+                     await updateDoc(docRef, {
+                         isBoosted: false,
+                         boostStatus: 'expired' // Or 'removed_by_admin'
+                     });
+                     showAlertModal("นำโพสต์ลงจากการดันสำเร็จ!");
+                     router(); // Refresh current view
+                 } catch (error) {
+                      console.error("Error removing boost:", error);
+                     showAlertModal("เกิดข้อผิดพลาด");
+                 }
+               }, 'bg-red-500 hover:bg-red-600');
         }
 
         async function renderAdminBoostedTable() {
@@ -1881,6 +1882,151 @@
             container.appendChild(table);
         }
 
+        // --- [NEW] AI ASSISTANT ---
+        function renderAdminAssistant() {
+            const adminMainContent = document.getElementById('admin-main-content');
+            adminMainContent.innerHTML = '';
+
+            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
+            
+            const header = createElement('div', ['flex', 'items-center', 'gap-3', 'mb-4']);
+            header.innerHTML = '<i class="fas fa-magic text-2xl text-purple-500"></i>';
+            header.appendChild(createElement('h4', ['text-xl', 'font-bold'], 'เครื่องมือช่วยลงประกาศด้วย AI'));
+            
+            container.appendChild(header);
+            container.appendChild(createElement('p', ['text-gray-600', 'mb-4'], 'คัดลอกข้อความประกาศจากที่อื่นมาวางในช่องด้านล่าง แล้วให้ AI ช่วยดึงข้อมูลเพื่อสร้างประกาศให้อัตโนมัติ'));
+            
+            const textarea = createElement('textarea', ['w-full', 'p-3', 'border', 'rounded-lg', 'h-64', 'mb-4'], '', {
+                id: 'ai-assistant-input',
+                placeholder: 'วางข้อความประกาศทั้งหมดที่นี่...'
+            });
+            container.appendChild(textarea);
+            
+            const button = createElement('button', ['w-full', 'p-3', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'flex', 'items-center', 'justify-center', 'gap-2'], '<i class="fas fa-cogs"></i>ดึงข้อมูลด้วย AI', {
+                id: 'ai-assistant-button'
+            });
+            button.onclick = handleAIAssist;
+            container.appendChild(button);
+            
+            adminMainContent.appendChild(container);
+        }
+
+        async function handleAIAssist() {
+            const inputText = document.getElementById('ai-assistant-input').value;
+            if (!inputText.trim()) {
+                showAlertModal('กรุณาวางข้อความประกาศก่อน');
+                return;
+            }
+
+            const button = document.getElementById('ai-assistant-button');
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังวิเคราะห์...';
+
+            try {
+                // This is the prompt for the AI model
+                const prompt = `
+                    วิเคราะห์ข้อความประกาศให้เช่าต่อไปนี้ และดึงข้อมูลออกมาเป็น JSON object ตาม schema ที่กำหนด
+                    ข้อความ: "${inputText}"
+
+                    ข้อกำหนดเพิ่มเติม:
+                    - title: ต้องเป็นหัวข้อที่กระชับและน่าสนใจที่สุด
+                    - priceRent: ต้องเป็นตัวเลขเท่านั้น ถ้าไม่พบให้เป็น 0
+                    - province: ต้องเป็นชื่อจังหวัดในประเทศไทย ถ้าไม่พบให้เป็นค่าว่าง ""
+                    - district: ต้องเป็นชื่ออำเภอ/เขตในจังหวัดนั้นๆ ถ้าไม่พบให้เป็นค่าว่าง ""
+                    - description: คือรายละเอียดทั้งหมดของประกาศ
+                    - phone: คือเบอร์โทรศัพท์ที่ติดต่อได้
+                    - lineId: คือ Line ID ที่ติดต่อได้
+                `;
+
+                // Define the expected JSON structure
+                const schema = {
+                    type: "OBJECT",
+                    properties: {
+                        "title": { "type": "STRING" },
+                        "priceRent": { "type": "NUMBER" },
+                        "province": { "type": "STRING" },
+                        "district": { "type": "STRING" },
+                        "description": { "type": "STRING" },
+                        "phone": { "type": "STRING" },
+                        "lineId": { "type": "STRING" },
+                    }
+                };
+                
+                // Construct the payload for the Gemini API
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: schema
+                    }
+                };
+                
+                const apiKey = ""; // Canvas will provide the key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                // Make the API call
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0]) {
+                    const extractedData = JSON.parse(result.candidates[0].content.parts[0].text);
+                    populatePostFormWithAIData(extractedData);
+                } else {
+                    throw new Error("AI ไม่สามารถประมวลผลข้อมูลได้");
+                }
+
+            } catch (error) {
+                console.error("AI Assistant Error:", error);
+                showAlertModal(`เกิดข้อผิดพลาดจาก AI: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-cogs"></i>ดึงข้อมูลด้วย AI';
+            }
+        }
+
+        function populatePostFormWithAIData(data) {
+            // Reset form first
+            postForm.reset();
+            document.getElementById('post-modal-title').textContent = 'ลงประกาศ (ข้อมูลจาก AI)';
+            document.getElementById('post-id').value = '';
+            imagePreviewContainer.innerHTML = '';
+            selectedFiles = [];
+            existingImageUrls = [];
+
+            // Populate fields
+            document.getElementById('post-title').value = data.title || '';
+            document.getElementById('post-price-rent').value = data.priceRent || '';
+            document.getElementById('post-description').value = data.description || '';
+            document.getElementById('post-phone').value = data.phone || '';
+            document.getElementById('post-line-id').value = data.lineId || '';
+            
+            // Handle location dropdowns
+            const provinceDropdown = document.getElementById('post-province');
+            if (data.province && Object.keys(thailandData).includes(data.province)) {
+                provinceDropdown.value = data.province;
+                populateDistrictDropdowns(data.province);
+                
+                // Use a short delay to ensure districts are populated before selecting one
+                setTimeout(() => {
+                    const districtDropdown = document.getElementById('post-district');
+                    if(data.district) {
+                       districtDropdown.value = data.district;
+                    }
+                }, 100);
+            }
+
+            showAlertModal('ข้อมูลจาก AI ถูกกรอกในฟอร์มเรียบร้อยแล้ว! กรุณาตรวจสอบความถูกต้องและเพิ่มรูปภาพ');
+            openModal('postModal');
+        }
 
         // --- USER PROFILE PAGE ---
         async function renderProfilePage(userId) {
