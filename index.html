@@ -45,7 +45,6 @@
             overflow-y: auto;
         }
         
-        /* [FIXED] Higher z-index for modals that can stack */
         #boostModal, #adminApproveBoostModal, #profilePictureModal {
             z-index: 60;
         }
@@ -137,6 +136,18 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
         }
+
+        /* Notification Styles */
+        #notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ef4444; /* red-500 */
+            border: 1px solid white;
+        }
     </style>
 </head>
 
@@ -172,6 +183,21 @@
                         class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-lg hover:bg-purple-600 flex items-center">
                         <i class="fas fa-rocket mr-2"></i>ดันโพสต์
                     </button>
+                    
+                    <!-- [NEW] Notification Bell -->
+                    <div class="relative">
+                        <button id="notification-button" onclick="toggleNotificationDropdown()" class="text-xl text-gray-600 hover:text-blue-600 p-2 relative">
+                            <i class="fas fa-bell"></i>
+                            <span id="notification-badge" class="hidden"></span>
+                        </button>
+                        <div id="notification-dropdown" class="hidden absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-30 border">
+                            <div class="p-3 border-b font-bold text-center">การแจ้งเตือน</div>
+                            <div id="notification-list" class="max-h-96 overflow-y-auto">
+                                <!-- Notifications will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="relative">
                         <button id="profile-dropdown-button" onclick="toggleProfileDropdown()"
                             class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden">
@@ -649,7 +675,7 @@
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyC1e0VTI5lcUz1y-PiBkjvIfXqRULM766Q",
@@ -674,6 +700,7 @@
         let existingImageUrls = [];
         let currentAdminListings = [];
         let currentAdminUsers = [];
+        let notificationListener = null; // To hold the listener unsubscribe function
 
         // --- UI ELEMENTS ---
         const homeView = document.getElementById('home-view');
@@ -954,6 +981,12 @@
 
         // --- AUTHENTICATION ---
         onAuthStateChanged(auth, async (user) => {
+            // Detach old listener if it exists
+            if (notificationListener) {
+                notificationListener();
+                notificationListener = null;
+            }
+
             if (user) {
                 try {
                     const userDocRef = doc(db, "users", user.uid);
@@ -963,6 +996,8 @@
                     } else {
                         currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
                     }
+                    // Setup new notification listener
+                    setupNotificationListener(user.uid);
                 } catch (error) {
                     console.error("Error fetching user profile:", error);
                     currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
@@ -1757,10 +1792,14 @@
                 tr.appendChild(createElement('td', ['p-3'], `฿${listing.boostPrice || 'N/A'}`));
                 tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.boostRequestedAt)));
                 
-                const actionsCell = createElement('td', ['p-3']);
+                const actionsCell = createElement('td', ['p-3', 'flex', 'gap-2']);
                 const approveBtn = createElement('button', ['px-3', 'py-1', 'bg-green-500', 'text-white', 'rounded', 'hover:bg-green-600', 'text-xs'], 'อนุมัติ');
                 approveBtn.onclick = () => openAdminApproveModal(listing.id, listing.title, listing.boostTier);
-                actionsCell.appendChild(approveBtn);
+                
+                const rejectBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'ไม่อนุมัติ');
+                rejectBtn.onclick = () => rejectBoost(listing.id, listing.ownerUid);
+
+                actionsCell.append(approveBtn, rejectBtn);
                 tr.appendChild(actionsCell);
                 tbody.appendChild(tr);
             });
@@ -2003,7 +2042,16 @@
                                 removeBtn.onclick = () => removeBoost(listing.id);
                                 boostSection.appendChild(removeBtn);
                             }
-                        } else {
+                        } else if (listing.boostStatus === 'rejected') {
+                            const status = createElement('p', ['text-sm', 'font-semibold', 'text-red-600'], 'การชำระเงินไม่สำเร็จ');
+                            status.prepend(createElement('i', ['fas', 'fa-times-circle', 'mr-2']));
+                            boostSection.appendChild(status);
+                            const boostBtn = createElement('button', ['py-1', 'px-3', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-xs']);
+                            boostBtn.innerHTML = '<i class="fas fa-rocket mr-1"></i>ลองอีกครั้ง';
+                            boostBtn.onclick = () => openBoostModal(listing.id);
+                            boostSection.appendChild(boostBtn);
+                        }
+                        else {
                             const boostBtn = createElement('button', ['w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-sm']);
                             boostBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>ดันโพสต์นี้';
                             boostBtn.onclick = () => openBoostModal(listing.id);
