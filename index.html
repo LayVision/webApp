@@ -44,6 +44,18 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+        
+        /* [FIXED] Higher z-index for modals that can stack */
+        #boostModal, #adminApproveBoostModal, #profilePictureModal {
+            z-index: 60;
+        }
+        
+        #lightboxModal {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 70; 
+        }
 
         /* Custom badge for boosted listings */
         .boosted-badge {
@@ -104,13 +116,6 @@
 
         .set-cover-btn.is-cover {
             background-color: #f59e0b;
-        }
-
-        #lightboxModal {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 60; /* Increased z-index */
         }
         
         /* Admin page specific styles */
@@ -1369,21 +1374,20 @@
                     actionsDiv.append(editBtn, deleteBtn);
                     
                     const boostBtn = createElement('button', ['w-full', 'py-3', 'text-white', 'font-bold', 'rounded-lg', 'mt-2']);
-                    boostBtn.prepend(createElement('i', ['fas', 'fa-rocket', 'mr-2']));
                     
                     const now = new Date();
                     const isBoostedAndActive = listing.isBoosted && (!listing.boostExpiryDate || listing.boostExpiryDate.toDate() > now);
 
                     if (listing.boostStatus === 'pending') {
-                        boostBtn.textContent = 'รอการอนุมัติ';
+                        boostBtn.innerHTML = '<i class="fas fa-clock mr-2"></i>รอการอนุมัติ';
                         boostBtn.classList.add('bg-yellow-500', 'cursor-not-allowed');
                         boostBtn.disabled = true;
                     } else if (isBoostedAndActive) {
-                        boostBtn.textContent = 'ดันโพสต์แล้ว';
+                        boostBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>ดันโพสต์แล้ว';
                         boostBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
                         boostBtn.disabled = true;
                     } else {
-                        boostBtn.textContent = 'ดันโพสต์';
+                        boostBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>ดันโพสต์';
                         boostBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
                         boostBtn.onclick = () => openBoostModal(listing.id);
                     }
