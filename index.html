@@ -535,7 +535,7 @@
                  <div class="flex flex-col md:flex-row gap-6 items-center">
                        <div class="w-full md:w-1/2 text-center">
                             <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-                            <img id="qr-code-image" src="img/p_qr_bank.png" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+                            <img id="qr-code-image" src="https://placehold.co/250x250/e2e8f0/64748b?text=QR+Code" alt="QR Code" class="mx-auto rounded-lg shadow-md">
                             <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
                        </div>
                        <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
@@ -649,14 +649,20 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyC1e0VTI5lcUz1y-PiBkjvIfXqRULM766Q",
-            authDomain: "cnx-home-7e61b.firebaseapp.com",
-            projectId: "cnx-home-7e61b",
-            storageBucket: "cnx-home-7e61b.appspot.com",
-            messagingSenderId: "788017278292",
-            appId: "1:788017278292:web:6aef703d5dfb5f735facc1"
-        };
+        // [FIX] Correctly initialize Firebase config from environment variable
+        // This ensures the correct API key with proper permissions is used for all Google services.
+        const firebaseConfig = typeof __firebase_config !== 'undefined'
+            ? JSON.parse(__firebase_config)
+            : {
+                // This is a fallback and might not work if the environment variable is missing.
+                apiKey: "AIzaSyC1e0VTI5lcUz1y-PiBkjvIfXqRULM766Q",
+                authDomain: "cnx-home-7e61b.firebaseapp.com",
+                projectId: "cnx-home-7e61b",
+                storageBucket: "cnx-home-7e61b.appspot.com",
+                messagingSenderId: "788017278292",
+                appId: "1:788017278292:web:6aef703d5dfb5facc1"
+            };
+
 
         // --- INITIALIZATION ---
         const app = initializeApp(firebaseConfig);
@@ -1354,11 +1360,11 @@
                     const actionsDiv = createElement('div', ['mt-6', 'flex', 'flex-wrap', 'gap-4']);
                     
                     const editBtn = createElement('button', ['flex-1', 'py-3', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไข');
-                    editBtn.prepend(createElement('i', ['fas', 'fa-edit', 'mr-2']));
+                    editBtn.prepend(createElement('i', ['fas fa-edit', 'mr-2']));
                     editBtn.onclick = () => editListing(listing.id);
 
                     const deleteBtn = createElement('button', ['flex-1', 'py-3', 'bg-red-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-red-600'], 'ลบ');
-                    deleteBtn.prepend(createElement('i', ['fas', 'fa-trash', 'mr-2']));
+                    deleteBtn.prepend(createElement('i', ['fas fa-trash', 'mr-2']));
                     deleteBtn.onclick = () => deleteListing(listing.id);
                     
                     actionsDiv.append(editBtn, deleteBtn);
