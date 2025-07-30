@@ -45,10 +45,10 @@
             overflow-y: auto;
         }
         
-        /* [FIXED] Stacking order for modals */
         #boostModal, #adminApproveBoostModal, #profilePictureModal {
             z-index: 60;
         }
+        
         #alertModal, #confirmModal {
             z-index: 70;
         }
@@ -464,12 +464,6 @@
                     </select>
                 </div>
                 <div class="md:col-span-2">
-                    <label for="post-subdistrict" class="block text-sm font-medium">ตำบล/แขวง</label>
-                    <select id="post-subdistrict" name="post-subdistrict" class="w-full p-2 border rounded-lg" required>
-                        <option value="">-- เลือกตำบล/แขวง --</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2">
                     <label for="post-description" class="block text-sm font-medium">รายละเอียดเพิ่มเติม</label>
                     <textarea id="post-description" name="post-description" rows="4" class="w-full p-2 border rounded-lg" required
                         maxlength="1000"></textarea>
@@ -625,7 +619,7 @@
         <p id="confirm-modal-text" class="text-center mb-6"></p>
         <div class="flex justify-center gap-4">
             <button id="confirm-modal-cancel-btn"
-                class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">ยกเลิก</button>
+                class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-400">ยกเลิก</button>
             <button id="confirm-modal-confirm-btn" class="px-6 py-2 text-white font-bold rounded-lg">ยืนยัน</button>
         </div>
     </div>
@@ -836,14 +830,12 @@
         function populateDistrictDropdowns(province) {
             const postDistrict = document.getElementById('post-district');
             postDistrict.length = 1;
-            document.getElementById('post-subdistrict').length = 1;
             if (province && thailandData[province]) {
                 const districts = Object.keys(thailandData[province]).sort();
                 districts.forEach(dist => {
                     postDistrict.add(new Option(dist, dist));
                 });
             }
-            postDistrict.addEventListener('change', () => populateSubdistrictDropdowns(province, postDistrict.value));
         }
 
         function populateSubdistrictDropdowns(province, district) {
@@ -1156,7 +1148,6 @@
                     availableDate: document.getElementById('post-available-date').value || '',
                     province: document.getElementById('post-province').value,
                     district: document.getElementById('post-district').value,
-                    subdistrict: document.getElementById('post-subdistrict').value,
                     description: document.getElementById('post-description').value,
                     imageUrls: finalImageUrls,
                     phone: document.getElementById('post-phone').value,
@@ -1337,7 +1328,7 @@
 
                 detailsCol.appendChild(detailsHeader);
                 detailsCol.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-2', 'mb-2', 'break-words'], listing.title));
-                const locationP = createElement('p', ['text-lg', 'text-gray-600', 'mb-4'], `${listing.subdistrict}, ${listing.district}, ${listing.province}`);
+                const locationP = createElement('p', ['text-lg', 'text-gray-600', 'mb-4'], `${listing.district}, ${listing.province}`);
                 locationP.prepend(createElement('i', ['fas', 'fa-map-marker-alt', 'mr-2']));
                 detailsCol.appendChild(locationP);
                 detailsCol.appendChild(createElement('p', ['text-3xl', 'font-bold', 'text-blue-600', 'mb-4'], getPriceDisplay(listing.priceRent)));
