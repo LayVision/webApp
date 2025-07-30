@@ -348,6 +348,7 @@
                                 <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
                                 <li><a href="#" id="admin-boosts-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-rocket w-6 mr-2"></i>จัดการดันโพสต์</a></li>
                                 <li><a href="#" id="admin-boosted-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-star w-6 mr-2"></i>โพสต์ที่ถูกดัน</a></li>
+                                <li><a href="#" id="admin-assistant-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-magic w-6 mr-2"></i>เครื่องมือช่วยลงประกาศ</a></li>
                             </ul>
                         </nav>
                     </aside>
@@ -671,7 +672,6 @@
         let existingImageUrls = [];
         let currentAdminListings = [];
         let currentAdminUsers = [];
-        let notificationListener = null; // To hold the listener unsubscribe function
 
         // --- UI ELEMENTS ---
         const homeView = document.getElementById('home-view');
@@ -834,17 +834,6 @@
                 const districts = Object.keys(thailandData[province]).sort();
                 districts.forEach(dist => {
                     postDistrict.add(new Option(dist, dist));
-                });
-            }
-        }
-
-        function populateSubdistrictDropdowns(province, district) {
-            const postSubdistrict = document.getElementById('post-subdistrict');
-            postSubdistrict.length = 1;
-            if (province && district && thailandData[province] && thailandData[province][district]) {
-                const subdistricts = thailandData[province][district].sort();
-                subdistricts.forEach(sub => {
-                    postSubdistrict.add(new Option(sub, sub));
                 });
             }
         }
@@ -1430,10 +1419,6 @@
                 setTimeout(() => {
                     const postDistrict = document.getElementById('post-district');
                     postDistrict.value = listing.district;
-                    populateSubdistrictDropdowns(listing.province, listing.district);
-                    setTimeout(() => {
-                        document.getElementById('post-subdistrict').value = listing.subdistrict;
-                    }, 50);
                 }, 50);
                 openModal('postModal');
             }
@@ -2284,6 +2269,7 @@
             document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('users'); });
             document.getElementById('admin-boosts-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosts'); });
             document.getElementById('admin-boosted-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosted'); });
+            document.getElementById('admin-assistant-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('assistant'); });
 
             if (slides.length > 0) {
                 slides.forEach((_, i) => {
