@@ -45,15 +45,18 @@
             overflow-y: auto;
         }
         
+        /* [FIXED] Stacking order for modals */
         #boostModal, #adminApproveBoostModal, #profilePictureModal {
             z-index: 60;
         }
-        
+        #alertModal, #confirmModal {
+            z-index: 70;
+        }
         #lightboxModal {
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 70; 
+            z-index: 80; 
         }
 
         /* Custom badge for boosted listings */
