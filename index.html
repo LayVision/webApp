@@ -136,18 +136,6 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
         }
-
-        /* Notification Styles */
-        #notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #ef4444; /* red-500 */
-            border: 1px solid white;
-        }
     </style>
 </head>
 
@@ -184,20 +172,6 @@
                         <i class="fas fa-rocket mr-2"></i>ดันโพสต์
                     </button>
                     
-                    <!-- Notification Bell -->
-                    <div class="relative">
-                        <button id="notification-button" onclick="toggleNotificationDropdown()" class="text-xl text-gray-600 hover:text-blue-600 p-2 relative">
-                            <i class="fas fa-bell"></i>
-                            <span id="notification-badge" class="hidden"></span>
-                        </button>
-                        <div id="notification-dropdown" class="hidden absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-30 border">
-                            <div class="p-3 border-b font-bold text-center">การแจ้งเตือน</div>
-                            <div id="notification-list" class="max-h-96 overflow-y-auto">
-                                <!-- Notifications will be injected here -->
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="relative">
                         <button id="profile-dropdown-button" onclick="toggleProfileDropdown()"
                             class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden">
@@ -981,12 +955,6 @@
 
         // --- AUTHENTICATION ---
         onAuthStateChanged(auth, async (user) => {
-            // Detach old listener if it exists
-            if (notificationListener) {
-                notificationListener();
-                notificationListener = null;
-            }
-
             if (user) {
                 try {
                     const userDocRef = doc(db, "users", user.uid);
@@ -996,8 +964,6 @@
                     } else {
                         currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
                     }
-                    // Setup new notification listener
-                    setupNotificationListener(user.uid);
                 } catch (error) {
                     console.error("Error fetching user profile:", error);
                     currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
