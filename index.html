@@ -12,7 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         /* Base styles */
@@ -144,18 +143,14 @@
 
 <body class="text-gray-800">
 
-    <!-- Main Container -->
     <div id="app" class="container mx-auto p-4 md:p-6">
 
-        <!-- Header -->
         <header class="relative flex justify-between items-center mb-6 pb-4 border-b">
             <h1 class="text-2xl md:text-3xl font-bold text-blue-600 cursor-pointer" onclick="navigateToHome()">
                 <i class="fas fa-home mr-2"></i>ChaoYouHome
             </h1>
 
-            <!-- Desktop Navigation -->
             <nav class="hidden md:block">
-                <!-- Logged Out State -->
                 <div id="nav-logged-out-view" class="flex items-center gap-2 md:gap-4">
                     <button onclick="openModal('loginModal')"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100"><i
@@ -164,7 +159,6 @@
                         class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"><i
                             class="fas fa-user-plus mr-2"></i>สมัครสมาชิก</button>
                 </div>
-                <!-- Logged In State -->
                 <div id="nav-logged-in-view" class="hidden items-center gap-4">
                     <button onclick="openModal('postModal')"
                         class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 flex items-center">
@@ -178,9 +172,7 @@
                     <div class="relative">
                         <button id="profile-dropdown-button" onclick="toggleProfileDropdown()"
                             class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden">
-                            <!-- User Initial or Picture will be inserted here -->
-                        </button>
-                        <!-- Dropdown Menu -->
+                            </button>
                         <div id="profile-dropdown-menu"
                             class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-30 border">
                             <div class="p-4 border-b">
@@ -215,7 +207,6 @@
                 </div>
             </nav>
 
-            <!-- Mobile Hamburger Button -->
             <div class="md:hidden">
                 <button id="mobile-menu-button" onclick="toggleMobileMenu()" class="text-2xl p-2">
                     <i class="fas fa-bars"></i>
@@ -223,7 +214,6 @@
             </div>
         </header>
 
-        <!-- Mobile Menu -->
         <div id="mobile-menu"
             class="hidden md:hidden bg-white absolute top-[85px] left-0 right-0 z-30 shadow-lg border-t">
             <div id="mobile-nav-logged-out-view" class="p-4 space-y-2">
@@ -235,18 +225,13 @@
                         class="fas fa-user-plus mr-2"></i>สมัครสมาชิก</button>
             </div>
             <div id="mobile-nav-logged-in-view" class="hidden">
-                <!-- Mobile Logged In Links will be populated by JS -->
-            </div>
+                </div>
         </div>
 
 
-        <!-- Page Views Container -->
         <main id="view-container">
-            <!-- Home View -->
             <div id="home-view">
-                <!-- Banner Slideshow Section -->
                 <div id="banner-slideshow" class="relative rounded-xl overflow-hidden mb-8 h-64 md:h-96">
-                    <!-- Slides -->
                     <div class="slide absolute inset-0 bg-cover bg-center"
                         style="background-image: url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop');">
                     </div>
@@ -257,14 +242,12 @@
                         style="background-image: url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop');">
                     </div>
 
-                    <!-- Text Overlay -->
                     <div
                         class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center text-white p-4">
                         <h2 class="text-3xl md:text-5xl font-bold mb-3">ค้นหาห้องเช่า บ้านเช่า และคอนโด</h2>
                         <p class="text-md md:text-xl">แหล่งรวมประกาศให้เช่าที่ดีที่สุดสำหรับคุณ</p>
                     </div>
 
-                    <!-- Navigation Buttons -->
                     <button id="prev-slide"
                         class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-2 rounded-full z-10">
                         <i class="fas fa-chevron-left"></i>
@@ -274,11 +257,9 @@
                         <i class="fas fa-chevron-right"></i>
                     </button>
 
-                    <!-- Dots -->
                     <div id="slide-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
                 </div>
 
-                <!-- Search Section -->
                 <div id="search-section" class="bg-white p-6 rounded-xl shadow-md mb-8">
                     <h2 class="text-xl font-bold mb-4">ค้นหาอสังหาริมทรัพย์ในฝันของคุณ</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -308,7 +289,6 @@
                     </div>
                 </div>
 
-                <!-- Listings Sections -->
                 <div id="listings-section-container">
                     <div id="boosted-listings-container">
                         <h3 class="text-2xl font-bold mb-6" id="listings-title">ประกาศแนะนำ <i
@@ -325,21 +305,17 @@
                         <h3 class="text-2xl font-bold mb-6" id="general-listings-title">ประกาศทั่วไป</h3>
                         <div id="general-listings-grid"
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            <!-- General listings will be populated here -->
-                        </div>
+                            </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- User Profile View -->
             <div id="profile-view" class="hidden"></div>
             
-            <!-- Admin View -->
             <div id="admin-view" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">แผงควบคุมสำหรับผู้ดูแลระบบ</h2>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <!-- Sidebar -->
                     <aside class="md:col-span-1 bg-white p-4 rounded-lg shadow-md h-fit">
                         <nav>
                             <ul class="space-y-2">
@@ -348,22 +324,17 @@
                                 <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
                                 <li><a href="#" id="admin-boosts-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-rocket w-6 mr-2"></i>จัดการดันโพสต์</a></li>
                                 <li><a href="#" id="admin-boosted-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-star w-6 mr-2"></i>โพสต์ที่ถูกดัน</a></li>
-                                <li><a href="#" id="admin-assistant-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-magic w-6 mr-2"></i>เครื่องมือช่วยลงประกาศ</a></li>
                             </ul>
                         </nav>
                     </aside>
-                    <!-- Main Content -->
                     <main class="md:col-span-3" id="admin-main-content">
-                        <!-- Admin content will be rendered here -->
-                    </main>
+                        </main>
                 </div>
             </div>
             
         </main>
     </div>
 
-    <!-- Modals -->
-    <!-- Login Modal -->
     <div id="loginModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 class="text-2xl font-bold mb-6 text-center">เข้าสู่ระบบ</h3>
         <form id="login-form">
@@ -385,7 +356,6 @@
             class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-    <!-- Register Modal -->
     <div id="registerModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 class="text-2xl font-bold mb-6 text-center">สมัครสมาชิก</h3>
         <form id="register-form">
@@ -416,7 +386,6 @@
             class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-    <!-- Post/Edit Listing Modal -->
     <div id="postModal" class="modal w-11/12 md:w-2/3 lg:w-1/2 bg-white rounded-xl shadow-2xl p-8">
         <h3 id="post-modal-title" class="text-2xl font-bold mb-6 text-center">ลงประกาศอสังหาริมทรัพย์</h3>
         <form id="post-form">
@@ -498,7 +467,6 @@
             class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-    <!-- Edit Profile Modal -->
     <div id="editProfileModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 class="text-2xl font-bold mb-6">แก้ไขข้อมูลส่วนตัว</h3>
         <form id="edit-profile-form">
@@ -520,30 +488,28 @@
         </form>
     </div>
     
-    <!-- Boost Post Modal -->
     <div id="boostModal" class="modal w-11/12 md:w-2/3 lg:w-1/2 bg-white rounded-xl shadow-2xl p-8">
         <div id="boost-selection-view">
             <h3 class="text-2xl font-bold mb-2 text-center">ดันประกาศของคุณ</h3>
             <p class="text-center text-gray-500 mb-6">เลือกแพ็กเกจเพื่อทำให้ประกาศของคุณโดดเด่นและเข้าถึงผู้คนได้มากขึ้น</p>
             
             <div id="boost-plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <!-- Plans will be injected by JS -->
-            </div>
+                </div>
 
             <div id="payment-details-container" class="hidden">
                  <h4 class="font-bold text-lg mb-4 text-center">ขั้นตอนการชำระเงิน</h4>
                  <div class="flex flex-col md:flex-row gap-6 items-center">
-                       <div class="w-full md:w-1/2 text-center">
-                            <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-                            <img id="qr-code-image" src="https://placehold.co/250x250/e2e8f0/64748b?text=QR+Code" alt="QR Code" class="mx-auto rounded-lg shadow-md">
-                            <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
-                       </div>
-                       <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                           <p class="font-bold text-red-600 text-lg mb-2">สำคัญมาก!</p>
-                           <p class="mb-4">กรุณาใส่ "รหัสประกาศ" ด้านล่างนี้ในช่อง <strong class="text-blue-600">"บันทึกช่วยจำ"</strong> หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
-                           <p class="text-sm text-gray-600">รหัสประกาศ (Post ID):</p>
-                           <p id="payment-post-id" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
-                       </div>
+                         <div class="w-full md:w-1/2 text-center">
+                             <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
+                             <img id="qr-code-image" src="https://placehold.co/250x250/e2e8f0/64748b?text=QR+Code" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+                             <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
+                         </div>
+                         <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <p class="font-bold text-red-600 text-lg mb-2">สำคัญมาก!</p>
+                            <p class="mb-4">กรุณาใส่ "รหัสประกาศ" ด้านล่างนี้ในช่อง <strong class="text-blue-600">"บันทึกช่วยจำ"</strong> หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
+                            <p class="text-sm text-gray-600">รหัสประกาศ (Post ID):</p>
+                            <p id="payment-post-id" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
+                         </div>
                  </div>
             </div>
 
@@ -564,7 +530,6 @@
         <button onclick="closeModal('boostModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-    <!-- Admin Approve Boost Modal -->
     <div id="adminApproveBoostModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 class="text-2xl font-bold mb-4 text-center">อนุมัติการดันประกาศ</h3>
         <p class="text-center mb-1">รหัสประกาศ:</p>
@@ -572,8 +537,7 @@
         <p class="text-center mb-4">กรุณาเลือกแพ็กเกจที่ผู้ใช้ชำระเงิน:</p>
         <form id="admin-approve-boost-form">
             <div id="admin-boost-plans-container" class="space-y-3 mb-6">
-                <!-- Admin boost plan options will be injected here -->
-            </div>
+                </div>
             <div class="flex justify-end gap-4">
                 <button type="button" onclick="closeModal('adminApproveBoostModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
                 <button type="submit" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">อนุมัติ</button>
@@ -581,17 +545,13 @@
         </form>
     </div>
 
-    <!-- Listing Detail Modal -->
     <div id="listingDetailModal" class="modal w-11/12 md:w-4/5 lg:w-3/4 bg-white rounded-xl shadow-2xl p-8">
-        <!-- Content will be injected by JS -->
-    </div>
+        </div>
 
-    <!-- Profile Picture Options Modal -->
     <div id="profilePictureModal" class="modal w-11/12 sm:w-1/3 md:w-1/4 bg-white rounded-xl shadow-2xl p-4">
         <div class="flex flex-col items-center">
             <div id="profile-pic-modal-preview-container" class="w-48 h-48 rounded-full object-cover mb-4 border-4 border-gray-200 bg-gray-300 flex items-center justify-center">
-                <!-- Image or Initial will be injected here -->
-            </div>
+                </div>
             <div class="w-full space-y-2">
                 <button id="view-profile-pic-btn" class="w-full text-left px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center"><i class="fas fa-eye w-5 mr-2"></i>ดูรูปภาพ</button>
                 <button id="change-profile-pic-btn" class="w-full text-left px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center"><i class="fas fa-camera w-5 mr-2"></i>เปลี่ยนรูปภาพ</button>
@@ -600,11 +560,9 @@
         </div>
         <button onclick="closeModal('profilePictureModal')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
-    <!-- Hidden file input for profile picture upload -->
     <input type="file" id="profile-picture-upload" class="hidden" accept="image/*">
 
 
-    <!-- Custom Alert Modal -->
     <div id="alertModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 id="alert-modal-title" class="text-xl font-bold mb-4 text-center">แจ้งเตือน</h3>
         <p id="alert-modal-text" class="text-center mb-6"></p>
@@ -614,7 +572,6 @@
         </div>
     </div>
 
-    <!-- Custom Confirm Modal -->
     <div id="confirmModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
         <h3 id="confirm-modal-title" class="text-xl font-bold mb-4 text-center">ยืนยันการกระทำ</h3>
         <p id="confirm-modal-text" class="text-center mb-6"></p>
@@ -625,7 +582,6 @@
         </div>
     </div>
 
-    <!-- Image Lightbox Modal -->
     <div id="lightboxModal" class="modal-backdrop items-center justify-center p-4"
         onclick="closeModal('lightboxModal')">
         <div class="relative" onclick="event.stopPropagation()">
@@ -635,14 +591,11 @@
         </div>
     </div>
 
-    <!-- Modal Backdrop -->
     <div id="modal-backdrop" class="modal-backdrop" onclick="closeAllModals()"></div>
 
-    <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
-    <!-- Firebase SDK -->
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1546,7 +1499,6 @@
             else if (activeTab === 'users') { await renderAdminUsersTable(); }
             else if (activeTab === 'boosts') { await renderAdminBoostsTable(); }
             else if (activeTab === 'boosted') { await renderAdminBoostedTable(); }
-            else if (activeTab === 'assistant') { renderAdminAssistant(); }
         }
         
         async function renderAdminDashboard() {
@@ -1827,7 +1779,7 @@
                       console.error("Error removing boost:", error);
                      showAlertModal("เกิดข้อผิดพลาด");
                  }
-               }, 'bg-red-500 hover:bg-red-600');
+                }, 'bg-red-500 hover:bg-red-600');
         }
 
         async function renderAdminBoostedTable() {
@@ -1886,152 +1838,6 @@
             });
             table.appendChild(tbody);
             container.appendChild(table);
-        }
-
-        // --- [NEW] AI ASSISTANT ---
-        function renderAdminAssistant() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = '';
-
-            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            
-            const header = createElement('div', ['flex', 'items-center', 'gap-3', 'mb-4']);
-            header.innerHTML = '<i class="fas fa-magic text-2xl text-purple-500"></i>';
-            header.appendChild(createElement('h4', ['text-xl', 'font-bold'], 'เครื่องมือช่วยลงประกาศด้วย AI'));
-            
-            container.appendChild(header);
-            container.appendChild(createElement('p', ['text-gray-600', 'mb-4'], 'คัดลอกข้อความประกาศจากที่อื่นมาวางในช่องด้านล่าง แล้วให้ AI ช่วยดึงข้อมูลเพื่อสร้างประกาศให้อัตโนมัติ'));
-            
-            const textarea = createElement('textarea', ['w-full', 'p-3', 'border', 'rounded-lg', 'h-64', 'mb-4'], '', {
-                id: 'ai-assistant-input',
-                placeholder: 'วางข้อความประกาศทั้งหมดที่นี่...'
-            });
-            container.appendChild(textarea);
-            
-            const button = createElement('button', ['w-full', 'p-3', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'flex', 'items-center', 'justify-center', 'gap-2'], '<i class="fas fa-cogs"></i>ดึงข้อมูลด้วย AI', {
-                id: 'ai-assistant-button'
-            });
-            button.onclick = handleAIAssist;
-            container.appendChild(button);
-            
-            adminMainContent.appendChild(container);
-        }
-
-        async function handleAIAssist() {
-            const inputText = document.getElementById('ai-assistant-input').value;
-            if (!inputText.trim()) {
-                showAlertModal('กรุณาวางข้อความประกาศก่อน');
-                return;
-            }
-
-            const button = document.getElementById('ai-assistant-button');
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังวิเคราะห์...';
-
-            try {
-                // This is the prompt for the AI model
-                const prompt = `
-                    วิเคราะห์ข้อความประกาศให้เช่าต่อไปนี้ และดึงข้อมูลออกมาเป็น JSON object ตาม schema ที่กำหนด
-                    ข้อความ: "${inputText}"
-
-                    ข้อกำหนดเพิ่มเติม:
-                    - title: ต้องเป็นหัวข้อที่กระชับและน่าสนใจที่สุด
-                    - priceRent: ต้องเป็นตัวเลขเท่านั้น ถ้าไม่พบให้เป็น 0
-                    - province: ต้องเป็นชื่อจังหวัดในประเทศไทย ถ้าไม่พบให้เป็นค่าว่าง ""
-                    - district: ต้องเป็นชื่ออำเภอ/เขตในจังหวัดนั้นๆ ถ้าไม่พบให้เป็นค่าว่าง ""
-                    - description: คือรายละเอียดทั้งหมดของประกาศ
-                    - phone: คือเบอร์โทรศัพท์ที่ติดต่อได้
-                    - lineId: คือ Line ID ที่ติดต่อได้
-                `;
-
-                // Define the expected JSON structure
-                const schema = {
-                    type: "OBJECT",
-                    properties: {
-                        "title": { "type": "STRING" },
-                        "priceRent": { "type": "NUMBER" },
-                        "province": { "type": "STRING" },
-                        "district": { "type": "STRING" },
-                        "description": { "type": "STRING" },
-                        "phone": { "type": "STRING" },
-                        "lineId": { "type": "STRING" },
-                    }
-                };
-                
-                // Construct the payload for the Gemini API
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: schema
-                    }
-                };
-                
-                const apiKey = ""; // Canvas will provide the key
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                // Make the API call
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0]) {
-                    const extractedData = JSON.parse(result.candidates[0].content.parts[0].text);
-                    populatePostFormWithAIData(extractedData);
-                } else {
-                    throw new Error("AI ไม่สามารถประมวลผลข้อมูลได้");
-                }
-
-            } catch (error) {
-                console.error("AI Assistant Error:", error);
-                showAlertModal(`เกิดข้อผิดพลาดจาก AI: ${error.message}`);
-            } finally {
-                button.disabled = false;
-                button.innerHTML = '<i class="fas fa-cogs"></i>ดึงข้อมูลด้วย AI';
-            }
-        }
-
-        function populatePostFormWithAIData(data) {
-            // Reset form first
-            postForm.reset();
-            document.getElementById('post-modal-title').textContent = 'ลงประกาศ (ข้อมูลจาก AI)';
-            document.getElementById('post-id').value = '';
-            imagePreviewContainer.innerHTML = '';
-            selectedFiles = [];
-            existingImageUrls = [];
-
-            // Populate fields
-            document.getElementById('post-title').value = data.title || '';
-            document.getElementById('post-price-rent').value = data.priceRent || '';
-            document.getElementById('post-description').value = data.description || '';
-            document.getElementById('post-phone').value = data.phone || '';
-            document.getElementById('post-line-id').value = data.lineId || '';
-            
-            // Handle location dropdowns
-            const provinceDropdown = document.getElementById('post-province');
-            if (data.province && Object.keys(thailandData).includes(data.province)) {
-                provinceDropdown.value = data.province;
-                populateDistrictDropdowns(data.province);
-                
-                // Use a short delay to ensure districts are populated before selecting one
-                setTimeout(() => {
-                    const districtDropdown = document.getElementById('post-district');
-                    if(data.district) {
-                       districtDropdown.value = data.district;
-                    }
-                }, 100);
-            }
-
-            showAlertModal('ข้อมูลจาก AI ถูกกรอกในฟอร์มเรียบร้อยแล้ว! กรุณาตรวจสอบความถูกต้องและเพิ่มรูปภาพ');
-            openModal('postModal');
         }
 
         // --- USER PROFILE PAGE ---
@@ -2121,7 +1927,7 @@
                         cardContent.append(image, textDiv);
                         listingCard.appendChild(cardContent);
 
-                        // [NEW] Boost status and actions section
+                        // Boost status and actions section
                         const boostSection = createElement('div', ['mt-3', 'pt-3', 'border-t', 'flex', 'items-center', 'justify-between']);
                         const now = new Date();
                         const isBoostedAndActive = listing.isBoosted && listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now;
@@ -2421,8 +2227,7 @@
             document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('users'); });
             document.getElementById('admin-boosts-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosts'); });
             document.getElementById('admin-boosted-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosted'); });
-            document.getElementById('admin-assistant-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('assistant'); });
-
+            
             if (slides.length > 0) {
                 slides.forEach((_, i) => {
                     const dot = createElement('button', ['dot', 'w-3', 'h-3', 'rounded-full', 'transition-colors']);
