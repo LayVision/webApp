@@ -44,7 +44,7 @@
             overflow-y: auto;
         }
         
-        #adminApproveBoostModal, #profilePictureModal, #plansModal {
+        #profilePictureModal, #plansModal {
             z-index: 60;
         }
         
@@ -773,10 +773,6 @@
                 document.getElementById('dropdown-post-link').onclick = (e) => { e.preventDefault(); openModal('postModal'); toggleProfileDropdown(); };
                 document.getElementById('dropdown-logout-link').onclick = (e) => { e.preventDefault(); handleLogout(); };
                 
-                // [REMOVED] Boost button from header, profile is better
-                const boostButton = document.getElementById('header-boost-button');
-                if(boostButton) boostButton.style.display = 'none';
-
                 const adminLink = document.getElementById('dropdown-admin-link');
                 if (user.role === 'admin') {
                     adminLink.classList.remove('hidden');
@@ -1590,55 +1586,50 @@
             container.appendChild(table);
         }
 
-        // --- Admin Boost Management ---
-        async function renderAdminBoostsTable() {
+        // --- [NEW] Admin Subscriptions Management ---
+        async function renderAdminSubscriptionsTable() {
             const adminMainContent = document.getElementById('admin-main-content');
             adminMainContent.innerHTML = '';
             const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'คำขอดันประกาศที่รอการอนุมัติ'));
+            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'คำขออัปเกรดแพ็กเกจ'));
             const tableContainer = createElement('div', ['overflow-x-auto']);
             container.appendChild(tableContainer);
             adminMainContent.appendChild(container);
             
             tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
             try {
-                const q = query(listingsCollection, where("boostStatus", "==", "pending"));
+                const q = query(usersCollection, where("subscriptionRequest", "!=", null));
                 const querySnapshot = await getDocs(q);
-                const pendingBoosts = [];
-                querySnapshot.forEach(doc => pendingBoosts.push({ id: doc.id, ...doc.data() }));
+                const pendingSubs = [];
+                querySnapshot.forEach(doc => pendingSubs.push({ id: doc.id, ...doc.data() }));
 
-                pendingBoosts.sort((a, b) => (b.boostRequestedAt?.toMillis() || 0) - (a.boostRequestedAt?.toMillis() || 0));
-
-                populateAdminBoostsTable(tableContainer, pendingBoosts);
+                populateAdminSubscriptionsTable(tableContainer, pendingSubs);
             } catch (error) {
-                console.error("Error fetching pending boosts:", error);
+                console.error("Error fetching subscription requests:", error);
                 tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
             }
         }
 
-        function populateAdminBoostsTable(container, listings) {
+        function populateAdminSubscriptionsTable(container, users) {
             container.innerHTML = '';
-            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีคำขอที่รอการอนุมัติ</p>`; return; }
+            if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีคำขอที่รอการอนุมัติ</p>`; return; }
             
             const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">รหัสประกาศ</th><th class="p-3">หัวข้อ</th><th class="p-3">แพ็กเกจที่ขอ</th><th class="p-3">ราคา</th><th class="p-3">วันที่ขอ</th><th class="p-3">จัดการ</th></tr></thead>`;
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">อีเมล</th><th class="p-3">แพ็กเกจที่ขอ</th><th class="p-3">จัดการ</th></tr></thead>`;
             const tbody = createElement('tbody');
             
-            listings.forEach(listing => {
-                const plan = boostPlans.find(p => p.id === listing.boostTier);
+            users.forEach(user => {
                 const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-mono', 'text-xs'], listing.id));
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
-                tr.appendChild(createElement('td', ['p-3'], plan ? plan.title : 'N/A'));
-                tr.appendChild(createElement('td', ['p-3'], `฿${listing.boostPrice || 'N/A'}`));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.boostRequestedAt)));
+                tr.appendChild(createElement('td', ['p-3', 'font-medium'], user.username));
+                tr.appendChild(createElement('td', ['p-3'], user.email));
+                tr.appendChild(createElement('td', ['p-3', 'font-semibold', 'capitalize'], user.subscriptionRequest.plan));
                 
                 const actionsCell = createElement('td', ['p-3', 'flex', 'gap-2']);
                 const approveBtn = createElement('button', ['px-3', 'py-1', 'bg-green-500', 'text-white', 'rounded', 'hover:bg-green-600', 'text-xs'], 'อนุมัติ');
-                approveBtn.onclick = () => openAdminApproveModal(listing.id, listing.title, listing.boostTier);
+                approveBtn.onclick = () => approveSubscription(user.id, user.subscriptionRequest.plan);
                 
                 const rejectBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'ไม่อนุมัติ');
-                rejectBtn.onclick = () => rejectBoost(listing.id, listing.ownerUid);
+                rejectBtn.onclick = () => rejectSubscription(user.id);
 
                 actionsCell.append(approveBtn, rejectBtn);
                 tr.appendChild(actionsCell);
@@ -1647,134 +1638,44 @@
             table.appendChild(tbody);
             container.appendChild(table);
         }
-        
-        function openAdminApproveModal(listingId, listingTitle, requestedTierId) {
-            document.getElementById('admin-boost-listing-id').textContent = listingId;
-            const form = document.getElementById('admin-approve-boost-form');
-            const plansContainer = document.getElementById('admin-boost-plans-container');
-            plansContainer.innerHTML = '';
 
-            boostPlans.forEach((plan, index) => {
-                const div = createElement('div', ['flex', 'items-center']);
-                const input = createElement('input', ['mr-2'], '', {type: 'radio', id: `admin_${plan.id}`, name: 'boost_plan', value: plan.days});
-                if (plan.id === requestedTierId) {
-                    input.checked = true;
-                }
-                const label = createElement('label', [], `${plan.title} (${plan.price} บาท)`, {for: `admin_${plan.id}`});
-                div.append(input, label);
-                plansContainer.appendChild(div);
-            });
-            
-            form.onsubmit = (e) => {
-                e.preventDefault();
-                const selectedDays = new FormData(form).get('boost_plan');
-                if (selectedDays) {
-                    approveBoost(listingId, parseInt(selectedDays));
-                } else {
-                    showAlertModal("กรุณาเลือกแพ็กเกจ");
-                }
-            };
-
-            openModal('adminApproveBoostModal');
-        }
-
-        async function approveBoost(listingId, days) {
-            openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการอนุมัติการดันโพสต์ "${listingId}" เป็นเวลา ${days} วัน?`, async () => {
+        async function approveSubscription(userId, planId) {
+            openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการอนุมัติแพ็กเกจ ${planId} ให้กับผู้ใช้นี้?`, async () => {
                 try {
-                    const docRef = doc(db, "listings", listingId);
+                    const userDocRef = doc(db, "users", userId);
+                    const plan = subscriptionPlans[planId];
                     const expiryDate = new Date();
-                    expiryDate.setDate(expiryDate.getDate() + days);
+                    expiryDate.setDate(expiryDate.getDate() + 30); // Assume all plans are 30 days for now
                     
-                    await updateDoc(docRef, {
-                        isBoosted: true,
-                        boostStatus: 'active',
-                        boostExpiryDate: expiryDate,
-                        updatedAt: serverTimestamp() // Bump the updated date to bring it to the top
+                    await updateDoc(userDocRef, {
+                        plan: planId,
+                        subscriptionExpiryDate: expiryDate,
+                        boostCredits: plan.boostCredits,
+                        subscriptionRequest: null
                     });
-
-                    closeModal('adminApproveBoostModal');
-                    showAlertModal("อนุมัติการดันโพสต์สำเร็จ!");
-                    renderAdminView('boosts'); // Refresh the admin view
+                    showAlertModal("อนุมัติแพ็กเกจสำเร็จ!");
+                    renderAdminView('subscriptions');
                 } catch (error) {
-                    console.error("Error approving boost:", error);
+                    console.error("Error approving subscription:", error);
                     showAlertModal("เกิดข้อผิดพลาดในการอนุมัติ");
                 }
             }, 'bg-green-500 hover:bg-green-600');
         }
-        
-        async function removeBoost(listingId) {
-             openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการเอาโพสต์ "${listingId}" ลงจากการดัน?`, async () => {
-                 try {
-                     const docRef = doc(db, "listings", listingId);
-                     await updateDoc(docRef, {
-                         isBoosted: false,
-                         boostStatus: 'expired' // Or 'removed_by_admin'
-                     });
-                     showAlertModal("นำโพสต์ลงจากการดันสำเร็จ!");
-                     router(); // Refresh current view
-                 } catch (error) {
-                      console.error("Error removing boost:", error);
-                     showAlertModal("เกิดข้อผิดพลาด");
-                 }
-                 }, 'bg-red-500 hover:bg-red-600');
-        }
 
-        async function renderAdminBoostedTable() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = '';
-            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'ประกาศทั้งหมดที่กำลังดันอยู่'));
-            const tableContainer = createElement('div', ['overflow-x-auto']);
-            container.appendChild(tableContainer);
-            adminMainContent.appendChild(container);
-            
-            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
-            try {
-                const q = query(listingsCollection, where("isBoosted", "==", true));
-                const querySnapshot = await getDocs(q);
-                let boostedListings = [];
-                const now = new Date();
-                querySnapshot.forEach(doc => {
-                    const listing = { id: doc.id, ...doc.data() };
-                    // Only include posts that are actually active
-                    if (listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now) {
-                        boostedListings.push(listing);
-                    }
-                });
-
-                boostedListings.sort((a, b) => (a.boostExpiryDate?.toMillis() || 0) - (b.boostExpiryDate?.toMillis() || 0));
-
-                populateAdminBoostedTable(tableContainer, boostedListings);
-            } catch (error) {
-                console.error("Error fetching boosted listings:", error);
-                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
-            }
-        }
-
-        function populateAdminBoostedTable(container, listings) {
-            container.innerHTML = '';
-            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีประกาศที่กำลังดันอยู่</p>`; return; }
-            
-            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">เวลาที่เหลือ</th><th class="p-3">วันหมดอายุ</th><th class="p-3">จัดการ</th></tr></thead>`;
-            const tbody = createElement('tbody');
-            
-            listings.forEach(listing => {
-                const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
-                tr.appendChild(createElement('td', ['p-3'], listing.ownerUsername));
-                tr.appendChild(createElement('td', ['p-3', 'font-semibold'], formatTimeRemaining(listing.boostExpiryDate)));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.boostExpiryDate, true)));
-                
-                const actionsCell = createElement('td', ['p-3']);
-                const removeBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'เอาลง');
-                removeBtn.onclick = () => removeBoost(listing.id);
-                actionsCell.appendChild(removeBtn);
-                tr.appendChild(actionsCell);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            container.appendChild(table);
+        async function rejectSubscription(userId) {
+            openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?`, async () => {
+                try {
+                    const userDocRef = doc(db, "users", userId);
+                    await updateDoc(userDocRef, {
+                        subscriptionRequest: null
+                    });
+                    showAlertModal("ปฏิเสธคำขอสำเร็จ!");
+                    renderAdminView('subscriptions');
+                } catch (error) {
+                    console.error("Error rejecting subscription:", error);
+                    showAlertModal("เกิดข้อผิดพลาด");
+                }
+            }, 'bg-red-500 hover:bg-red-600');
         }
 
         // --- USER PROFILE PAGE ---
@@ -1865,39 +1766,27 @@
                         listingCard.appendChild(cardContent);
 
                         // Boost status and actions section
-                        const boostSection = createElement('div', ['mt-3', 'pt-3', 'border-t', 'flex', 'items-center', 'justify-between']);
-                        const now = new Date();
-                        const isBoostedAndActive = listing.isBoosted && listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now;
+                        if (currentUser && currentUser.uid === userId) {
+                            const boostSection = createElement('div', ['mt-3', 'pt-3', 'border-t', 'flex', 'items-center', 'justify-between']);
+                            const now = new Date();
+                            const isBoostedAndActive = listing.isBoosted && listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now;
 
-                        if (listing.boostStatus === 'pending') {
-                            const status = createElement('p', ['text-sm', 'font-semibold', 'text-yellow-600'], 'รอการอนุมัติ');
-                            status.prepend(createElement('i', ['fas', 'fa-clock', 'mr-2']));
-                            boostSection.appendChild(status);
-                        } else if (isBoostedAndActive) {
-                            const timer = createElement('p', ['text-sm', 'font-semibold', 'text-green-600'], formatTimeRemaining(listing.boostExpiryDate));
-                            timer.prepend(createElement('i', ['fas', 'fa-check-circle', 'mr-2']));
-                            boostSection.appendChild(timer);
-                            if (currentUser.role === 'admin') {
-                                const removeBtn = createElement('button', ['text-xs', 'text-red-500', 'hover:underline'], 'เอาลง');
-                                removeBtn.onclick = () => removeBoost(listing.id);
-                                boostSection.appendChild(removeBtn);
+                            if (isBoostedAndActive) {
+                                const timer = createElement('p', ['text-sm', 'font-semibold', 'text-green-600'], formatTimeRemaining(listing.boostExpiryDate));
+                                timer.prepend(createElement('i', ['fas', 'fa-check-circle', 'mr-2']));
+                                boostSection.appendChild(timer);
+                            } else {
+                                const boostBtn = createElement('button', ['w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-sm']);
+                                boostBtn.innerHTML = `<i class="fas fa-rocket mr-2"></i>ใช้เครดิตดันโพสต์ (${currentUser.boostCredits || 0} ครั้ง)`;
+                                if (!currentUser.boostCredits || currentUser.boostCredits <= 0) {
+                                    boostBtn.disabled = true;
+                                    boostBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                                }
+                                boostBtn.onclick = () => useBoostCredit(listing.id);
+                                boostSection.appendChild(boostBtn);
                             }
-                        } else if (listing.boostStatus === 'rejected') {
-                            const status = createElement('p', ['text-sm', 'font-semibold', 'text-red-600'], 'การชำระเงินไม่สำเร็จ');
-                            status.prepend(createElement('i', ['fas', 'fa-times-circle', 'mr-2']));
-                            boostSection.appendChild(status);
-                            const boostBtn = createElement('button', ['py-1', 'px-3', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-xs']);
-                            boostBtn.innerHTML = '<i class="fas fa-rocket mr-1"></i>ลองอีกครั้ง';
-                            boostBtn.onclick = () => openBoostModal(listing.id);
-                            boostSection.appendChild(boostBtn);
+                            listingCard.appendChild(boostSection);
                         }
-                        else {
-                            const boostBtn = createElement('button', ['w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-sm']);
-                            boostBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>ดันโพสต์นี้';
-                            boostBtn.onclick = () => openBoostModal(listing.id);
-                            boostSection.appendChild(boostBtn);
-                        }
-                        listingCard.appendChild(boostSection);
                         listingsContainer.appendChild(listingCard);
                     });
                 }
@@ -2213,7 +2102,6 @@
             document.getElementById('admin-listings-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('listings'); });
             document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('users'); });
             document.getElementById('admin-subscriptions-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('subscriptions'); });
-            
             if (slides.length > 0) {
                 slides.forEach((_, i) => {
                     const dot = createElement('button', ['dot', 'w-3', 'h-3', 'rounded-full', 'transition-colors']);
