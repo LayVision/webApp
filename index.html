@@ -1166,7 +1166,7 @@
                     if (!a.isBoosted && b.isBoosted) return 1;
                     return (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0);
                 });
-                renderListings(filteredListings, Object.values(filters).some(v => v));
+                renderListings(filteredListings, Object.keys(filters).length > 0 && Object.values(filters).some(v => v));
             } catch (error) {
                 console.error("Error fetching listings: ", error);
                 listingsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">เกิดข้อผิดพลาด: ${error.message}</p>`;
@@ -1546,14 +1546,22 @@
             }
         });
 
+        // [MODIFIED] applyFilters now updates the URL hash
         window.applyFilters = function () {
             const filters = {
                 province: document.getElementById('province-filter').value,
                 district: document.getElementById('district-filter').value,
                 type: document.getElementById('type-filter').value,
-                maxPrice: Number(document.getElementById('max-price-filter').value) || null,
+                maxPrice: document.getElementById('max-price-filter').value,
             };
-            fetchListings(filters);
+
+            const queryParams = new URLSearchParams();
+            for (const key in filters) {
+                if (filters[key]) {
+                    queryParams.append(key, filters[key]);
+                }
+            }
+            window.location.hash = `search/${queryParams.toString()}`;
         }
 
         // --- ADMIN PANEL ---
@@ -2064,6 +2072,28 @@
                 const userId = hash.substring('#profile/'.length);
                 profileView.classList.remove('hidden');
                 renderProfilePage(userId);
+            } else if (hash.startsWith('#search/')) {
+                homeView.classList.remove('hidden');
+                const queryString = hash.substring('#search/'.length);
+                const params = new URLSearchParams(queryString);
+                const filters = {};
+                for (const [key, value] of params.entries()) {
+                    filters[key] = decodeURIComponent(value);
+                }
+
+                // Update UI filters to reflect the search state
+                document.getElementById('province-filter').value = filters.province || '';
+                if (filters.province && thailandData && thailandData[filters.province]) {
+                    const districtFilter = document.getElementById('district-filter');
+                    districtFilter.length = 1; // Clear existing options
+                    const districts = Object.keys(thailandData[filters.province]).sort();
+                    districts.forEach(dist => districtFilter.add(new Option(dist, dist)));
+                }
+                document.getElementById('district-filter').value = filters.district || '';
+                document.getElementById('type-filter').value = filters.type || '';
+                document.getElementById('max-price-filter').value = filters.maxPrice || '';
+                
+                fetchListings(filters);
             } else if (hash === '#admin') {
                 if (currentUser && currentUser.role === 'admin') {
                     adminView.classList.remove('hidden');
