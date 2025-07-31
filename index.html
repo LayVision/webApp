@@ -503,7 +503,7 @@
                  <div class="flex flex-col md:flex-row gap-6 items-center">
                        <div class="w-full md:w-1/2 text-center">
                            <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-                           <img id="qr-code-image" src="https://placehold.co/250x250/e2e8f0/64748b?text=QR+Code" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+                           <img id="qr-code-image" src="img/p_qr_bank.png" alt="QR Code" class="mx-auto rounded-lg shadow-md">
                            <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
                        </div>
                        <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
@@ -633,6 +633,7 @@
         let currentGeneralListings = [];
         let boostedListingsCurrentPage = 1;
         let currentBoostedListings = [];
+        let currentHash = ''; // [ADDED] To track navigation history for scrolling
 
 
         // --- UI ELEMENTS ---
@@ -1134,7 +1135,7 @@
             }
         });
 
-        async function fetchListings(filters = {}) {
+        async function fetchListings(filters = {}, fromListing = false) {
             loadingSpinner.style.display = 'block';
             listingsGrid.innerHTML = '';
             generalListingsGrid.innerHTML = '';
@@ -1172,6 +1173,14 @@
                 listingsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">เกิดข้อผิดพลาด: ${error.message}</p>`;
             } finally {
                 loadingSpinner.style.display = 'none';
+                if (fromListing) {
+                    setTimeout(() => {
+                        const targetElement = document.getElementById('general-listings-container');
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 100);
+                }
             }
         }
 
@@ -2049,22 +2058,24 @@
         }
 
         function router() {
-            const hash = window.location.hash;
+            const newHash = window.location.hash;
+            const fromListing = currentHash.startsWith('#listing/');
+
             hideAllViews();
             closeAllModals();
             mobileMenu.classList.add('hidden');
 
-            if (hash.startsWith('#listing/')) {
-                const listingId = hash.substring('#listing/'.length);
+            if (newHash.startsWith('#listing/')) {
+                const listingId = newHash.substring('#listing/'.length);
                 listingDetailView.classList.remove('hidden');
                 renderListingDetailPage(listingId);
-            } else if (hash.startsWith('#profile/')) {
-                const userId = hash.substring('#profile/'.length);
+            } else if (newHash.startsWith('#profile/')) {
+                const userId = newHash.substring('#profile/'.length);
                 profileView.classList.remove('hidden');
                 renderProfilePage(userId);
-            } else if (hash.startsWith('#search/')) {
+            } else if (newHash.startsWith('#search/')) {
                 homeView.classList.remove('hidden');
-                const queryString = hash.substring('#search/'.length);
+                const queryString = newHash.substring('#search/'.length);
                 const params = new URLSearchParams(queryString);
                 const filters = {};
                 for (const [key, value] of params.entries()) {
@@ -2074,8 +2085,8 @@
                 }
                 generalListingsCurrentPage = parseInt(params.get('page'), 10) || 1;
                 updateFilterUIFromParams(params);
-                fetchListings(filters);
-            } else if (hash === '#admin') {
+                fetchListings(filters, fromListing);
+            } else if (newHash === '#admin') {
                 if (currentUser && currentUser.role === 'admin') {
                     adminView.classList.remove('hidden');
                     renderAdminView('dashboard');
@@ -2087,13 +2098,17 @@
                 }
             } else { // Home page (covers #, #home, #home?...)
                 homeView.classList.remove('hidden');
-                const params = new URLSearchParams(hash.substring(hash.indexOf('?')));
+                const params = new URLSearchParams(newHash.substring(newHash.indexOf('?')));
                 boostedListingsCurrentPage = parseInt(params.get('boostedPage'), 10) || 1;
                 generalListingsCurrentPage = parseInt(params.get('generalPage'), 10) || 1;
                 resetFilterUI();
-                fetchListings();
+                fetchListings({}, fromListing);
             }
-            window.scrollTo(0, 0);
+            
+            currentHash = newHash; // Update hash history at the end
+            if (!newHash.startsWith('#listing/')) {
+                window.scrollTo(0, 0);
+            }
         }
 
         function updateFilterUIFromParams(params) {
