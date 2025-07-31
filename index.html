@@ -261,7 +261,7 @@
                 </div>
 
                 <div id="search-section" class="bg-white p-6 rounded-xl shadow-md mb-8">
-                    <h2 class="text-xl font-bold mb-4">ค้นหาอสังหาริมทรัพย์ในฝันของคุณ</h2>
+                    <!-- [REMOVED] Title has been removed as requested -->
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <select id="province-filter"
                             class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
@@ -306,6 +306,8 @@
                         <div id="general-listings-grid"
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         </div>
+                        <!-- [ADDED] Container for pagination controls -->
+                        <div id="pagination-container" class="flex justify-center items-center mt-8 gap-2"></div>
                     </div>
                 </div>
 
@@ -631,6 +633,14 @@
         let existingImageUrls = [];
         let currentAdminListings = [];
         let currentAdminUsers = [];
+
+        // [ADDED] Variables for pagination and slider
+        let generalListingsCurrentPage = 1;
+        const listingsPerPage = 8;
+        let currentGeneralListings = [];
+        let boostedListingsCurrentPage = 0;
+        let boostedSliderInterval = null;
+
 
         // --- UI ELEMENTS ---
         const homeView = document.getElementById('home-view');
@@ -1172,22 +1182,104 @@
             }
         }
 
+        // [MODIFIED] Updated renderListings function for slider and pagination
         function renderListings(listings, isSearchView = false) {
-            listingsGrid.innerHTML = '';
-            generalListingsGrid.innerHTML = '';
+            if (boostedSliderInterval) {
+                clearInterval(boostedSliderInterval);
+                boostedSliderInterval = null;
+            }
+
             if (isSearchView) {
-                populateGrid(listingsGrid, listings, "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา");
-                boostedListingsContainer.style.display = 'block';
-                generalListingsContainer.style.display = 'none';
+                boostedListingsContainer.style.display = 'none';
+                generalListingsContainer.style.display = 'block';
+                document.getElementById('general-listings-title').textContent = 'ผลการค้นหา';
+                
+                currentGeneralListings = listings;
+                generalListingsCurrentPage = 1;
+                renderPaginatedGeneralListings();
             } else {
-                const boostedListings = listings.filter(l => l.isBoosted);
-                const generalListings = listings.filter(l => !l.isBoosted);
-                populateGrid(listingsGrid, boostedListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
-                populateGrid(generalListingsGrid, generalListings, "ไม่พบประกาศทั่วไป");
                 boostedListingsContainer.style.display = 'block';
                 generalListingsContainer.style.display = 'block';
+                document.getElementById('listings-title').innerHTML = 'ประกาศแนะนำ <i class="fas fa-star text-yellow-400"></i>';
+                document.getElementById('general-listings-title').textContent = 'ประกาศทั่วไป';
+
+                const boostedListings = listings.filter(l => l.isBoosted);
+                currentGeneralListings = listings.filter(l => !l.isBoosted);
+
+                if (boostedListings.length > listingsPerPage) {
+                    setupBoostedListingsSlider(boostedListings);
+                } else {
+                    populateGrid(listingsGrid, boostedListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
+                }
+
+                generalListingsCurrentPage = 1;
+                renderPaginatedGeneralListings();
             }
         }
+
+        // [ADDED] New function to handle boosted listings slider
+        function setupBoostedListingsSlider(boostedListings) {
+            boostedListingsCurrentPage = 0;
+            const totalPages = Math.ceil(boostedListings.length / listingsPerPage);
+
+            const showNextBoostedPage = () => {
+                const start = boostedListingsCurrentPage * listingsPerPage;
+                const end = start + listingsPerPage;
+                const pageListings = boostedListings.slice(start, end);
+                
+                listingsGrid.style.transition = 'opacity 0.5s ease-in-out';
+                listingsGrid.style.opacity = 0;
+
+                setTimeout(() => {
+                    populateGrid(listingsGrid, pageListings, "");
+                    listingsGrid.style.opacity = 1;
+                }, 500);
+
+                boostedListingsCurrentPage = (boostedListingsCurrentPage + 1) % totalPages;
+            };
+
+            showNextBoostedPage();
+            boostedSliderInterval = setInterval(showNextBoostedPage, 5000);
+        }
+
+        // [ADDED] New function to render general listings with pagination
+        function renderPaginatedGeneralListings() {
+            const start = (generalListingsCurrentPage - 1) * listingsPerPage;
+            const end = start + listingsPerPage;
+            const pageListings = currentGeneralListings.slice(start, end);
+
+            const isSearching = !!(document.getElementById('province-filter').value || document.getElementById('district-filter').value || document.getElementById('type-filter').value || document.getElementById('max-price-filter').value);
+            const emptyMessage = isSearching ? "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา" : "ไม่พบประกาศทั่วไป";
+            
+            populateGrid(generalListingsGrid, pageListings, emptyMessage);
+            renderPaginationControls();
+        }
+
+        // [ADDED] New function to render pagination controls
+        function renderPaginationControls() {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(currentGeneralListings.length / listingsPerPage);
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = createElement('button', ['px-4', 'py-2', 'border', 'rounded-lg', 'transition-colors', 'text-sm']);
+                pageButton.textContent = i;
+                if (i === generalListingsCurrentPage) {
+                    pageButton.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                } else {
+                    pageButton.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                }
+                pageButton.onclick = () => {
+                    generalListingsCurrentPage = i;
+                    renderPaginatedGeneralListings();
+                    document.getElementById('general-listings-container').scrollIntoView({ behavior: 'smooth' });
+                };
+                paginationContainer.appendChild(pageButton);
+            }
+        }
+
 
         function populateGrid(gridElement, listings, emptyMessage) {
             gridElement.innerHTML = '';
@@ -1313,12 +1405,10 @@
                     const actionsDiv = createElement('div', ['mt-6', 'flex', 'flex-wrap', 'gap-4']);
                     
                     const editBtn = createElement('button', ['flex-1', 'py-3', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไข');
-                    // [FIXED] Split Font Awesome classes into separate strings
                     editBtn.prepend(createElement('i', ['fas', 'fa-edit', 'mr-2']));
                     editBtn.onclick = () => editListing(listing.id);
 
                     const deleteBtn = createElement('button', ['flex-1', 'py-3', 'bg-red-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-red-600'], 'ลบ');
-                    // [FIXED] Split Font Awesome classes into separate strings
                     deleteBtn.prepend(createElement('i', ['fas', 'fa-trash', 'mr-2']));
                     deleteBtn.onclick = () => deleteListing(listing.id);
                     
@@ -1485,7 +1575,7 @@
                 type: document.getElementById('type-filter').value,
                 maxPrice: Number(document.getElementById('max-price-filter').value) || null,
             };
-            listingsTitle.textContent = 'ผลการค้นหา';
+            // listingsTitle.textContent = 'ผลการค้นหา'; // This is now handled inside renderListings
             fetchListings(filters);
         }
 
