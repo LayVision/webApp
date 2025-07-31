@@ -300,6 +300,8 @@
                                 <p class="mt-2">กำลังโหลดข้อมูล...</p>
                             </div>
                         </div>
+                        <!-- [ADDED] Container for boosted pagination controls -->
+                        <div id="boosted-pagination-container" class="flex justify-center items-center mt-8 gap-2"></div>
                     </div>
                     <div id="general-listings-container" class="mt-12">
                         <h3 class="text-2xl font-bold mb-6" id="general-listings-title">ประกาศทั่วไป</h3>
@@ -634,12 +636,12 @@
         let currentAdminListings = [];
         let currentAdminUsers = [];
 
-        // [ADDED] Variables for pagination and slider
+        // [MODIFIED] Variables for pagination
         let generalListingsCurrentPage = 1;
         const listingsPerPage = 8;
         let currentGeneralListings = [];
-        let boostedListingsCurrentPage = 0;
-        let boostedSliderInterval = null;
+        let boostedListingsCurrentPage = 1;
+        let currentBoostedListings = [];
 
 
         // --- UI ELEMENTS ---
@@ -1182,13 +1184,8 @@
             }
         }
 
-        // [MODIFIED] Updated renderListings function for slider and pagination
+        // [MODIFIED] Updated renderListings function for pagination on both sections
         function renderListings(listings, isSearchView = false) {
-            if (boostedSliderInterval) {
-                clearInterval(boostedSliderInterval);
-                boostedSliderInterval = null;
-            }
-
             if (isSearchView) {
                 boostedListingsContainer.style.display = 'none';
                 generalListingsContainer.style.display = 'block';
@@ -1203,43 +1200,25 @@
                 document.getElementById('listings-title').innerHTML = 'ประกาศแนะนำ <i class="fas fa-star text-yellow-400"></i>';
                 document.getElementById('general-listings-title').textContent = 'ประกาศทั่วไป';
 
-                const boostedListings = listings.filter(l => l.isBoosted);
+                currentBoostedListings = listings.filter(l => l.isBoosted);
                 currentGeneralListings = listings.filter(l => !l.isBoosted);
 
-                if (boostedListings.length > listingsPerPage) {
-                    setupBoostedListingsSlider(boostedListings);
-                } else {
-                    populateGrid(listingsGrid, boostedListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
-                }
+                boostedListingsCurrentPage = 1;
+                renderPaginatedBoostedListings();
 
                 generalListingsCurrentPage = 1;
                 renderPaginatedGeneralListings();
             }
         }
 
-        // [ADDED] New function to handle boosted listings slider
-        function setupBoostedListingsSlider(boostedListings) {
-            boostedListingsCurrentPage = 0;
-            const totalPages = Math.ceil(boostedListings.length / listingsPerPage);
-
-            const showNextBoostedPage = () => {
-                const start = boostedListingsCurrentPage * listingsPerPage;
-                const end = start + listingsPerPage;
-                const pageListings = boostedListings.slice(start, end);
-                
-                listingsGrid.style.transition = 'opacity 0.5s ease-in-out';
-                listingsGrid.style.opacity = 0;
-
-                setTimeout(() => {
-                    populateGrid(listingsGrid, pageListings, "");
-                    listingsGrid.style.opacity = 1;
-                }, 500);
-
-                boostedListingsCurrentPage = (boostedListingsCurrentPage + 1) % totalPages;
-            };
-
-            showNextBoostedPage();
-            boostedSliderInterval = setInterval(showNextBoostedPage, 5000);
+        // [ADDED] New function to render boosted listings with pagination
+        function renderPaginatedBoostedListings() {
+            const start = (boostedListingsCurrentPage - 1) * listingsPerPage;
+            const end = start + listingsPerPage;
+            const pageListings = currentBoostedListings.slice(start, end);
+            
+            populateGrid(listingsGrid, pageListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
+            renderBoostedPaginationControls();
         }
 
         // [ADDED] New function to render general listings with pagination
@@ -1252,11 +1231,36 @@
             const emptyMessage = isSearching ? "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา" : "ไม่พบประกาศทั่วไป";
             
             populateGrid(generalListingsGrid, pageListings, emptyMessage);
-            renderPaginationControls();
+            renderGeneralPaginationControls();
         }
 
-        // [ADDED] New function to render pagination controls
-        function renderPaginationControls() {
+        // [ADDED] New function to render boosted pagination controls
+        function renderBoostedPaginationControls() {
+            const paginationContainer = document.getElementById('boosted-pagination-container');
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(currentBoostedListings.length / listingsPerPage);
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = createElement('button', ['px-4', 'py-2', 'border', 'rounded-lg', 'transition-colors', 'text-sm']);
+                pageButton.textContent = i;
+                if (i === boostedListingsCurrentPage) {
+                    pageButton.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                } else {
+                    pageButton.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                }
+                pageButton.onclick = () => {
+                    boostedListingsCurrentPage = i;
+                    renderPaginatedBoostedListings();
+                    document.getElementById('boosted-listings-container').scrollIntoView({ behavior: 'smooth' });
+                };
+                paginationContainer.appendChild(pageButton);
+            }
+        }
+
+        // [MODIFIED] Renamed and updated for general listings pagination
+        function renderGeneralPaginationControls() {
             const paginationContainer = document.getElementById('pagination-container');
             paginationContainer.innerHTML = '';
             const totalPages = Math.ceil(currentGeneralListings.length / listingsPerPage);
