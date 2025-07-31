@@ -1182,7 +1182,7 @@
                 document.getElementById('general-listings-title').textContent = 'ผลการค้นหา';
                 
                 currentGeneralListings = listings;
-                generalListingsCurrentPage = 1;
+                // generalListingsCurrentPage is already set by the router
                 renderPaginatedGeneralListings();
             } else {
                 boostedListingsContainer.style.display = 'block';
@@ -1193,10 +1193,10 @@
                 currentBoostedListings = listings.filter(l => l.isBoosted);
                 currentGeneralListings = listings.filter(l => !l.isBoosted);
 
-                boostedListingsCurrentPage = 1;
+                // boostedListingsCurrentPage is already set by the router
                 renderPaginatedBoostedListings();
 
-                generalListingsCurrentPage = 1;
+                // generalListingsCurrentPage is already set by the router
                 renderPaginatedGeneralListings();
             }
         }
@@ -1215,7 +1215,7 @@
             const end = start + listingsPerPage;
             const pageListings = currentGeneralListings.slice(start, end);
 
-            const isSearching = !!(document.getElementById('province-filter').value || document.getElementById('district-filter').value || document.getElementById('type-filter').value || document.getElementById('max-price-filter').value);
+            const isSearching = window.location.hash.startsWith('#search/');
             const emptyMessage = isSearching ? "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา" : "ไม่พบประกาศทั่วไป";
             
             populateGrid(generalListingsGrid, pageListings, emptyMessage);
@@ -1238,9 +1238,9 @@
                     pageButton.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
                 }
                 pageButton.onclick = () => {
-                    boostedListingsCurrentPage = i;
-                    renderPaginatedBoostedListings();
-                    document.getElementById('boosted-listings-container').scrollIntoView({ behavior: 'smooth' });
+                    const params = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                    params.set('boostedPage', i);
+                    window.location.hash = `home?${params.toString()}`;
                 };
                 paginationContainer.appendChild(pageButton);
             }
@@ -1262,9 +1262,17 @@
                     pageButton.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
                 }
                 pageButton.onclick = () => {
-                    generalListingsCurrentPage = i;
-                    renderPaginatedGeneralListings();
-                    document.getElementById('general-listings-container').scrollIntoView({ behavior: 'smooth' });
+                    const currentHash = window.location.hash;
+                    if (currentHash.startsWith('#search/')) {
+                        const queryString = currentHash.substring('#search/'.length);
+                        const params = new URLSearchParams(queryString);
+                        params.set('page', i);
+                        window.location.hash = `search/${params.toString()}`;
+                    } else { // Home page
+                        const params = new URLSearchParams(currentHash.substring(currentHash.indexOf('?')));
+                        params.set('generalPage', i);
+                        window.location.hash = `home?${params.toString()}`;
+                    }
                 };
                 paginationContainer.appendChild(pageButton);
             }
@@ -1558,7 +1566,7 @@
             const queryParams = new URLSearchParams();
             for (const key in filters) {
                 if (filters[key]) {
-                    queryParams.append(key, filters[key]);
+                    queryParams.append(key, encodeURIComponent(filters[key]));
                 }
             }
             window.location.hash = `search/${queryParams.toString()}`;
@@ -2078,21 +2086,12 @@
                 const params = new URLSearchParams(queryString);
                 const filters = {};
                 for (const [key, value] of params.entries()) {
-                    filters[key] = decodeURIComponent(value);
+                    if (key !== 'page') { 
+                        filters[key] = decodeURIComponent(value);
+                    }
                 }
-
-                // Update UI filters to reflect the search state
-                document.getElementById('province-filter').value = filters.province || '';
-                if (filters.province && thailandData && thailandData[filters.province]) {
-                    const districtFilter = document.getElementById('district-filter');
-                    districtFilter.length = 1; // Clear existing options
-                    const districts = Object.keys(thailandData[filters.province]).sort();
-                    districts.forEach(dist => districtFilter.add(new Option(dist, dist)));
-                }
-                document.getElementById('district-filter').value = filters.district || '';
-                document.getElementById('type-filter').value = filters.type || '';
-                document.getElementById('max-price-filter').value = filters.maxPrice || '';
-                
+                generalListingsCurrentPage = parseInt(params.get('page'), 10) || 1;
+                updateFilterUIFromParams(params);
                 fetchListings(filters);
             } else if (hash === '#admin') {
                 if (currentUser && currentUser.role === 'admin') {
@@ -2104,14 +2103,39 @@
                         showAlertModal('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
                     }
                 }
-            } else {
+            } else { // Home page (covers #, #home, #home?...)
                 homeView.classList.remove('hidden');
-                listingsTitle.innerHTML = 'ประกาศแนะนำ <i class="fas fa-star text-yellow-400"></i>';
-                generalListingsContainer.classList.remove('hidden');
-                boostedListingsContainer.classList.remove('hidden');
+                const params = new URLSearchParams(hash.substring(hash.indexOf('?')));
+                boostedListingsCurrentPage = parseInt(params.get('boostedPage'), 10) || 1;
+                generalListingsCurrentPage = parseInt(params.get('generalPage'), 10) || 1;
+                resetFilterUI();
                 fetchListings();
             }
             window.scrollTo(0, 0);
+        }
+
+        function updateFilterUIFromParams(params) {
+            document.getElementById('province-filter').value = params.get('province') || '';
+            const province = params.get('province');
+            if (province && thailandData && thailandData[province]) {
+                const districtFilter = document.getElementById('district-filter');
+                districtFilter.length = 1; // Clear existing options
+                const districts = Object.keys(thailandData[province]).sort();
+                districts.forEach(dist => districtFilter.add(new Option(dist, dist)));
+                districtFilter.value = params.get('district') || '';
+            } else {
+                document.getElementById('district-filter').length = 1;
+            }
+            document.getElementById('type-filter').value = params.get('type') || '';
+            document.getElementById('max-price-filter').value = params.get('maxPrice') || '';
+        }
+
+        function resetFilterUI() {
+            document.getElementById('province-filter').value = '';
+            document.getElementById('district-filter').length = 1;
+            document.getElementById('district-filter').value = '';
+            document.getElementById('type-filter').value = '';
+            document.getElementById('max-price-filter').value = '';
         }
 
         window.navigateToHome = () => window.location.hash = '';
