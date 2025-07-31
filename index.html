@@ -1554,24 +1554,6 @@
             }
         });
 
-        // [MODIFIED] applyFilters now updates the URL hash
-        window.applyFilters = function () {
-            const filters = {
-                province: document.getElementById('province-filter').value,
-                district: document.getElementById('district-filter').value,
-                type: document.getElementById('type-filter').value,
-                maxPrice: document.getElementById('max-price-filter').value,
-            };
-
-            const queryParams = new URLSearchParams();
-            for (const key in filters) {
-                if (filters[key]) {
-                    queryParams.append(key, encodeURIComponent(filters[key]));
-                }
-            }
-            window.location.hash = `search/${queryParams.toString()}`;
-        }
-
         // --- ADMIN PANEL ---
         async function renderAdminView(activeTab = 'dashboard') {
             const adminMainContent = document.getElementById('admin-main-content');
