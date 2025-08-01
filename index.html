@@ -571,7 +571,7 @@
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, increment, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const firebaseConfig = typeof __firebase_config !== 'undefined'
             ? JSON.parse(__firebase_config)
@@ -590,6 +590,14 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // [FIX] Handle potential persistence errors like BloomFilterError
+        enableIndexedDbPersistence(db)
+            .then(() => console.log("Firestore persistence enabled."))
+            .catch((err) => {
+                console.warn("Could not enable Firestore persistence. Using in-memory cache.", err.code);
+            });
+
         const listingsCollection = collection(db, "listings");
         const usersCollection = collection(db, "users");
 
@@ -1279,7 +1287,7 @@
                     editBtn.onclick = () => editListing(listing.id);
 
                     const deleteBtn = createElement('button', ['flex-1', 'py-3', 'bg-red-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-red-600'], 'ลบ');
-                    deleteBtn.prepend(createElement('i', ['fas', 'fa-trash', 'mr-2']));
+                    deleteBtn.prepend(createElement('i', ['fas fa-trash', 'mr-2']));
                     deleteBtn.onclick = () => deleteListing(listing.id);
                     
                     actionsDiv.append(editBtn, deleteBtn);
