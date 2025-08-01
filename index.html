@@ -1342,15 +1342,24 @@
         // --- Package System Logic ---
         
         const servicePlans = [
-            { id: 'basic_30_days', listingsAllowed: 5, durationDays: 30, price: 299, title: 'Basic', description: '5 ประกาศ / 30 วัน' },
-            { id: 'pro_30_days', listingsAllowed: 15, durationDays: 30, price: 599, title: 'Pro', description: '15 ประกาศ / 30 วัน' },
-            { id: 'premium_90_days', listingsAllowed: 50, durationDays: 90, price: 1499, title: 'Premium', description: '50 ประกาศ / 90 วัน' },
+            { id: 'basic_30_days', listingsAllowed: 5, durationDays: 30, price: 99, title: 'Basic', description: '5 ประกาศ / 30 วัน', colorClass: 'bg-blue-100', borderColor: 'border-blue-500' },
+            { id: 'pro_30_days', listingsAllowed: 15, durationDays: 30, price: 249, title: 'Pro', description: '15 ประกาศ / 30 วัน', colorClass: 'bg-purple-100', borderColor: 'border-purple-500' },
+            { id: 'premium_90_days', listingsAllowed: 50, durationDays: 90, price: 599, title: 'Premium', description: '50 ประกาศ / 90 วัน', colorClass: 'bg-amber-100', borderColor: 'border-amber-500' },
         ];
 
         let selectedPackagePlan = null;
 
         window.openPackageModal = function() {
             selectedPackagePlan = null;
+            
+            const pkg = currentUser.package;
+            const hasActivePackage = pkg && pkg.expiryDate && pkg.expiryDate.toDate() > new Date();
+            const currentPlanDetails = hasActivePackage ? servicePlans.find(p => p.id === pkg.planId) : null;
+            const currentPrice = currentPlanDetails ? currentPlanDetails.price : 0;
+
+            const availablePlans = hasActivePackage 
+                ? servicePlans.filter(p => p.price > currentPrice)
+                : servicePlans;
 
             document.getElementById('package-selection-view').style.display = 'block';
             document.getElementById('package-thanks-view').style.display = 'none';
@@ -1362,25 +1371,37 @@
             const plansContainer = document.getElementById('package-plans-container');
             plansContainer.innerHTML = '';
 
-            servicePlans.forEach(plan => {
-                const card = createElement('div', ['package-plan-card', 'p-4', 'rounded-lg', 'cursor-pointer', 'text-center']);
-                card.dataset.planId = plan.id;
-                card.appendChild(createElement('h5', ['font-bold', 'text-xl'], plan.title));
-                card.appendChild(createElement('p', ['text-2xl', 'font-bold', 'my-2', 'text-blue-600'], `฿${plan.price}`));
-                card.appendChild(createElement('p', ['text-sm', 'text-gray-500'], plan.description));
-                
-                card.onclick = () => {
-                    document.querySelectorAll('.package-plan-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    selectedPackagePlan = plan;
-                    document.getElementById('payment-details-container').classList.remove('hidden');
-                    document.getElementById('payment-amount').textContent = plan.price;
-                    document.getElementById('payment-username').textContent = currentUser.username;
-                    confirmBtn.disabled = false;
-                    confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                };
-                plansContainer.appendChild(card);
-            });
+            if (availablePlans.length === 0) {
+                plansContainer.innerHTML = `<p class="col-span-full text-center text-gray-600">คุณมีแพ็กเกจสูงสุดแล้ว</p>`;
+            } else {
+                availablePlans.forEach(plan => {
+                    const card = createElement('div', ['package-plan-card', 'p-4', 'rounded-lg', 'cursor-pointer', 'text-center']);
+                    card.dataset.planId = plan.id;
+                    card.appendChild(createElement('h5', ['font-bold', 'text-xl'], plan.title));
+                    
+                    const priceToPay = hasActivePackage ? plan.price - currentPrice : plan.price;
+                    const priceText = hasActivePackage ? `฿${priceToPay}` : `฿${plan.price}`;
+                    const priceElement = createElement('p', ['text-2xl', 'font-bold', 'my-2', 'text-blue-600'], priceText);
+                    if(hasActivePackage) {
+                        priceElement.title = `ราคาเต็ม ${plan.price} - แพ็กเกจปัจจุบัน ${currentPrice}`;
+                    }
+                    card.appendChild(priceElement);
+
+                    card.appendChild(createElement('p', ['text-sm', 'text-gray-500'], plan.description));
+                    
+                    card.onclick = () => {
+                        document.querySelectorAll('.package-plan-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        selectedPackagePlan = { ...plan, priceToPay: priceToPay }; // Store the final price
+                        document.getElementById('payment-details-container').classList.remove('hidden');
+                        document.getElementById('payment-amount').textContent = priceToPay;
+                        document.getElementById('payment-username').textContent = currentUser.username;
+                        confirmBtn.disabled = false;
+                        confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    };
+                    plansContainer.appendChild(card);
+                });
+            }
 
             openModal('packageModal');
         }
@@ -1394,7 +1415,7 @@
                     packageRequest: {
                         status: 'pending',
                         planId: selectedPackagePlan.id,
-                        price: selectedPackagePlan.price,
+                        price: selectedPackagePlan.priceToPay, // Use the calculated price
                         requestedAt: serverTimestamp()
                     }
                 });
@@ -1753,11 +1774,14 @@
                 const userDocSnap = await getDoc(userDocRef);
                 if (!userDocSnap.exists()) { profileView.innerHTML = `<p class="text-center text-red-500">ไม่พบข้อมูลผู้ใช้</p>`; return; }
                 const userData = userDocSnap.data();
-                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId), orderBy("createdAt", "desc"));
+                
+                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId));
                 const listingsSnapshot = await getDocs(listingsQuery);
                 let userListings = [];
                 listingsSnapshot.forEach(doc => { userListings.push({ id: doc.id, ...doc.data() }); });
                 
+                userListings.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+
                 const totalListings = userListings.length;
                 const start = (currentPage - 1) * profileListingsPerPage;
                 const end = start + profileListingsPerPage;
@@ -1765,10 +1789,11 @@
 
                 profileView.innerHTML = '';
                 const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8']);
-                const profileCol = createElement('div', ['lg:col-span-1', 'bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
+                const profileCol = createElement('div', ['lg:col-span-1', 'space-y-8']);
                 const listingsCol = createElement('div', ['lg:col-span-3']);
                 
                 // Profile Card
+                const profileCard = createElement('div', ['bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
                 const profileCardContent = () => {
                     const container = createElement('div', ['text-center']);
                     const profilePicContainer = createElement('div', ['relative', 'w-32', 'h-32', 'mx-auto']);
@@ -1812,11 +1837,12 @@
                     }
                     return container;
                 };
-                profileCol.appendChild(profileCardContent());
+                profileCard.appendChild(profileCardContent());
+                profileCol.appendChild(profileCard);
 
                 // Package Status Card
                 if (currentUser && currentUser.uid === userId) {
-                    const packageCard = createElement('div', ['bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'h-fit', 'mt-8']);
+                    const packageCard = createElement('div', ['p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
                     packageCard.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4', 'text-center'], 'สถานะแพ็กเกจ'));
                     
                     if (userData.packageRequest?.status === 'pending') {
@@ -1825,7 +1851,13 @@
                         packageCard.appendChild(status);
                     } else if (userData.package && userData.package.expiryDate && userData.package.expiryDate.toDate() > new Date()) {
                         const currentPackage = userData.package;
-                        packageCard.appendChild(createElement('p', ['text-lg', 'font-bold', 'text-blue-600', 'text-center'], currentPackage.name));
+                        const currentPlanDetails = servicePlans.find(p => p.id === currentPackage.planId);
+                        
+                        if (currentPlanDetails) {
+                            packageCard.classList.add(currentPlanDetails.colorClass, currentPlanDetails.borderColor, 'border-l-4');
+                        }
+
+                        packageCard.appendChild(createElement('p', ['text-lg', 'font-bold', 'text-gray-800', 'text-center'], currentPackage.name));
                         packageCard.appendChild(createElement('p', ['text-center', 'text-gray-600', 'mt-2'], `ลงประกาศแล้ว: ${currentPackage.listingsPosted} / ${currentPackage.listingsAllowed}`));
                         const progressContainer = createElement('div', ['w-full', 'bg-gray-200', 'rounded-full', 'h-2.5', 'my-2']);
                         const progressBar = createElement('div', ['bg-blue-600', 'h-2.5', 'rounded-full'], '', {style: `width: ${(currentPackage.listingsPosted / currentPackage.listingsAllowed) * 100}%`});
