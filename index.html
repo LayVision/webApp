@@ -44,7 +44,7 @@
             overflow-y: auto;
         }
         
-        #boostModal, #adminApproveBoostModal, #profilePictureModal {
+        #packageModal, #adminApprovePackageModal, #profilePictureModal {
             z-index: 60;
         }
         
@@ -56,24 +56,6 @@
             align-items: center;
             justify-content: center;
             z-index: 80; 
-        }
-
-        /* Custom badge for boosted listings */
-        .boosted-badge {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background-color: #ffc107;
-            color: #212529;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 10;
         }
 
         /* Slideshow transition */
@@ -95,7 +77,6 @@
 
         .upload-preview-img.is-cover {
             border-color: #f59e0b;
-            /* amber-500 */
         }
 
         .set-cover-btn {
@@ -129,12 +110,12 @@
             font-weight: 700;
         }
 
-        /* Boost Modal Styles */
-        .boost-plan-card {
+        /* Package Modal Styles */
+        .package-plan-card {
             border: 2px solid #e5e7eb;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .boost-plan-card.selected {
+        .package-plan-card.selected {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
         }
@@ -160,13 +141,13 @@
                             class="fas fa-user-plus mr-2"></i>สมัครสมาชิก</button>
                 </div>
                 <div id="nav-logged-in-view" class="hidden items-center gap-4">
-                    <button onclick="openModal('postModal')"
+                    <button onclick="handlePostButtonClick()"
                         class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 flex items-center">
                         <i class="fas fa-plus mr-2"></i>ลงประกาศ
                     </button>
-                    <button id="header-boost-button" onclick="navigateToProfile(currentUser.uid)"
+                    <button onclick="openPackageModal()"
                         class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-lg hover:bg-purple-600 flex items-center">
-                        <i class="fas fa-rocket mr-2"></i>ดันโพสต์
+                        <i class="fas fa-box-open mr-2"></i>แพ็กเกจ
                     </button>
                     
                     <div class="relative">
@@ -191,9 +172,9 @@
                                 <a href="#" id="dropdown-profile-link"
                                     class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
                                         class="fas fa-user-circle w-5 text-center"></i>โปรไฟล์</a>
-                                <a href="#" id="dropdown-post-link"
+                                <a href="#" id="dropdown-package-link"
                                     class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
-                                        class="fas fa-plus w-5 text-center"></i>ลงประกาศ</a>
+                                        class="fas fa-box-open w-5 text-center"></i>แพ็กเกจ</a>
                                 <a href="#" id="dropdown-admin-link"
                                     class="hidden items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
                                         class="fas fa-user-shield w-5 text-center"></i>Admin Panel</a>
@@ -289,22 +270,14 @@
                 </div>
 
                 <div id="listings-section-container">
-                    <div id="boosted-listings-container">
-                        <h3 class="text-2xl font-bold mb-6" id="listings-title">ประกาศแนะนำ <i
-                                class="fas fa-star text-yellow-400"></i></h3>
-                        <div id="listings-grid"
+                    <div id="general-listings-container">
+                         <h3 class="text-2xl font-bold mb-6" id="general-listings-title">ประกาศล่าสุด</h3>
+                        <div id="general-listings-grid"
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            <div id="loading-spinner" class="col-span-full text-center p-10">
+                             <div id="loading-spinner" class="col-span-full text-center p-10">
                                 <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
                                 <p class="mt-2">กำลังโหลดข้อมูล...</p>
                             </div>
-                        </div>
-                        <div id="boosted-pagination-container" class="flex justify-center items-center mt-8 gap-2"></div>
-                    </div>
-                    <div id="general-listings-container" class="mt-12">
-                        <h3 class="text-2xl font-bold mb-6" id="general-listings-title">ประกาศทั่วไป</h3>
-                        <div id="general-listings-grid"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         </div>
                         <div id="pagination-container" class="flex justify-center items-center mt-8 gap-2"></div>
                     </div>
@@ -324,8 +297,7 @@
                                 <li><a href="#" id="admin-dashboard-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
                                 <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
                                 <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
-                                <li><a href="#" id="admin-boosts-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-rocket w-6 mr-2"></i>จัดการดันโพสต์</a></li>
-                                <li><a href="#" id="admin-boosted-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-star w-6 mr-2"></i>โพสต์ที่ถูกดัน</a></li>
+                                <li><a href="#" id="admin-packages-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-box-open w-6 mr-2"></i>อนุมัติแพ็กเกจ</a></li>
                             </ul>
                         </nav>
                     </aside>
@@ -490,12 +462,12 @@
         </form>
     </div>
     
-    <div id="boostModal" class="modal w-11/12 md:w-2/3 lg:w-1/2 bg-white rounded-xl shadow-2xl p-8">
-        <div id="boost-selection-view">
-            <h3 class="text-2xl font-bold mb-2 text-center">ดันประกาศของคุณ</h3>
-            <p class="text-center text-gray-500 mb-6">เลือกแพ็กเกจเพื่อทำให้ประกาศของคุณโดดเด่นและเข้าถึงผู้คนได้มากขึ้น</p>
+    <div id="packageModal" class="modal w-11/12 md:w-2/3 lg:w-1/2 bg-white rounded-xl shadow-2xl p-8">
+        <div id="package-selection-view">
+            <h3 class="text-2xl font-bold mb-2 text-center">เลือกแพ็กเกจของคุณ</h3>
+            <p class="text-center text-gray-500 mb-6">เลือกแพ็กเกจเพื่อเริ่มลงประกาศบนแพลตฟอร์มของเรา</p>
             
-            <div id="boost-plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div id="package-plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             </div>
 
             <div id="payment-details-container" class="hidden">
@@ -508,40 +480,40 @@
                          </div>
                          <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
                              <p class="font-bold text-red-600 text-lg mb-2">สำคัญมาก!</p>
-                             <p class="mb-4">กรุณาใส่ "รหัสประกาศ" ด้านล่างนี้ในช่อง <strong class="text-blue-600">"บันทึกช่วยจำ"</strong> หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
-                             <p class="text-sm text-gray-600">รหัสประกาศ (Post ID):</p>
-                             <p id="payment-post-id" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
+                             <p class="mb-4">กรุณาใส่ <strong class="text-blue-600">"Username"</strong> ของคุณในช่อง "บันทึกช่วยจำ" หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
+                             <p class="text-sm text-gray-600">Username ของคุณ:</p>
+                             <p id="payment-username" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
                          </div>
                  </div>
             </div>
 
             <div class="mt-6 flex justify-end gap-4">
-                <button type="button" onclick="closeModal('boostModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
+                <button type="button" onclick="closeModal('packageModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
                 <button type="button" id="confirm-payment-button" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 opacity-50 cursor-not-allowed" disabled>
                     <i class="fas fa-check-circle mr-2"></i>ยืนยันการชำระเงิน
                 </button>
             </div>
         </div>
 
-        <div id="boost-thanks-view" class="hidden text-center p-8">
+        <div id="package-thanks-view" class="hidden text-center p-8">
             <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
             <h3 class="text-2xl font-bold mb-2">ขอบคุณครับ!</h3>
-            <p class="text-gray-600">เราได้รับคำขอดันประกาศของคุณแล้ว<br>ระบบจะทำการตรวจสอบและอนุมัติโพสต์ของคุณภายใน 10 นาที</p>
+            <p class="text-gray-600">เราได้รับคำขอสั่งซื้อแพ็กเกจของคุณแล้ว<br>ระบบจะทำการตรวจสอบและอนุมัติแพ็กเกจของคุณภายใน 10 นาที</p>
         </div>
 
-        <button onclick="closeModal('boostModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        <button onclick="closeModal('packageModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 
-    <div id="adminApproveBoostModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
-        <h3 class="text-2xl font-bold mb-4 text-center">อนุมัติการดันประกาศ</h3>
-        <p class="text-center mb-1">รหัสประกาศ:</p>
-        <p id="admin-boost-listing-id" class="text-center font-mono text-sm bg-gray-100 p-2 rounded mb-4"></p>
+    <div id="adminApprovePackageModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
+        <h3 class="text-2xl font-bold mb-4 text-center">อนุมัติแพ็กเกจ</h3>
+        <p class="text-center mb-1">ผู้ใช้:</p>
+        <p id="admin-package-username" class="text-center font-mono text-sm bg-gray-100 p-2 rounded mb-4"></p>
         <p class="text-center mb-4">กรุณาเลือกแพ็กเกจที่ผู้ใช้ชำระเงิน:</p>
-        <form id="admin-approve-boost-form">
-            <div id="admin-boost-plans-container" class="space-y-3 mb-6">
+        <form id="admin-approve-package-form">
+            <div id="admin-package-plans-container" class="space-y-3 mb-6">
             </div>
             <div class="flex justify-end gap-4">
-                <button type="button" onclick="closeModal('adminApproveBoostModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
+                <button type="button" onclick="closeModal('adminApprovePackageModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
                 <button type="submit" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">อนุมัติ</button>
             </div>
         </form>
@@ -599,7 +571,7 @@
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const firebaseConfig = typeof __firebase_config !== 'undefined'
             ? JSON.parse(__firebase_config)
@@ -632,9 +604,7 @@
         let generalListingsCurrentPage = 1;
         const listingsPerPage = 8;
         let currentGeneralListings = [];
-        let boostedListingsCurrentPage = 1;
-        let currentBoostedListings = [];
-        let currentHash = ''; // To track navigation history for scrolling
+        let currentHash = '';
 
 
         // --- UI ELEMENTS ---
@@ -645,15 +615,10 @@
         const navLoggedOutView = document.getElementById('nav-logged-out-view');
         const navLoggedInView = document.getElementById('nav-logged-in-view');
         const profileDropdownButton = document.getElementById('profile-dropdown-button');
-        const dropdownUserInitial = document.getElementById('dropdown-user-initial');
         const dropdownUsername = document.getElementById('dropdown-username');
         const dropdownEmail = document.getElementById('dropdown-email');
-        const listingsGrid = document.getElementById('listings-grid');
         const generalListingsGrid = document.getElementById('general-listings-grid');
-        const boostedListingsContainer = document.getElementById('boosted-listings-container');
-        const generalListingsContainer = document.getElementById('general-listings-container');
         const loadingSpinner = document.getElementById('loading-spinner');
-        const listingsTitle = document.getElementById('listings-title');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileNavLoggedOutView = document.getElementById('mobile-nav-logged-out-view');
         const mobileNavLoggedInView = document.getElementById('mobile-nav-logged-in-view');
@@ -734,27 +699,6 @@
             }
         }
         
-        function formatTimeRemaining(expiryDate) {
-            if (!expiryDate) return '';
-            const now = new Date();
-            const expiry = expiryDate.toDate();
-            const diffInSeconds = Math.floor((expiry - now) / 1000);
-
-            if (diffInSeconds <= 0) return 'หมดอายุแล้ว';
-
-            const days = Math.floor(diffInSeconds / 86400);
-            const hours = Math.floor((diffInSeconds % 86400) / 3600);
-            const minutes = Math.floor((diffInSeconds % 3600) / 60);
-
-            let result = 'เหลือ ';
-            if (days > 0) result += `${days} วัน `;
-            if (hours > 0) result += `${hours} ชั่วโมง `;
-            if (days === 0 && hours < 24) result += `${minutes} นาที`;
-            
-            return result.trim();
-        }
-
-
         // --- LOCATION DATA HANDLING ---
         async function fetchThailandData() {
             try {
@@ -814,6 +758,7 @@
                 dropdownEmail.textContent = user.email;
 
                 // Update header dropdown button
+                const profileDropdownButton = document.getElementById('profile-dropdown-button');
                 profileDropdownButton.innerHTML = '';
                 if (user.photoURL) {
                     const img = createElement('img', ['w-full', 'h-full', 'object-cover'], '', { src: user.photoURL, alt: 'Profile' });
@@ -834,9 +779,8 @@
                 dropdownPicContainer.onclick = () => openProfilePictureModal();
 
                 document.getElementById('dropdown-profile-link').onclick = (e) => { e.preventDefault(); navigateToProfile(user.uid); toggleProfileDropdown(); };
-                document.getElementById('dropdown-post-link').onclick = (e) => { e.preventDefault(); openModal('postModal'); toggleProfileDropdown(); };
+                document.getElementById('dropdown-package-link').onclick = (e) => { e.preventDefault(); openPackageModal(); toggleProfileDropdown(); };
                 document.getElementById('dropdown-logout-link').onclick = (e) => { e.preventDefault(); handleLogout(); };
-                document.getElementById('header-boost-button').onclick = () => navigateToProfile(user.uid);
 
                 const adminLink = document.getElementById('dropdown-admin-link');
                 if (user.role === 'admin') {
@@ -879,8 +823,8 @@
                 };
 
                 linksContainer.appendChild(createMobileLink('โปรไฟล์', 'fas fa-user-circle', () => navigateToProfile(user.uid)));
-                linksContainer.appendChild(createMobileLink('ลงประกาศ', 'fas fa-plus', () => openModal('postModal')));
-                linksContainer.appendChild(createMobileLink('ดันโพสต์', 'fas fa-rocket', () => navigateToProfile(user.uid)));
+                linksContainer.appendChild(createMobileLink('ลงประกาศ', 'fas fa-plus', () => handlePostButtonClick()));
+                linksContainer.appendChild(createMobileLink('แพ็กเกจ', 'fas fa-box-open', () => openPackageModal()));
 
                 if (user.role === 'admin') {
                     linksContainer.appendChild(createMobileLink('Admin Panel', 'fas fa-user-shield', navigateToAdmin));
@@ -904,24 +848,25 @@
         // --- AUTHENTICATION ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    const userDocSnap = await getDoc(userDocRef);
-                    if (userDocSnap.exists()) {
-                        currentUser = { uid: user.uid, ...userDocSnap.data() };
+                const userDocRef = doc(db, "users", user.uid);
+                onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        currentUser = { uid: user.uid, ...docSnap.data() };
                     } else {
-                        // This case might happen if user doc creation failed after registration
                         currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
                     }
-                } catch (error) {
-                    console.error("Error fetching user profile:", error);
-                    currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
-                }
+                    updateNavUI(currentUser);
+                    // Re-render view if user data changes (e.g., package approved)
+                    const currentView = window.location.hash;
+                    if (currentView.startsWith('#profile/')) {
+                         router();
+                    }
+                });
             } else {
                 currentUser = null;
+                updateNavUI(null);
             }
-            updateNavUI(currentUser);
-            router(); // Initial route check after auth state is confirmed
+            router();
         });
 
         registerForm.addEventListener('submit', async (e) => {
@@ -954,7 +899,9 @@
                     createdAt: serverTimestamp(),
                     phone: '',
                     lineId: '',
-                    photoURL: ''
+                    photoURL: '',
+                    package: null,
+                    packageRequest: null
                 });
 
                 closeModal('registerModal');
@@ -996,24 +943,20 @@
             const uploadPromises = Array.from(files).map(file => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
-                    reader.readAsDataURL(file); // Convert file to base64 string
+                    reader.readAsDataURL(file);
                     reader.onload = async () => {
                         try {
                             const base64File = reader.result;
-                            
-                            // Send request to our Netlify Function
                             const response = await fetch('/.netlify/functions/upload', {
                                 method: 'POST',
                                 body: JSON.stringify({ file: base64File }),
                             });
-
                             if (!response.ok) {
                                 const errorData = await response.json();
                                 throw new Error(errorData.error || 'Upload failed');
                             }
-
                             const result = await response.json();
-                            resolve(result.secure_url); // Get URL back
+                            resolve(result.secure_url);
                         } catch (error) {
                             console.error('Error calling upload function:', error);
                             reject(error);
@@ -1022,10 +965,8 @@
                     reader.onerror = error => reject(error);
                 });
             });
-
             return Promise.all(uploadPromises);
         }
-
 
         imageUploadInput.addEventListener('change', () => {
             const newFiles = Array.from(imageUploadInput.files);
@@ -1112,14 +1053,14 @@
                     updatedAt: serverTimestamp(),
                 };
 
+                const userDocRef = doc(db, "users", currentUser.uid);
                 if (postId) {
                     const docRef = doc(db, "listings", postId);
                     await updateDoc(docRef, listingData);
                 } else {
                     listingData.createdAt = serverTimestamp();
-                    listingData.isBoosted = false;
-                    listingData.boostStatus = 'none'; // none, pending, active, expired
                     await addDoc(listingsCollection, listingData);
+                    await updateDoc(userDocRef, { 'package.listingsPosted': increment(1) });
                 }
                 closeModal('postModal');
                 postForm.reset();
@@ -1137,18 +1078,16 @@
             }
         });
 
-        async function fetchListings(filters = {}, fromListing = false) {
+        async function fetchListings(filters = {}) {
             loadingSpinner.style.display = 'block';
-            listingsGrid.innerHTML = '';
             generalListingsGrid.innerHTML = '';
             try {
-                const querySnapshot = await getDocs(query(listingsCollection));
+                const querySnapshot = await getDocs(query(listingsCollection, orderBy("createdAt", "desc")));
                 let allListings = [];
                 querySnapshot.forEach((doc) => {
                     allListings.push({ id: doc.id, ...doc.data() });
                 });
                 
-                const now = new Date();
                 let filteredListings = allListings.filter(l => {
                     const provinceMatch = !filters.province || l.province === filters.province;
                     const districtMatch = !filters.district || l.district === filters.district;
@@ -1157,68 +1096,24 @@
                     return provinceMatch && districtMatch && typeMatch && priceMatch;
                 });
 
-                // Check for expired boosts before sorting
-                filteredListings.forEach(l => {
-                    if (l.isBoosted && l.boostExpiryDate && l.boostExpiryDate.toDate() < now) {
-                        l.isBoosted = false; // Treat as not boosted if expired for display purposes
-                    }
-                });
-
-                filteredListings.sort((a, b) => {
-                    if (a.isBoosted && !b.isBoosted) return -1;
-                    if (!a.isBoosted && b.isBoosted) return 1;
-                    return (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0);
-                });
                 renderListings(filteredListings, Object.keys(filters).length > 0 && Object.values(filters).some(v => v));
             } catch (error) {
                 console.error("Error fetching listings: ", error);
-                listingsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">เกิดข้อผิดพลาด: ${error.message}</p>`;
+                generalListingsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">เกิดข้อผิดพลาด: ${error.message}</p>`;
             } finally {
                 loadingSpinner.style.display = 'none';
-                if (fromListing) {
-                    setTimeout(() => {
-                        const targetElement = document.getElementById('general-listings-container');
-                        if (targetElement) {
-                            targetElement.scrollIntoView({ behavior: 'smooth' });
-                        }
-                    }, 100);
-                }
             }
         }
 
         function renderListings(listings, isSearchView = false) {
-            if (isSearchView) {
-                boostedListingsContainer.style.display = 'none';
-                generalListingsContainer.style.display = 'block';
-                document.getElementById('general-listings-title').textContent = 'ผลการค้นหา';
-                
-                currentGeneralListings = listings;
-                // generalListingsCurrentPage is already set by the router
-                renderPaginatedGeneralListings();
-            } else {
-                boostedListingsContainer.style.display = 'block';
-                generalListingsContainer.style.display = 'block';
-                document.getElementById('listings-title').innerHTML = 'ประกาศแนะนำ <i class="fas fa-star text-yellow-400"></i>';
-                document.getElementById('general-listings-title').textContent = 'ประกาศทั่วไป';
-
-                currentBoostedListings = listings.filter(l => l.isBoosted);
-                currentGeneralListings = listings.filter(l => !l.isBoosted);
-
-                // boostedListingsCurrentPage is already set by the router
-                renderPaginatedBoostedListings();
-
-                // generalListingsCurrentPage is already set by the router
-                renderPaginatedGeneralListings();
-            }
-        }
-
-        function renderPaginatedBoostedListings() {
-            const start = (boostedListingsCurrentPage - 1) * listingsPerPage;
-            const end = start + listingsPerPage;
-            const pageListings = currentBoostedListings.slice(start, end);
+            const generalContainer = document.getElementById('general-listings-container');
+            const title = document.getElementById('general-listings-title');
             
-            populateGrid(listingsGrid, pageListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
-            renderBoostedPaginationControls();
+            generalContainer.style.display = 'block';
+            title.textContent = isSearchView ? 'ผลการค้นหา' : 'ประกาศล่าสุด';
+            
+            currentGeneralListings = listings;
+            renderPaginatedGeneralListings();
         }
 
         function renderPaginatedGeneralListings() {
@@ -1227,36 +1122,12 @@
             const pageListings = currentGeneralListings.slice(start, end);
 
             const isSearching = window.location.hash.startsWith('#search/');
-            const emptyMessage = isSearching ? "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา" : "ไม่พบประกาศทั่วไป";
+            const emptyMessage = isSearching ? "ไม่พบประกาศที่ตรงกับเงื่อนไขการค้นหา" : "ยังไม่มีประกาศในระบบ";
             
             populateGrid(generalListingsGrid, pageListings, emptyMessage);
             renderGeneralPaginationControls();
         }
-
-        function renderBoostedPaginationControls() {
-            const paginationContainer = document.getElementById('boosted-pagination-container');
-            paginationContainer.innerHTML = '';
-            const totalPages = Math.ceil(currentBoostedListings.length / listingsPerPage);
-
-            if (totalPages <= 1) return;
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = createElement('button', ['px-4', 'py-2', 'border', 'rounded-lg', 'transition-colors', 'text-sm']);
-                pageButton.textContent = i;
-                if (i === boostedListingsCurrentPage) {
-                    pageButton.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
-                } else {
-                    pageButton.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
-                }
-                pageButton.onclick = () => {
-                    const params = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
-                    params.set('boostedPage', i);
-                    window.location.hash = `home?${params.toString()}`;
-                };
-                paginationContainer.appendChild(pageButton);
-            }
-        }
-
+        
         function renderGeneralPaginationControls() {
             const paginationContainer = document.getElementById('pagination-container');
             paginationContainer.innerHTML = '';
@@ -1281,14 +1152,13 @@
                         window.location.hash = `search/${params.toString()}`;
                     } else { // Home page
                         const params = new URLSearchParams(currentHash.substring(currentHash.indexOf('?')));
-                        params.set('generalPage', i);
+                        params.set('page', i);
                         window.location.hash = `home?${params.toString()}`;
                     }
                 };
                 paginationContainer.appendChild(pageButton);
             }
         }
-
 
         function populateGrid(gridElement, listings, emptyMessage) {
             gridElement.innerHTML = '';
@@ -1301,11 +1171,7 @@
                 const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=ไม่มีรูปภาพ';
                 const image = createElement('img', ['w-full', 'h-48', 'object-cover'], '', { src: imageUrl, alt: listing.title });
                 image.onerror = () => { image.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=รูปภาพเสียหาย'; };
-                if (listing.isBoosted) {
-                    const badge = createElement('div', ['boosted-badge'], ' ประกาศแนะนำ');
-                    badge.prepend(createElement('i', ['fas', 'fa-rocket']));
-                    card.appendChild(badge);
-                }
+                
                 const contentDiv = createElement('div', ['p-4', 'flex', 'flex-col', 'flex-grow']);
                 contentDiv.appendChild(createElement('h4', ['font-bold', 'text-lg', 'break-words'], listing.title));
                 const locationP = createElement('p', ['text-sm', 'text-gray-500', 'mb-2'], ` ${listing.district}, ${listing.province}`);
@@ -1342,7 +1208,7 @@
                     return; 
                 }
                 const listing = { id: docSnap.id, ...docSnap.data() };
-                listingDetailView.innerHTML = ''; // Clear spinner
+                listingDetailView.innerHTML = '';
 
                 const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-2', 'gap-8', 'mt-4']);
                 const imageCol = createElement('div');
@@ -1417,26 +1283,6 @@
                     deleteBtn.onclick = () => deleteListing(listing.id);
                     
                     actionsDiv.append(editBtn, deleteBtn);
-                    
-                    const boostBtn = createElement('button', ['w-full', 'py-3', 'text-white', 'font-bold', 'rounded-lg', 'mt-2']);
-                    
-                    const now = new Date();
-                    const isBoostedAndActive = listing.isBoosted && (!listing.boostExpiryDate || listing.boostExpiryDate.toDate() > now);
-
-                    if (listing.boostStatus === 'pending') {
-                        boostBtn.innerHTML = '<i class="fas fa-clock mr-2"></i>รอการอนุมัติ';
-                        boostBtn.classList.add('bg-yellow-500', 'cursor-not-allowed');
-                        boostBtn.disabled = true;
-                    } else if (isBoostedAndActive) {
-                        boostBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>ดันโพสต์แล้ว';
-                        boostBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                        boostBtn.disabled = true;
-                    } else {
-                        boostBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>ดันโพสต์';
-                        boostBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
-                        boostBtn.onclick = () => openBoostModal(listing.id);
-                    }
-                    actionsDiv.appendChild(boostBtn);
                     detailsCol.appendChild(actionsDiv);
                 }
                 mainGrid.append(imageCol, detailsCol);
@@ -1483,7 +1329,9 @@
             openConfirmModal('คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้?', async () => {
                 try {
                     await deleteDoc(doc(db, "listings", id));
-                    navigateToHome();
+                    const userDocRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(userDocRef, { 'package.listingsPosted': increment(-1) });
+                    navigateToProfile(currentUser.uid);
                 } catch (error) {
                     console.error("Error deleting document: ", error);
                     showAlertModal('เกิดข้อผิดพลาดในการลบ');
@@ -1491,77 +1339,77 @@
             }, 'bg-red-500 hover:bg-red-600');
         }
         
-        // --- Boost Listing Logic ---
+        // --- Package System Logic ---
         
-        const boostPlans = [
-            { id: '3_days', days: 3, price: 150, title: '3 วัน', description: 'เหมาะสำหรับผู้เริ่มต้น' },
-            { id: '7_days', days: 7, price: 300, title: '7 วัน', description: 'แพ็กเกจยอดนิยม' },
-            { id: '30_days', days: 30, price: 500, title: '30 วัน', description: 'คุ้มค่าที่สุด' },
+        const servicePlans = [
+            { id: 'basic_30_days', listingsAllowed: 5, durationDays: 30, price: 299, title: 'Basic', description: '5 ประกาศ / 30 วัน' },
+            { id: 'pro_30_days', listingsAllowed: 15, durationDays: 30, price: 599, title: 'Pro', description: '15 ประกาศ / 30 วัน' },
+            { id: 'premium_90_days', listingsAllowed: 50, durationDays: 90, price: 1499, title: 'Premium', description: '50 ประกาศ / 90 วัน' },
         ];
 
-        let selectedBoostPlan = null;
-        let currentBoostingPostId = null;
+        let selectedPackagePlan = null;
 
-        function openBoostModal(listingId) {
-            currentBoostingPostId = listingId;
-            selectedBoostPlan = null;
+        window.openPackageModal = function() {
+            selectedPackagePlan = null;
 
-            document.getElementById('boost-selection-view').style.display = 'block';
-            document.getElementById('boost-thanks-view').style.display = 'none';
+            document.getElementById('package-selection-view').style.display = 'block';
+            document.getElementById('package-thanks-view').style.display = 'none';
             document.getElementById('payment-details-container').classList.add('hidden');
             const confirmBtn = document.getElementById('confirm-payment-button');
             confirmBtn.disabled = true;
             confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-            const plansContainer = document.getElementById('boost-plans-container');
+            const plansContainer = document.getElementById('package-plans-container');
             plansContainer.innerHTML = '';
 
-            boostPlans.forEach(plan => {
-                const card = createElement('div', ['boost-plan-card', 'p-4', 'rounded-lg', 'cursor-pointer', 'text-center']);
+            servicePlans.forEach(plan => {
+                const card = createElement('div', ['package-plan-card', 'p-4', 'rounded-lg', 'cursor-pointer', 'text-center']);
                 card.dataset.planId = plan.id;
                 card.appendChild(createElement('h5', ['font-bold', 'text-xl'], plan.title));
                 card.appendChild(createElement('p', ['text-2xl', 'font-bold', 'my-2', 'text-blue-600'], `฿${plan.price}`));
                 card.appendChild(createElement('p', ['text-sm', 'text-gray-500'], plan.description));
                 
                 card.onclick = () => {
-                    document.querySelectorAll('.boost-plan-card').forEach(c => c.classList.remove('selected'));
+                    document.querySelectorAll('.package-plan-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
-                    selectedBoostPlan = plan;
+                    selectedPackagePlan = plan;
                     document.getElementById('payment-details-container').classList.remove('hidden');
                     document.getElementById('payment-amount').textContent = plan.price;
-                    document.getElementById('payment-post-id').textContent = currentBoostingPostId;
+                    document.getElementById('payment-username').textContent = currentUser.username;
                     confirmBtn.disabled = false;
                     confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 };
                 plansContainer.appendChild(card);
             });
 
-            openModal('boostModal');
+            openModal('packageModal');
         }
         
         document.getElementById('confirm-payment-button').addEventListener('click', async () => {
-            if (!selectedBoostPlan || !currentBoostingPostId) return;
+            if (!selectedPackagePlan || !currentUser) return;
 
             try {
-                const docRef = doc(db, "listings", currentBoostingPostId);
-                await updateDoc(docRef, {
-                    boostStatus: 'pending',
-                    boostTier: selectedBoostPlan.id,
-                    boostPrice: selectedBoostPlan.price,
-                    boostRequestedAt: serverTimestamp()
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userDocRef, {
+                    packageRequest: {
+                        status: 'pending',
+                        planId: selectedPackagePlan.id,
+                        price: selectedPackagePlan.price,
+                        requestedAt: serverTimestamp()
+                    }
                 });
 
-                document.getElementById('boost-selection-view').style.display = 'none';
-                document.getElementById('boost-thanks-view').style.display = 'block';
+                document.getElementById('package-selection-view').style.display = 'none';
+                document.getElementById('package-thanks-view').style.display = 'block';
 
                 setTimeout(() => {
-                    closeModal('boostModal');
-                    router(); // Refresh the view
+                    closeModal('packageModal');
+                    router();
                 }, 4000);
 
             } catch (error) {
-                console.error("Error requesting boost:", error);
-                showAlertModal("เกิดข้อผิดพลาดในการส่งคำขอดันประกาศ กรุณาลองใหม่อีกครั้ง");
+                console.error("Error requesting package:", error);
+                showAlertModal("เกิดข้อผิดพลาดในการส่งคำขอ กรุณาลองใหม่อีกครั้ง");
             }
         });
 
@@ -1575,8 +1423,7 @@
             if (activeTab === 'dashboard') { await renderAdminDashboard(); } 
             else if (activeTab === 'listings') { await renderAdminListingsTable(); } 
             else if (activeTab === 'users') { await renderAdminUsersTable(); }
-            else if (activeTab === 'boosts') { await renderAdminBoostsTable(); }
-            else if (activeTab === 'boosted') { await renderAdminBoostedTable(); }
+            else if (activeTab === 'packages') { await renderAdminPackageRequestsTable(); }
         }
         
         async function renderAdminDashboard() {
@@ -1588,8 +1435,13 @@
                 ]);
                 const totalListings = listingsSnapshot.size;
                 const totalUsers = usersSnapshot.size;
-                let boostedListings = 0;
-                listingsSnapshot.forEach(doc => { if (doc.data().isBoosted) { boostedListings++; } });
+                let activePackages = 0;
+                usersSnapshot.forEach(doc => { 
+                    const user = doc.data();
+                    if (user.package && user.package.expiryDate && user.package.expiryDate.toDate() > new Date()) {
+                        activePackages++;
+                    }
+                });
                 adminMainContent.innerHTML = '';
                 const dashboardGrid = createElement('div', ['grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'gap-6']);
                 const createStatCard = (title, value, iconClass, colorClass) => {
@@ -1604,7 +1456,7 @@
                 }
                 dashboardGrid.appendChild(createStatCard('ประกาศทั้งหมด', totalListings, 'fa-list-alt', 'bg-blue-500'));
                 dashboardGrid.appendChild(createStatCard('ผู้ใช้ทั้งหมด', totalUsers, 'fa-users', 'bg-green-500'));
-                dashboardGrid.appendChild(createStatCard('ประกาศแนะนำ', boostedListings, 'fa-rocket', 'bg-purple-500'));
+                dashboardGrid.appendChild(createStatCard('ผู้ใช้มีแพ็กเกจ', activePackages, 'fa-box-open', 'bg-purple-500'));
                 adminMainContent.appendChild(dashboardGrid);
             } catch (error) {
                 console.error("Error loading admin dashboard:", error);
@@ -1665,15 +1517,6 @@
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 deleteBtn.onclick = () => deleteListing(listing.id);
 
-                const now = new Date();
-                const isBoostedAndActive = listing.isBoosted && (!listing.boostExpiryDate || listing.boostExpiryDate.toDate() > now);
-                if(isBoostedAndActive) {
-                    const removeBoostBtn = createElement('button', ['text-purple-500', 'hover:text-purple-700'], '', {title: 'เอาโพสต์ลงจากการดัน'});
-                    removeBoostBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
-                    removeBoostBtn.onclick = () => removeBoost(listing.id);
-                    actionsCell.appendChild(removeBoostBtn);
-                }
-
                 actionsCell.append(viewBtn, editBtn, deleteBtn);
                 tr.appendChild(actionsCell);
                 tbody.appendChild(tr);
@@ -1683,7 +1526,6 @@
         }
 
         async function renderAdminUsersTable() {
-            // This function remains the same
             const adminMainContent = document.getElementById('admin-main-content');
             adminMainContent.innerHTML = '';
             const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
@@ -1712,12 +1554,21 @@
              container.innerHTML = '';
             if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบผู้ใช้</p>`; return; }
             const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">อีเมล</th><th class="p-3">วันที่สมัคร</th><th class="p-3">จัดการ</th></tr></thead>`;
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">อีเมล</th><th class="p-3">แพ็กเกจ</th><th class="p-3">วันที่สมัคร</th><th class="p-3">จัดการ</th></tr></thead>`;
             const tbody = createElement('tbody');
             users.forEach(user => {
                 const tr = createElement('tr', ['border-b']);
                 tr.appendChild(createElement('td', ['p-3', 'font-medium'], user.username));
                 tr.appendChild(createElement('td', ['p-3'], user.email));
+                
+                let packageInfo = 'ไม่มี';
+                if (user.package && user.package.expiryDate && user.package.expiryDate.toDate() > new Date()) {
+                    packageInfo = `${user.package.name} (หมดอายุ ${formatTimestamp(user.package.expiryDate, true)})`;
+                } else if (user.packageRequest?.status === 'pending') {
+                    packageInfo = 'รออนุมัติ';
+                }
+                tr.appendChild(createElement('td', ['p-3'], packageInfo));
+
                 tr.appendChild(createElement('td', ['p-3'], formatTimestamp(user.createdAt, true)));
                 const actionsCell = createElement('td', ['p-3']);
                 const viewProfileBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], ' ดูโปรไฟล์', {title: 'ดูโปรไฟล์'});
@@ -1731,55 +1582,54 @@
             container.appendChild(table);
         }
 
-        // --- Admin Boost Management ---
-        async function renderAdminBoostsTable() {
+        // --- Admin Package Management ---
+        async function renderAdminPackageRequestsTable() {
             const adminMainContent = document.getElementById('admin-main-content');
             adminMainContent.innerHTML = '';
             const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'คำขอดันประกาศที่รอการอนุมัติ'));
+            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'คำขอซื้อแพ็กเกจที่รอการอนุมัติ'));
             const tableContainer = createElement('div', ['overflow-x-auto']);
             container.appendChild(tableContainer);
             adminMainContent.appendChild(container);
             
             tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
             try {
-                const q = query(listingsCollection, where("boostStatus", "==", "pending"));
+                const q = query(usersCollection, where("packageRequest.status", "==", "pending"));
                 const querySnapshot = await getDocs(q);
-                const pendingBoosts = [];
-                querySnapshot.forEach(doc => pendingBoosts.push({ id: doc.id, ...doc.data() }));
+                const pendingRequests = [];
+                querySnapshot.forEach(doc => pendingRequests.push({ id: doc.id, ...doc.data() }));
 
-                pendingBoosts.sort((a, b) => (b.boostRequestedAt?.toMillis() || 0) - (a.boostRequestedAt?.toMillis() || 0));
+                pendingRequests.sort((a, b) => (b.packageRequest.requestedAt?.toMillis() || 0) - (a.packageRequest.requestedAt?.toMillis() || 0));
 
-                populateAdminBoostsTable(tableContainer, pendingBoosts);
+                populateAdminPackageRequestsTable(tableContainer, pendingRequests);
             } catch (error) {
-                console.error("Error fetching pending boosts:", error);
+                console.error("Error fetching pending packages:", error);
                 tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
             }
         }
 
-        function populateAdminBoostsTable(container, listings) {
+        function populateAdminPackageRequestsTable(container, users) {
             container.innerHTML = '';
-            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีคำขอที่รอการอนุมัติ</p>`; return; }
+            if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีคำขอที่รอการอนุมัติ</p>`; return; }
             
             const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">รหัสประกาศ</th><th class="p-3">หัวข้อ</th><th class="p-3">แพ็กเกจที่ขอ</th><th class="p-3">ราคา</th><th class="p-3">วันที่ขอ</th><th class="p-3">จัดการ</th></tr></thead>`;
+            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">แพ็กเกจที่ขอ</th><th class="p-3">ราคา</th><th class="p-3">วันที่ขอ</th><th class="p-3">จัดการ</th></tr></thead>`;
             const tbody = createElement('tbody');
             
-            listings.forEach(listing => {
-                const plan = boostPlans.find(p => p.id === listing.boostTier);
+            users.forEach(user => {
+                const plan = servicePlans.find(p => p.id === user.packageRequest.planId);
                 const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-mono', 'text-xs'], listing.id));
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
+                tr.appendChild(createElement('td', ['p-3', 'font-medium'], user.username));
                 tr.appendChild(createElement('td', ['p-3'], plan ? plan.title : 'N/A'));
-                tr.appendChild(createElement('td', ['p-3'], `฿${listing.boostPrice || 'N/A'}`));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.boostRequestedAt)));
+                tr.appendChild(createElement('td', ['p-3'], `฿${user.packageRequest.price || 'N/A'}`));
+                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(user.packageRequest.requestedAt)));
                 
                 const actionsCell = createElement('td', ['p-3', 'flex', 'gap-2']);
                 const approveBtn = createElement('button', ['px-3', 'py-1', 'bg-green-500', 'text-white', 'rounded', 'hover:bg-green-600', 'text-xs'], 'อนุมัติ');
-                approveBtn.onclick = () => openAdminApproveModal(listing.id, listing.title, listing.boostTier);
+                approveBtn.onclick = () => openAdminApprovePackageModal(user.id, user.username, user.packageRequest.planId);
                 
                 const rejectBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'ไม่อนุมัติ');
-                rejectBtn.onclick = () => rejectBoost(listing.id, listing.ownerUid);
+                rejectBtn.onclick = () => rejectPackage(user.id);
 
                 actionsCell.append(approveBtn, rejectBtn);
                 tr.appendChild(actionsCell);
@@ -1789,137 +1639,88 @@
             container.appendChild(table);
         }
         
-        function openAdminApproveModal(listingId, listingTitle, requestedTierId) {
-            document.getElementById('admin-boost-listing-id').textContent = listingId;
-            const form = document.getElementById('admin-approve-boost-form');
-            const plansContainer = document.getElementById('admin-boost-plans-container');
+        function openAdminApprovePackageModal(userId, username, requestedPlanId) {
+            document.getElementById('admin-package-username').textContent = `${username} (${userId})`;
+            const form = document.getElementById('admin-approve-package-form');
+            const plansContainer = document.getElementById('admin-package-plans-container');
             plansContainer.innerHTML = '';
 
-            boostPlans.forEach((plan, index) => {
+            servicePlans.forEach((plan) => {
                 const div = createElement('div', ['flex', 'items-center']);
-                const input = createElement('input', ['mr-2'], '', {type: 'radio', id: `admin_${plan.id}`, name: 'boost_plan', value: plan.days});
-                if (plan.id === requestedTierId) {
+                const input = createElement('input', ['mr-2'], '', {type: 'radio', id: `admin_${plan.id}`, name: 'package_plan', value: plan.id});
+                if (plan.id === requestedPlanId) {
                     input.checked = true;
                 }
-                const label = createElement('label', [], `${plan.title} (${plan.price} บาท)`, {for: `admin_${plan.id}`});
+                const label = createElement('label', [], `${plan.title} (${plan.description})`, {for: `admin_${plan.id}`});
                 div.append(input, label);
                 plansContainer.appendChild(div);
             });
             
             form.onsubmit = (e) => {
                 e.preventDefault();
-                const selectedDays = new FormData(form).get('boost_plan');
-                if (selectedDays) {
-                    approveBoost(listingId, parseInt(selectedDays));
+                const selectedPlanId = new FormData(form).get('package_plan');
+                if (selectedPlanId) {
+                    approvePackage(userId, selectedPlanId);
                 } else {
                     showAlertModal("กรุณาเลือกแพ็กเกจ");
                 }
             };
 
-            openModal('adminApproveBoostModal');
+            openModal('adminApprovePackageModal');
         }
 
-        async function approveBoost(listingId, days) {
-            openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการอนุมัติการดันโพสต์ "${listingId}" เป็นเวลา ${days} วัน?`, async () => {
+        async function approvePackage(userId, planId) {
+            const plan = servicePlans.find(p => p.id === planId);
+            if (!plan) {
+                showAlertModal("ไม่พบข้อมูลแพ็กเกจ");
+                return;
+            }
+
+            openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการอนุมัติแพ็กเกจ "${plan.title}" ให้กับผู้ใช้?`, async () => {
                 try {
-                    const docRef = doc(db, "listings", listingId);
+                    const userDocRef = doc(db, "users", userId);
                     const expiryDate = new Date();
-                    expiryDate.setDate(expiryDate.getDate() + days);
+                    expiryDate.setDate(expiryDate.getDate() + plan.durationDays);
                     
-                    await updateDoc(docRef, {
-                        isBoosted: true,
-                        boostStatus: 'active',
-                        boostExpiryDate: expiryDate,
-                        updatedAt: serverTimestamp() // Bump the updated date to bring it to the top
+                    await updateDoc(userDocRef, {
+                        packageRequest: null,
+                        package: {
+                            name: plan.title,
+                            planId: plan.id,
+                            listingsAllowed: plan.listingsAllowed,
+                            listingsPosted: 0,
+                            expiryDate: expiryDate,
+                            purchasedAt: serverTimestamp()
+                        }
                     });
 
-                    closeModal('adminApproveBoostModal');
-                    showAlertModal("อนุมัติการดันโพสต์สำเร็จ!");
-                    renderAdminView('boosts'); // Refresh the admin view
+                    closeModal('adminApprovePackageModal');
+                    showAlertModal("อนุมัติแพ็กเกจสำเร็จ!");
+                    renderAdminView('packages');
                 } catch (error) {
-                    console.error("Error approving boost:", error);
+                    console.error("Error approving package:", error);
                     showAlertModal("เกิดข้อผิดพลาดในการอนุมัติ");
                 }
             }, 'bg-green-500 hover:bg-green-600');
         }
         
-        async function removeBoost(listingId) {
-             openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการเอาโพสต์ "${listingId}" ลงจากการดัน?`, async () => {
+        async function rejectPackage(userId) {
+             openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?`, async () => {
                  try {
-                     const docRef = doc(db, "listings", listingId);
-                     await updateDoc(docRef, {
-                         isBoosted: false,
-                         boostStatus: 'expired' // Or 'removed_by_admin'
+                     const userDocRef = doc(db, "users", userId);
+                     await updateDoc(userDocRef, {
+                         packageRequest: { status: 'rejected' }
                      });
-                     showAlertModal("นำโพสต์ลงจากการดันสำเร็จ!");
-                     router(); // Refresh current view
+                     showAlertModal("ปฏิเสธคำขอสำเร็จ");
+                     renderAdminView('packages');
                  } catch (error) {
-                      console.error("Error removing boost:", error);
+                      console.error("Error rejecting package:", error);
                       showAlertModal("เกิดข้อผิดพลาด");
                  }
-                 }, 'bg-red-500 hover:bg-red-600');
-        }
-
-        async function renderAdminBoostedTable() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = '';
-            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'ประกาศทั้งหมดที่กำลังดันอยู่'));
-            const tableContainer = createElement('div', ['overflow-x-auto']);
-            container.appendChild(tableContainer);
-            adminMainContent.appendChild(container);
-            
-            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
-            try {
-                const q = query(listingsCollection, where("isBoosted", "==", true));
-                const querySnapshot = await getDocs(q);
-                let boostedListings = [];
-                const now = new Date();
-                querySnapshot.forEach(doc => {
-                    const listing = { id: doc.id, ...doc.data() };
-                    // Only include posts that are actually active
-                    if (listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now) {
-                        boostedListings.push(listing);
-                    }
-                });
-
-                boostedListings.sort((a, b) => (a.boostExpiryDate?.toMillis() || 0) - (b.boostExpiryDate?.toMillis() || 0));
-
-                populateAdminBoostedTable(tableContainer, boostedListings);
-            } catch (error) {
-                console.error("Error fetching boosted listings:", error);
-                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
-            }
-        }
-
-        function populateAdminBoostedTable(container, listings) {
-            container.innerHTML = '';
-            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีประกาศที่กำลังดันอยู่</p>`; return; }
-            
-            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">เวลาที่เหลือ</th><th class="p-3">วันหมดอายุ</th><th class="p-3">จัดการ</th></tr></thead>`;
-            const tbody = createElement('tbody');
-            
-            listings.forEach(listing => {
-                const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
-                tr.appendChild(createElement('td', ['p-3'], listing.ownerUsername));
-                tr.appendChild(createElement('td', ['p-3', 'font-semibold'], formatTimeRemaining(listing.boostExpiryDate)));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.boostExpiryDate, true)));
-                
-                const actionsCell = createElement('td', ['p-3']);
-                const removeBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'เอาลง');
-                removeBtn.onclick = () => removeBoost(listing.id);
-                actionsCell.appendChild(removeBtn);
-                tr.appendChild(actionsCell);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            container.appendChild(table);
+             }, 'bg-red-500 hover:bg-red-600');
         }
 
         // --- USER PROFILE PAGE ---
-        // [NEW FUNCTION for profile pagination]
         function renderProfilePagination(userId, totalListings, listingsPerPage, currentPage) {
             const paginationContainer = document.getElementById('profile-pagination-container');
             if (!paginationContainer) return;
@@ -1943,89 +1744,119 @@
             }
         }
 
-        // [MODIFIED to handle pagination]
         async function renderProfilePage(userId, currentPage = 1) {
             profileView.innerHTML = `<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-3xl"></i></div>`;
             try {
-                const profileListingsPerPage = 5; // Set listings per page for profile
+                const profileListingsPerPage = 5;
 
                 const userDocRef = doc(db, "users", userId);
                 const userDocSnap = await getDoc(userDocRef);
                 if (!userDocSnap.exists()) { profileView.innerHTML = `<p class="text-center text-red-500">ไม่พบข้อมูลผู้ใช้</p>`; return; }
                 const userData = userDocSnap.data();
-                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId));
+                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId), orderBy("createdAt", "desc"));
                 const listingsSnapshot = await getDocs(listingsQuery);
                 let userListings = [];
                 listingsSnapshot.forEach(doc => { userListings.push({ id: doc.id, ...doc.data() }); });
-                userListings.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 
-                // --- Pagination Logic ---
                 const totalListings = userListings.length;
                 const start = (currentPage - 1) * profileListingsPerPage;
                 const end = start + profileListingsPerPage;
                 const paginatedListings = userListings.slice(start, end);
-                // --- End Pagination Logic ---
 
                 profileView.innerHTML = '';
                 const mainGrid = createElement('div', ['grid', 'grid-cols-1', 'lg:grid-cols-4', 'gap-8']);
-                const profileCol = createElement('div', ['lg:col-span-1', 'bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'text-center', 'h-fit']);
+                const profileCol = createElement('div', ['lg:col-span-1', 'bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
                 const listingsCol = createElement('div', ['lg:col-span-3']);
                 
-                const profilePicContainer = createElement('div', ['relative', 'w-32', 'h-32', 'mx-auto']);
-                const profilePicDisplay = createElement('div', ['w-32', 'h-32', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-5xl', 'font-bold', 'mx-auto', 'overflow-hidden']);
-                
-                if (userData.photoURL) {
-                    profilePicDisplay.appendChild(createElement('img', ['w-full', 'h-full', 'object-cover'], '', {src: userData.photoURL}));
-                } else {
-                    profilePicDisplay.textContent = userData.username.charAt(0).toUpperCase();
-                }
-                profilePicContainer.appendChild(profilePicDisplay);
+                // Profile Card
+                const profileCardContent = () => {
+                    const container = createElement('div', ['text-center']);
+                    const profilePicContainer = createElement('div', ['relative', 'w-32', 'h-32', 'mx-auto']);
+                    const profilePicDisplay = createElement('div', ['w-32', 'h-32', 'bg-blue-500', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-white', 'text-5xl', 'font-bold', 'mx-auto', 'overflow-hidden']);
+                    
+                    if (userData.photoURL) {
+                        profilePicDisplay.appendChild(createElement('img', ['w-full', 'h-full', 'object-cover'], '', {src: userData.photoURL}));
+                    } else {
+                        profilePicDisplay.textContent = userData.username.charAt(0).toUpperCase();
+                    }
+                    profilePicContainer.appendChild(profilePicDisplay);
 
+                    if (currentUser && currentUser.uid === userId) {
+                        profilePicDisplay.classList.add('cursor-pointer', 'hover:opacity-80');
+                        profilePicDisplay.onclick = () => openProfilePictureModal();
+                        const cameraIcon = createElement('div', ['absolute', 'bottom-0', 'right-0', 'bg-white', 'rounded-full', 'p-2', 'shadow-md']);
+                        cameraIcon.innerHTML = `<i class="fas fa-camera text-gray-600"></i>`;
+                        profilePicContainer.appendChild(cameraIcon);
+                    }
+
+                    container.appendChild(profilePicContainer);
+                    container.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-4'], userData.username));
+                    container.appendChild(createElement('p', ['text-gray-500', 'mt-1'], userData.email));
+                    const joinedDate = userData.createdAt ? formatTimestamp(userData.createdAt, true) : 'ไม่ระบุ';
+                    const joinedP = createElement('p', ['text-sm', 'text-gray-400', 'mt-4'], `เข้าร่วมเมื่อ ${joinedDate}`);
+                    joinedP.prepend(createElement('i', ['fas', 'fa-calendar-alt', 'mr-2']));
+                    container.appendChild(joinedP);
+                    const contactDiv = createElement('div', ['text-left', 'mt-6', 'pt-4', 'border-t']);
+                    contactDiv.appendChild(createElement('h4', ['font-semibold', 'mb-2'], 'ข้อมูลติดต่อสาธารณะ'));
+                    const phoneP = createElement('p', ['text-gray-800', 'text-sm', 'mb-1'], `${userData.phone || 'ยังไม่ได้ระบุ'}`);
+                    phoneP.prepend(createElement('i', ['fas', 'fa-phone', 'mr-2', 'w-4', 'text-center']));
+                    contactDiv.appendChild(phoneP);
+                    const lineP = createElement('p', ['text-gray-800', 'text-sm'], `${userData.lineId || 'ยังไม่ได้ระบุ'}`);
+                    lineP.prepend(createElement('i', ['fab', 'fa-line', 'mr-2', 'w-4', 'text-center']));
+                    contactDiv.appendChild(lineP);
+                    container.appendChild(contactDiv);
+                    if (currentUser && currentUser.uid === userId) {
+                        const editBtn = createElement('button', ['mt-4', 'w-full', 'py-2', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไขโปรไฟล์');
+                        editBtn.onclick = openEditProfileModal;
+                        container.appendChild(editBtn);
+                    }
+                    return container;
+                };
+                profileCol.appendChild(profileCardContent());
+
+                // Package Status Card
                 if (currentUser && currentUser.uid === userId) {
-                    profilePicDisplay.classList.add('cursor-pointer', 'hover:opacity-80');
-                    profilePicDisplay.onclick = () => openProfilePictureModal();
-                    const cameraIcon = createElement('div', ['absolute', 'bottom-0', 'right-0', 'bg-white', 'rounded-full', 'p-2', 'shadow-md']);
-                    cameraIcon.innerHTML = `<i class="fas fa-camera text-gray-600"></i>`;
-                    profilePicContainer.appendChild(cameraIcon);
+                    const packageCard = createElement('div', ['bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'h-fit', 'mt-8']);
+                    packageCard.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4', 'text-center'], 'สถานะแพ็กเกจ'));
+                    
+                    if (userData.packageRequest?.status === 'pending') {
+                        const status = createElement('div', ['text-center', 'p-4', 'bg-yellow-100', 'text-yellow-800', 'rounded-lg']);
+                        status.innerHTML = '<i class="fas fa-clock mr-2"></i><p class="font-semibold">รอการอนุมัติ</p><p class="text-sm">ทีมงานกำลังตรวจสอบการชำระเงินของคุณ</p>';
+                        packageCard.appendChild(status);
+                    } else if (userData.package && userData.package.expiryDate && userData.package.expiryDate.toDate() > new Date()) {
+                        const currentPackage = userData.package;
+                        packageCard.appendChild(createElement('p', ['text-lg', 'font-bold', 'text-blue-600', 'text-center'], currentPackage.name));
+                        packageCard.appendChild(createElement('p', ['text-center', 'text-gray-600', 'mt-2'], `ลงประกาศแล้ว: ${currentPackage.listingsPosted} / ${currentPackage.listingsAllowed}`));
+                        const progressContainer = createElement('div', ['w-full', 'bg-gray-200', 'rounded-full', 'h-2.5', 'my-2']);
+                        const progressBar = createElement('div', ['bg-blue-600', 'h-2.5', 'rounded-full'], '', {style: `width: ${(currentPackage.listingsPosted / currentPackage.listingsAllowed) * 100}%`});
+                        progressContainer.appendChild(progressBar);
+                        packageCard.appendChild(progressContainer);
+                        packageCard.appendChild(createElement('p', ['text-center', 'text-sm', 'text-gray-500'], `หมดอายุ: ${formatTimestamp(currentPackage.expiryDate, true)}`));
+                    } else {
+                        packageCard.appendChild(createElement('p', ['text-center', 'text-gray-500'], 'คุณยังไม่มีแพ็กเกจที่ใช้งาน'));
+                    }
+
+                    const upgradeBtn = createElement('button', ['mt-4', 'w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700'], 'ซื้อ / อัปเกรดแพ็กเกจ');
+                    upgradeBtn.onclick = openPackageModal;
+                    packageCard.appendChild(upgradeBtn);
+                    profileCol.appendChild(packageCard);
                 }
 
-                profileCol.appendChild(profilePicContainer);
-                profileCol.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-4'], userData.username));
-                profileCol.appendChild(createElement('p', ['text-gray-500', 'mt-1'], userData.email));
-                const joinedDate = userData.createdAt ? formatTimestamp(userData.createdAt, true) : 'ไม่ระบุ';
-                const joinedP = createElement('p', ['text-sm', 'text-gray-400', 'mt-4'], `เข้าร่วมเมื่อ ${joinedDate}`);
-                joinedP.prepend(createElement('i', ['fas', 'fa-calendar-alt', 'mr-2']));
-                profileCol.appendChild(joinedP);
-                const contactDiv = createElement('div', ['text-left', 'mt-6', 'pt-4', 'border-t']);
-                contactDiv.appendChild(createElement('h4', ['font-semibold', 'mb-2'], 'ข้อมูลติดต่อสาธารณะ'));
-                const phoneP = createElement('p', ['text-gray-800', 'text-sm', 'mb-1'], `${userData.phone || 'ยังไม่ได้ระบุ'}`);
-                phoneP.prepend(createElement('i', ['fas', 'fa-phone', 'mr-2', 'w-4', 'text-center']));
-                contactDiv.appendChild(phoneP);
-                const lineP = createElement('p', ['text-gray-800', 'text-sm'], `${userData.lineId || 'ยังไม่ได้ระบุ'}`);
-                lineP.prepend(createElement('i', ['fab', 'fa-line', 'mr-2', 'w-4', 'text-center']));
-                contactDiv.appendChild(lineP);
-                profileCol.appendChild(contactDiv);
-                if (currentUser && currentUser.uid === userId) {
-                    const editBtn = createElement('button', ['mt-4', 'w-full', 'py-2', 'bg-amber-500', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-amber-600'], 'แก้ไขโปรไฟล์');
-                    editBtn.onclick = openEditProfileModal;
-                    profileCol.appendChild(editBtn);
-                }
+                // Listings Column
                 listingsCol.appendChild(createElement('h4', ['text-2xl', 'font-bold', 'mb-4'], `ประกาศทั้งหมด (${totalListings})`));
                 const listingsContainer = createElement('div', ['space-y-4']);
                 if (paginatedListings.length === 0) {
                     listingsContainer.innerHTML = '<div class="text-center text-gray-500 mt-6 p-8 border rounded-lg bg-white shadow-md">ผู้ใช้ยังไม่มีประกาศ</div>';
                 } else {
                     paginatedListings.forEach(listing => {
-                        const listingCard = createElement('div', ['p-4', 'bg-white', 'rounded-xl', 'shadow-md', 'hover:shadow-lg', 'transition-shadow', 'border']);
-                        const cardContent = createElement('div', ['flex', 'items-center', 'gap-4']);
+                        const listingCard = createElement('div', ['p-4', 'bg-white', 'rounded-xl', 'shadow-md', 'hover:shadow-lg', 'transition-shadow', 'border', 'flex', 'items-center', 'gap-4', 'cursor-pointer']);
+                        listingCard.onclick = () => navigateToListing(listing.id);
                         
                         const imageUrl = listing.imageUrls?.[0] || 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป';
-                        const image = createElement('img', ['w-28', 'h-24', 'object-cover', 'rounded-lg', 'cursor-pointer'], '', { src: imageUrl });
+                        const image = createElement('img', ['w-28', 'h-24', 'object-cover', 'rounded-lg'], '', { src: imageUrl });
                         image.onerror = () => { image.src = 'https://placehold.co/200x200/e2e8f0/64748b?text=ไม่มีรูป'; };
-                        image.onclick = () => navigateToListing(listing.id);
 
-                        const textDiv = createElement('div', ['flex-1', 'cursor-pointer']);
-                        textDiv.onclick = () => navigateToListing(listing.id);
+                        const textDiv = createElement('div', ['flex-1']);
                         textDiv.appendChild(createElement('h5', ['font-bold', 'text-lg'], listing.title));
                         textDiv.appendChild(createElement('p', ['text-sm', 'text-gray-500'], `${listing.district}, ${listing.province}`));
                         const footerDiv = createElement('div', ['flex', 'justify-between', 'items-center', 'mt-1']);
@@ -2036,53 +1867,16 @@
                         }
                         footerDiv.appendChild(dateP);
                         textDiv.appendChild(footerDiv);
-
-                        cardContent.append(image, textDiv);
-                        listingCard.appendChild(cardContent);
-
-                        const boostSection = createElement('div', ['mt-3', 'pt-3', 'border-t', 'flex', 'items-center', 'justify-between']);
-                        const now = new Date();
-                        const isBoostedAndActive = listing.isBoosted && listing.boostExpiryDate && listing.boostExpiryDate.toDate() > now;
-
-                        if (listing.boostStatus === 'pending') {
-                            const status = createElement('p', ['text-sm', 'font-semibold', 'text-yellow-600'], 'รอการอนุมัติ');
-                            status.prepend(createElement('i', ['fas', 'fa-clock', 'mr-2']));
-                            boostSection.appendChild(status);
-                        } else if (isBoostedAndActive) {
-                            const timer = createElement('p', ['text-sm', 'font-semibold', 'text-green-600'], formatTimeRemaining(listing.boostExpiryDate));
-                            timer.prepend(createElement('i', ['fas', 'fa-check-circle', 'mr-2']));
-                            boostSection.appendChild(timer);
-                            if (currentUser.role === 'admin') {
-                                const removeBtn = createElement('button', ['text-xs', 'text-red-500', 'hover:underline'], 'เอาลง');
-                                removeBtn.onclick = () => removeBoost(listing.id);
-                                boostSection.appendChild(removeBtn);
-                            }
-                        } else if (listing.boostStatus === 'rejected') {
-                            const status = createElement('p', ['text-sm', 'font-semibold', 'text-red-600'], 'การชำระเงินไม่สำเร็จ');
-                            status.prepend(createElement('i', ['fas', 'fa-times-circle', 'mr-2']));
-                            boostSection.appendChild(status);
-                            const boostBtn = createElement('button', ['py-1', 'px-3', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-xs']);
-                            boostBtn.innerHTML = '<i class="fas fa-rocket mr-1"></i>ลองอีกครั้ง';
-                            boostBtn.onclick = () => openBoostModal(listing.id);
-                            boostSection.appendChild(boostBtn);
-                        }
-                        else {
-                            const boostBtn = createElement('button', ['w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700', 'text-sm']);
-                            boostBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>ดันโพสต์นี้';
-                            boostBtn.onclick = () => openBoostModal(listing.id);
-                            boostSection.appendChild(boostBtn);
-                        }
-                        listingCard.appendChild(boostSection);
+                        
+                        listingCard.append(image, textDiv);
                         listingsContainer.appendChild(listingCard);
                     });
                 }
                 listingsCol.appendChild(listingsContainer);
                 
-                // --- Add pagination container and render controls ---
                 const paginationDiv = createElement('div', ['flex', 'justify-center', 'items-center', 'mt-8', 'gap-2'], '', { id: 'profile-pagination-container' });
                 listingsCol.appendChild(paginationDiv);
                 renderProfilePagination(userId, totalListings, profileListingsPerPage, currentPage);
-                // --- End of pagination addition ---
 
                 mainGrid.append(profileCol, listingsCol);
                 profileView.appendChild(mainGrid);
@@ -2100,11 +1894,8 @@
             adminView.classList.add('hidden');
         }
 
-        // [MODIFIED to handle profile page parameter]
         function router() {
             const newHash = window.location.hash;
-            const fromListing = currentHash.startsWith('#listing/');
-
             hideAllViews();
             closeAllModals();
             mobileMenu.classList.add('hidden');
@@ -2133,27 +1924,25 @@
                 }
                 generalListingsCurrentPage = parseInt(params.get('page'), 10) || 1;
                 updateFilterUIFromParams(params);
-                fetchListings(filters, fromListing);
-            } else if (newHash === '#admin') {
+                fetchListings(filters);
+            } else if (newHash.startsWith('#admin')) {
                 if (currentUser && currentUser.role === 'admin') {
                     adminView.classList.remove('hidden');
-                    renderAdminView('dashboard');
+                    const tab = newHash.split('/')[1] || 'dashboard';
+                    renderAdminView(tab);
                 } else {
                     navigateToHome();
-                    if (currentUser) {
-                        showAlertModal('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
-                    }
+                    if (currentUser) showAlertModal('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
                 }
-            } else { // Home page (covers #, #home, #home?...)
+            } else { // Home page
                 homeView.classList.remove('hidden');
                 const params = new URLSearchParams(newHash.substring(newHash.indexOf('?')));
-                boostedListingsCurrentPage = parseInt(params.get('boostedPage'), 10) || 1;
-                generalListingsCurrentPage = parseInt(params.get('generalPage'), 10) || 1;
+                generalListingsCurrentPage = parseInt(params.get('page'), 10) || 1;
                 resetFilterUI();
-                fetchListings({}, fromListing);
+                fetchListings({});
             }
             
-            currentHash = newHash; // Update hash history at the end
+            currentHash = newHash;
             if (!newHash.startsWith('#listing/')) {
                 window.scrollTo(0, 0);
             }
@@ -2164,7 +1953,7 @@
             const province = params.get('province');
             if (province && thailandData && thailandData[province]) {
                 const districtFilter = document.getElementById('district-filter');
-                districtFilter.length = 1; // Clear existing options
+                districtFilter.length = 1;
                 const districts = Object.keys(thailandData[province]).sort();
                 districts.forEach(dist => districtFilter.add(new Option(dist, dist)));
                 districtFilter.value = params.get('district') || '';
@@ -2186,7 +1975,7 @@
         window.navigateToHome = () => window.location.hash = '';
         window.navigateToListing = (id) => window.location.hash = `#listing/${id}`;
         window.navigateToProfile = (id) => window.location.hash = `#profile/${id}`;
-        window.navigateToAdmin = () => window.location.hash = '#admin';
+        window.navigateToAdmin = () => window.location.hash = '#admin/dashboard';
 
         // --- MODAL CONTROLS ---
         const backdrop = document.getElementById('modal-backdrop');
@@ -2302,10 +2091,8 @@
             try {
                 const userDocRef = doc(db, "users", currentUser.uid);
                 await updateDoc(userDocRef, { phone, lineId });
-                currentUser.phone = phone;
-                currentUser.lineId = lineId;
                 closeModal('editProfileModal');
-                router();
+                // No need to manually update currentUser, onSnapshot will do it.
             } catch (error) {
                 console.error("Error updating profile:", error);
                 showAlertModal('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
@@ -2344,11 +2131,6 @@
                 try {
                     const userDocRef = doc(db, "users", currentUser.uid);
                     await updateDoc(userDocRef, { photoURL: '' });
-                    currentUser.photoURL = '';
-                    updateNavUI(currentUser);
-                    if (window.location.hash.includes('#profile')) {
-                        renderProfilePage(currentUser.uid);
-                    }
                     closeModal('profilePictureModal');
                     showAlertModal('ลบรูปโปรไฟล์สำเร็จ');
                 } catch (error) {
@@ -2372,11 +2154,6 @@
                 if (newPhotoURL) {
                     const userDocRef = doc(db, "users", currentUser.uid);
                     await updateDoc(userDocRef, { photoURL: newPhotoURL });
-                    currentUser.photoURL = newPhotoURL;
-                    updateNavUI(currentUser);
-                    if (window.location.hash.includes('#profile')) {
-                        renderProfilePage(currentUser.uid);
-                    }
                     closeModal('alertModal');
                     showAlertModal('เปลี่ยนรูปโปรไฟล์สำเร็จ!');
                 } else {
@@ -2386,21 +2163,44 @@
                 console.error("Error uploading profile picture:", error);
                 showAlertModal('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
             } finally {
-                // Clear the input value to allow re-uploading the same file
                 profilePictureUploadInput.value = '';
             }
         });
 
+        // --- POSTING LOGIC ---
+        window.handlePostButtonClick = function() {
+            if (!currentUser) {
+                showAlertModal('กรุณาเข้าสู่ระบบก่อนลงประกาศ');
+                return;
+            }
+            const pkg = currentUser.package;
+            const hasActivePackage = pkg && pkg.expiryDate && pkg.expiryDate.toDate() > new Date();
+
+            if (!hasActivePackage) {
+                openConfirmModal('คุณต้องมีแพ็กเกจเพื่อลงประกาศ ซื้อแพ็กเกจเลยไหม?', () => {
+                    openPackageModal();
+                }, 'bg-green-500 hover:bg-green-600');
+                return;
+            }
+
+            if (pkg.listingsPosted >= pkg.listingsAllowed) {
+                openConfirmModal('คุณใช้โควต้าลงประกาศของแพ็กเกจจนครบแล้ว ต้องการอัปเกรดแพ็กเกจไหม?', () => {
+                    openPackageModal();
+                }, 'bg-green-500 hover:bg-green-600');
+                return;
+            }
+            
+            openModal('postModal');
+        }
 
         // --- INITIAL LOAD & ROUTE HANDLING ---
         window.addEventListener('hashchange', router);
         window.addEventListener('DOMContentLoaded', () => {
             fetchThailandData();
-            document.getElementById('admin-dashboard-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('dashboard'); });
-            document.getElementById('admin-listings-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('listings'); });
-            document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('users'); });
-            document.getElementById('admin-boosts-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosts'); });
-            document.getElementById('admin-boosted-link').addEventListener('click', (e) => { e.preventDefault(); renderAdminView('boosted'); });
+            document.getElementById('admin-dashboard-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/dashboard'; });
+            document.getElementById('admin-listings-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/listings'; });
+            document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/users'; });
+            document.getElementById('admin-packages-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/packages'; });
             
             if (slides.length > 0) {
                 slides.forEach((_, i) => {
