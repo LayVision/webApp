@@ -475,7 +475,7 @@
                  <div class="flex flex-col md:flex-row gap-6 items-center">
                          <div class="w-full md:w-1/2 text-center">
                              <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-                             <img id="qr-code-image" src="img/p_qr_bank.png" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+                             <img id="qr-code-image" src="https://placehold.co/256x256/e2e8f0/64748b?text=QR+Code" alt="QR Code" class="mx-auto rounded-lg shadow-md">
                              <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
                          </div>
                          <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
@@ -1849,38 +1849,39 @@
                 profileCol.appendChild(profileCard);
 
                 // Package Status Card
-                if (currentUser && currentUser.uid === userId) {
-                    const packageCard = createElement('div', ['p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
-                    packageCard.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4', 'text-center'], 'สถานะแพ็กเกจ'));
+                const packageCard = createElement('div', ['p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
+                packageCard.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4', 'text-center'], 'สถานะแพ็กเกจ'));
+                
+                if (userData.packageRequest?.status === 'pending') {
+                    const status = createElement('div', ['text-center', 'p-4', 'bg-yellow-100', 'text-yellow-800', 'rounded-lg']);
+                    status.innerHTML = '<i class="fas fa-clock mr-2"></i><p class="font-semibold">รอการอนุมัติ</p><p class="text-sm">ทีมงานกำลังตรวจสอบการชำระเงินของคุณ</p>';
+                    packageCard.appendChild(status);
+                } else if (userData.package && userData.package.expiryDate && userData.package.expiryDate.toDate() > new Date()) {
+                    const currentPackage = userData.package;
+                    const currentPlanDetails = servicePlans.find(p => p.id === currentPackage.planId);
                     
-                    if (userData.packageRequest?.status === 'pending') {
-                        const status = createElement('div', ['text-center', 'p-4', 'bg-yellow-100', 'text-yellow-800', 'rounded-lg']);
-                        status.innerHTML = '<i class="fas fa-clock mr-2"></i><p class="font-semibold">รอการอนุมัติ</p><p class="text-sm">ทีมงานกำลังตรวจสอบการชำระเงินของคุณ</p>';
-                        packageCard.appendChild(status);
-                    } else if (userData.package && userData.package.expiryDate && userData.package.expiryDate.toDate() > new Date()) {
-                        const currentPackage = userData.package;
-                        const currentPlanDetails = servicePlans.find(p => p.id === currentPackage.planId);
-                        
-                        if (currentPlanDetails) {
-                            packageCard.classList.add(currentPlanDetails.colorClass, currentPlanDetails.borderColor, 'border-l-4');
-                        }
-
-                        packageCard.appendChild(createElement('p', ['text-lg', 'font-bold', 'text-gray-800', 'text-center'], currentPackage.name));
-                        packageCard.appendChild(createElement('p', ['text-center', 'text-gray-600', 'mt-2'], `ลงประกาศแล้ว: ${currentPackage.listingsPosted} / ${currentPackage.listingsAllowed}`));
-                        const progressContainer = createElement('div', ['w-full', 'bg-gray-200', 'rounded-full', 'h-2.5', 'my-2']);
-                        const progressBar = createElement('div', ['bg-blue-600', 'h-2.5', 'rounded-full'], '', {style: `width: ${(currentPackage.listingsPosted / currentPackage.listingsAllowed) * 100}%`});
-                        progressContainer.appendChild(progressBar);
-                        packageCard.appendChild(progressContainer);
-                        packageCard.appendChild(createElement('p', ['text-center', 'text-sm', 'text-gray-500'], `หมดอายุ: ${formatTimestamp(currentPackage.expiryDate, true)}`));
-                    } else {
-                        packageCard.appendChild(createElement('p', ['text-center', 'text-gray-500'], 'คุณยังไม่มีแพ็กเกจที่ใช้งาน'));
+                    if (currentPlanDetails) {
+                        packageCard.classList.add(currentPlanDetails.colorClass, currentPlanDetails.borderColor, 'border-l-4');
                     }
 
+                    packageCard.appendChild(createElement('p', ['text-lg', 'font-bold', 'text-gray-800', 'text-center'], currentPackage.name));
+                    packageCard.appendChild(createElement('p', ['text-center', 'text-gray-600', 'mt-2'], `ลงประกาศแล้ว: ${currentPackage.listingsPosted} / ${currentPackage.listingsAllowed}`));
+                    const progressContainer = createElement('div', ['w-full', 'bg-gray-200', 'rounded-full', 'h-2.5', 'my-2']);
+                    const progressBar = createElement('div', ['bg-blue-600', 'h-2.5', 'rounded-full'], '', {style: `width: ${(currentPackage.listingsPosted / currentPackage.listingsAllowed) * 100}%`});
+                    progressContainer.appendChild(progressBar);
+                    packageCard.appendChild(progressContainer);
+                    packageCard.appendChild(createElement('p', ['text-center', 'text-sm', 'text-gray-500'], `หมดอายุ: ${formatTimestamp(currentPackage.expiryDate, true)}`));
+                } else {
+                    packageCard.appendChild(createElement('p', ['text-center', 'text-gray-500'], 'ยังไม่มีแพ็กเกจที่ใช้งาน'));
+                }
+
+                if (currentUser && currentUser.uid === userId) {
                     const upgradeBtn = createElement('button', ['mt-4', 'w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700'], 'ซื้อ / อัปเกรดแพ็กเกจ');
                     upgradeBtn.onclick = openPackageModal;
                     packageCard.appendChild(upgradeBtn);
-                    profileCol.appendChild(packageCard);
                 }
+                profileCol.appendChild(packageCard);
+
 
                 // Listings Column
                 listingsCol.appendChild(createElement('h4', ['text-2xl', 'font-bold', 'mb-4'], `ประกาศทั้งหมด (${totalListings})`));
