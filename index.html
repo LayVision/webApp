@@ -267,6 +267,14 @@
                     </div>
                 </div>
 
+                <!-- Recommended Listings Section -->
+                <div id="recommended-listings-container" class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6">ประกาศแนะนำ</h3>
+                    <div id="recommended-listings-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- Recommended listings will be populated here by JS -->
+                    </div>
+                </div>
+
                 <div id="listings-section-container">
                     <div id="general-listings-container">
                          <h3 class="text-2xl font-bold mb-6" id="general-listings-title">ประกาศล่าสุด</h3>
@@ -549,7 +557,7 @@
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, increment, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, increment, enableIndexedDbPersistence, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const firebaseConfig = typeof __firebase_config !== 'undefined'
             ? JSON.parse(__firebase_config)
@@ -602,6 +610,7 @@
         const profileDropdownButton = document.getElementById('profile-dropdown-button');
         const dropdownUsername = document.getElementById('dropdown-username');
         const dropdownEmail = document.getElementById('dropdown-email');
+        const recommendedListingsGrid = document.getElementById('recommended-listings-grid');
         const generalListingsGrid = document.getElementById('general-listings-grid');
         const loadingSpinner = document.getElementById('loading-spinner');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -1068,6 +1077,22 @@
             }
         });
 
+        async function fetchRecommendedListings() {
+            recommendedListingsGrid.innerHTML = `<div class="col-span-full text-center p-10"><i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i></div>`;
+            try {
+                const q = query(listingsCollection, orderBy("createdAt", "desc"), limit(4));
+                const querySnapshot = await getDocs(q);
+                const recommendedListings = [];
+                querySnapshot.forEach((doc) => {
+                    recommendedListings.push({ id: doc.id, ...doc.data() });
+                });
+                populateGrid(recommendedListingsGrid, recommendedListings, "ยังไม่มีประกาศแนะนำในขณะนี้");
+            } catch (error) {
+                console.error("Error fetching recommended listings: ", error);
+                recommendedListingsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">ไม่สามารถโหลดประกาศแนะนำได้</p>`;
+            }
+        }
+
         async function fetchListings(filters = {}) {
             loadingSpinner.style.display = 'block';
             generalListingsGrid.innerHTML = '';
@@ -1517,10 +1542,6 @@
                 if (!userDocSnap.exists()) { profileView.innerHTML = `<p class="text-center text-red-500">ไม่พบข้อมูลผู้ใช้</p>`; return; }
                 const userData = userDocSnap.data();
                 
-                // Fetch and sort listings directly from Firestore
-                // This improves performance and ensures correct ordering.
-                // NOTE: This requires a composite index in Firestore. 
-                // The console will provide a link to create it if it's missing.
                 const listingsQuery = query(
                     listingsCollection, 
                     where("ownerUid", "==", userId),
@@ -1663,6 +1684,7 @@
                 renderProfilePage(userId, page);
             } else if (newHash.startsWith('#search/')) {
                 homeView.classList.remove('hidden');
+                document.getElementById('recommended-listings-container').style.display = 'none';
                 const queryString = newHash.substring('#search/'.length);
                 const params = new URLSearchParams(queryString);
                 const filters = {};
@@ -1685,9 +1707,11 @@
                 }
             } else { // Home page
                 homeView.classList.remove('hidden');
+                document.getElementById('recommended-listings-container').style.display = 'block';
                 const params = new URLSearchParams(newHash.substring(newHash.indexOf('?')));
                 generalListingsCurrentPage = parseInt(params.get('page'), 10) || 1;
                 resetFilterUI();
+                fetchRecommendedListings();
                 fetchListings({});
             }
             
