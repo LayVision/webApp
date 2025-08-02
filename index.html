@@ -109,16 +109,6 @@
             color: white;
             font-weight: 700;
         }
-
-        /* Package Modal Styles */
-        .package-plan-card {
-            border: 2px solid #e5e7eb;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .package-plan-card.selected {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-        }
     </style>
 </head>
 
@@ -145,10 +135,6 @@
                         class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 flex items-center">
                         <i class="fas fa-plus mr-2"></i>ลงประกาศ
                     </button>
-                    <button onclick="openPackageModal()"
-                        class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-lg hover:bg-purple-600 flex items-center">
-                        <i class="fas fa-box-open mr-2"></i>แพ็กเกจ
-                    </button>
                     
                     <div class="relative">
                         <button id="profile-dropdown-button" onclick="toggleProfileDropdown()"
@@ -172,9 +158,6 @@
                                 <a href="#" id="dropdown-profile-link"
                                     class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
                                         class="fas fa-user-circle w-5 text-center"></i>โปรไฟล์</a>
-                                <a href="#" id="dropdown-package-link"
-                                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
-                                        class="fas fa-box-open w-5 text-center"></i>แพ็กเกจ</a>
                                 <a href="#" id="dropdown-admin-link"
                                     class="hidden items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><i
                                         class="fas fa-user-shield w-5 text-center"></i>Admin Panel</a>
@@ -212,6 +195,13 @@
 
         <main id="view-container">
             <div id="home-view">
+                
+                <!-- Grand Opening Banner -->
+                <div id="grand-opening-banner" class="mb-8 p-4 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl shadow-lg text-center">
+                    <h3 class="text-2xl font-bold"><i class="fas fa-gift mr-2"></i>ฉลองเปิดตัวเว็บไซต์!</h3>
+                    <p>ลงประกาศฟรี! ไม่จำกัดจำนวน ถึงวันที่ 31 มกราคม 2569</p>
+                </div>
+
                 <div id="banner-slideshow" class="relative rounded-xl overflow-hidden mb-8 h-64 md:h-96">
                     <div class="slide absolute inset-0 bg-cover bg-center"
                         style="background-image: url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop');">
@@ -297,7 +287,6 @@
                                 <li><a href="#" id="admin-dashboard-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-tachometer-alt w-6 mr-2"></i>ภาพรวม</a></li>
                                 <li><a href="#" id="admin-listings-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-list-alt w-6 mr-2"></i>จัดการประกาศ</a></li>
                                 <li><a href="#" id="admin-users-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-users w-6 mr-2"></i>จัดการผู้ใช้</a></li>
-                                <li><a href="#" id="admin-packages-link" class="admin-sidebar-link block px-4 py-2 rounded-md"><i class="fas fa-box-open w-6 mr-2"></i>อนุมัติแพ็กเกจ</a></li>
                             </ul>
                         </nav>
                     </aside>
@@ -462,63 +451,6 @@
         </form>
     </div>
     
-    <div id="packageModal" class="modal w-11/12 md:w-2/3 lg:w-1/2 bg-white rounded-xl shadow-2xl p-8">
-        <div id="package-selection-view">
-            <h3 class="text-2xl font-bold mb-2 text-center">เลือกแพ็กเกจของคุณ</h3>
-            <p class="text-center text-gray-500 mb-6">เลือกแพ็กเกจเพื่อเริ่มลงประกาศบนแพลตฟอร์มของเรา</p>
-            
-            <div id="package-plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            </div>
-
-            <div id="payment-details-container" class="hidden">
-                 <h4 class="font-bold text-lg mb-4 text-center">ขั้นตอนการชำระเงิน</h4>
-                 <div class="flex flex-col md:flex-row gap-6 items-center">
-                         <div class="w-full md:w-1/2 text-center">
-                             <p class="mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-                             <img id="qr-code-image" src="https://placehold.co/256x256/e2e8f0/64748b?text=QR+Code" alt="QR Code" class="mx-auto rounded-lg shadow-md">
-                             <p class="mt-2 font-bold text-2xl">ยอดชำระ: <span id="payment-amount"></span> บาท</p>
-                         </div>
-                         <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                             <p class="font-bold text-red-600 text-lg mb-2">สำคัญมาก!</p>
-                             <p class="mb-4">กรุณาใส่ <strong class="text-blue-600">"Username"</strong> ของคุณในช่อง "บันทึกช่วยจำ" หรือ "Note" ตอนทำรายการโอนเงิน เพื่อให้เราตรวจสอบยอดได้ถูกต้อง</p>
-                             <p class="text-sm text-gray-600">Username ของคุณ:</p>
-                             <p id="payment-username" class="text-2xl font-mono bg-gray-200 p-2 rounded text-center break-all"></p>
-                         </div>
-                 </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-4">
-                <button type="button" onclick="closeModal('packageModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
-                <button type="button" id="confirm-payment-button" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 opacity-50 cursor-not-allowed" disabled>
-                    <i class="fas fa-check-circle mr-2"></i>ยืนยันการชำระเงิน
-                </button>
-            </div>
-        </div>
-
-        <div id="package-thanks-view" class="hidden text-center p-8">
-            <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
-            <h3 class="text-2xl font-bold mb-2">ขอบคุณครับ!</h3>
-            <p class="text-gray-600">เราได้รับคำขอสั่งซื้อแพ็กเกจของคุณแล้ว<br>ระบบจะทำการตรวจสอบและอนุมัติแพ็กเกจของคุณภายใน 10 นาที</p>
-        </div>
-
-        <button onclick="closeModal('packageModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    </div>
-
-    <div id="adminApprovePackageModal" class="modal w-11/12 md:w-1/3 bg-white rounded-xl shadow-2xl p-8">
-        <h3 class="text-2xl font-bold mb-4 text-center">อนุมัติแพ็กเกจ</h3>
-        <p class="text-center mb-1">ผู้ใช้:</p>
-        <p id="admin-package-username" class="text-center font-mono text-sm bg-gray-100 p-2 rounded mb-4"></p>
-        <p class="text-center mb-4">กรุณาเลือกแพ็กเกจที่ผู้ใช้ชำระเงิน:</p>
-        <form id="admin-approve-package-form">
-            <div id="admin-package-plans-container" class="space-y-3 mb-6">
-            </div>
-            <div class="flex justify-end gap-4">
-                <button type="button" onclick="closeModal('adminApprovePackageModal')" class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">ยกเลิก</button>
-                <button type="submit" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">อนุมัติ</button>
-            </div>
-        </form>
-    </div>
-
     <div id="profilePictureModal" class="modal w-11/12 sm:w-1/3 md:w-1/4 bg-white rounded-xl shadow-2xl p-4">
         <div class="flex flex-col items-center">
             <div id="profile-pic-modal-preview-container" class="w-48 h-48 rounded-full object-cover mb-4 border-4 border-gray-200 bg-gray-300 flex items-center justify-center">
@@ -591,7 +523,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // [FIX] Handle potential persistence errors like BloomFilterError
         enableIndexedDbPersistence(db)
             .then(() => console.log("Firestore persistence enabled."))
             .catch((err) => {
@@ -787,7 +718,11 @@
                 dropdownPicContainer.onclick = () => openProfilePictureModal();
 
                 document.getElementById('dropdown-profile-link').onclick = (e) => { e.preventDefault(); navigateToProfile(user.uid); toggleProfileDropdown(); };
-                document.getElementById('dropdown-package-link').onclick = (e) => { e.preventDefault(); openPackageModal(); toggleProfileDropdown(); };
+                
+                // Hide package link for Grand Opening
+                const packageLink = document.getElementById('dropdown-package-link');
+                if (packageLink) packageLink.style.display = 'none';
+
                 document.getElementById('dropdown-logout-link').onclick = (e) => { e.preventDefault(); handleLogout(); };
 
                 const adminLink = document.getElementById('dropdown-admin-link');
@@ -821,8 +756,9 @@
                 infoContainer.appendChild(flexContainer);
 
                 const linksContainer = createElement('div', ['p-2', 'space-y-1']);
-                const createMobileLink = (text, iconClass, handler) => {
+                const createMobileLink = (text, iconClass, handler, id = '') => {
                     const link = createElement('a', ['block', 'text-left', 'px-4', 'py-3', 'text-gray-700', 'rounded-lg', 'hover:bg-gray-100'], '', { href: '#' });
+                    if(id) link.id = id;
                     const icon = createElement('i', ['mr-2', 'w-5', 'text-center', ...iconClass.split(' ')]);
                     link.appendChild(icon);
                     link.append(text);
@@ -832,7 +768,12 @@
 
                 linksContainer.appendChild(createMobileLink('โปรไฟล์', 'fas fa-user-circle', () => navigateToProfile(user.uid)));
                 linksContainer.appendChild(createMobileLink('ลงประกาศ', 'fas fa-plus', () => handlePostButtonClick()));
-                linksContainer.appendChild(createMobileLink('แพ็กเกจ', 'fas fa-box-open', () => openPackageModal()));
+                
+                // Hide mobile package link
+                const mobilePackageLink = createMobileLink('แพ็กเกจ', 'fas fa-box-open', () => {}, 'mobile-package-link');
+                mobilePackageLink.style.display = 'none';
+                linksContainer.appendChild(mobilePackageLink);
+
 
                 if (user.role === 'admin') {
                     linksContainer.appendChild(createMobileLink('Admin Panel', 'fas fa-user-shield', navigateToAdmin));
@@ -864,7 +805,6 @@
                         currentUser = { uid: user.uid, email: user.email, username: user.email.split('@')[0] };
                     }
                     updateNavUI(currentUser);
-                    // Re-render view if user data changes (e.g., package approved)
                     const currentView = window.location.hash;
                     if (currentView.startsWith('#profile/')) {
                          router();
@@ -908,8 +848,6 @@
                     phone: '',
                     lineId: '',
                     photoURL: '',
-                    package: null,
-                    packageRequest: null
                 });
 
                 closeModal('registerModal');
@@ -1061,14 +999,12 @@
                     updatedAt: serverTimestamp(),
                 };
 
-                const userDocRef = doc(db, "users", currentUser.uid);
                 if (postId) {
                     const docRef = doc(db, "listings", postId);
                     await updateDoc(docRef, listingData);
                 } else {
                     listingData.createdAt = serverTimestamp();
                     await addDoc(listingsCollection, listingData);
-                    await updateDoc(userDocRef, { 'package.listingsPosted': increment(1) });
                 }
                 closeModal('postModal');
                 postForm.reset();
@@ -1337,8 +1273,6 @@
             openConfirmModal('คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้?', async () => {
                 try {
                     await deleteDoc(doc(db, "listings", id));
-                    const userDocRef = doc(db, "users", currentUser.uid);
-                    await updateDoc(userDocRef, { 'package.listingsPosted': increment(-1) });
                     navigateToProfile(currentUser.uid);
                 } catch (error) {
                     console.error("Error deleting document: ", error);
@@ -1347,408 +1281,6 @@
             }, 'bg-red-500 hover:bg-red-600');
         }
         
-        // --- Package System Logic ---
-        
-        const servicePlans = [
-            { id: 'basic_30_days', listingsAllowed: 5, durationDays: 30, price: 99, title: 'Basic', description: '5 ประกาศ / 30 วัน', colorClass: 'bg-blue-100', borderColor: 'border-blue-500' },
-            { id: 'pro_30_days', listingsAllowed: 15, durationDays: 30, price: 249, title: 'Pro', description: '15 ประกาศ / 30 วัน', colorClass: 'bg-purple-100', borderColor: 'border-purple-500' },
-            { id: 'premium_90_days', listingsAllowed: 50, durationDays: 90, price: 599, title: 'Premium', description: '50 ประกาศ / 90 วัน', colorClass: 'bg-amber-100', borderColor: 'border-amber-500' },
-        ];
-
-        let selectedPackagePlan = null;
-
-        window.openPackageModal = function() {
-            selectedPackagePlan = null;
-            
-            const pkg = currentUser.package;
-            const hasActivePackage = pkg && pkg.expiryDate && pkg.expiryDate.toDate() > new Date();
-            const currentPlanDetails = hasActivePackage ? servicePlans.find(p => p.id === pkg.planId) : null;
-            const currentPrice = currentPlanDetails ? currentPlanDetails.price : 0;
-
-            const availablePlans = hasActivePackage 
-                ? servicePlans.filter(p => p.price > currentPrice)
-                : servicePlans;
-
-            document.getElementById('package-selection-view').style.display = 'block';
-            document.getElementById('package-thanks-view').style.display = 'none';
-            document.getElementById('payment-details-container').classList.add('hidden');
-            const confirmBtn = document.getElementById('confirm-payment-button');
-            confirmBtn.disabled = true;
-            confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-            const plansContainer = document.getElementById('package-plans-container');
-            plansContainer.innerHTML = '';
-
-            if (availablePlans.length === 0) {
-                plansContainer.innerHTML = `<p class="col-span-full text-center text-gray-600">คุณมีแพ็กเกจสูงสุดแล้ว</p>`;
-            } else {
-                availablePlans.forEach(plan => {
-                    const card = createElement('div', ['package-plan-card', 'p-4', 'rounded-lg', 'cursor-pointer', 'text-center']);
-                    card.dataset.planId = plan.id;
-                    card.appendChild(createElement('h5', ['font-bold', 'text-xl'], plan.title));
-                    
-                    const priceToPay = hasActivePackage ? plan.price - currentPrice : plan.price;
-                    const priceText = hasActivePackage ? `฿${priceToPay}` : `฿${plan.price}`;
-                    const priceElement = createElement('p', ['text-2xl', 'font-bold', 'my-2', 'text-blue-600'], priceText);
-                    if(hasActivePackage) {
-                        priceElement.title = `ราคาเต็ม ${plan.price} - แพ็กเกจปัจจุบัน ${currentPrice}`;
-                    }
-                    card.appendChild(priceElement);
-
-                    card.appendChild(createElement('p', ['text-sm', 'text-gray-500'], plan.description));
-                    
-                    card.onclick = () => {
-                        document.querySelectorAll('.package-plan-card').forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        selectedPackagePlan = { ...plan, priceToPay: priceToPay }; // Store the final price
-                        document.getElementById('payment-details-container').classList.remove('hidden');
-                        document.getElementById('payment-amount').textContent = priceToPay;
-                        document.getElementById('payment-username').textContent = currentUser.username;
-                        confirmBtn.disabled = false;
-                        confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    };
-                    plansContainer.appendChild(card);
-                });
-            }
-
-            openModal('packageModal');
-        }
-        
-        document.getElementById('confirm-payment-button').addEventListener('click', async () => {
-            if (!selectedPackagePlan || !currentUser) return;
-
-            try {
-                const userDocRef = doc(db, "users", currentUser.uid);
-                await updateDoc(userDocRef, {
-                    packageRequest: {
-                        status: 'pending',
-                        planId: selectedPackagePlan.id,
-                        price: selectedPackagePlan.priceToPay, // Use the calculated price
-                        requestedAt: serverTimestamp()
-                    }
-                });
-
-                document.getElementById('package-selection-view').style.display = 'none';
-                document.getElementById('package-thanks-view').style.display = 'block';
-
-                setTimeout(() => {
-                    closeModal('packageModal');
-                    router();
-                }, 4000);
-
-            } catch (error) {
-                console.error("Error requesting package:", error);
-                showAlertModal("เกิดข้อผิดพลาดในการส่งคำขอ กรุณาลองใหม่อีกครั้ง");
-            }
-        });
-
-        // --- ADMIN PANEL ---
-        async function renderAdminView(activeTab = 'dashboard') {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = `<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i></div>`;
-            document.querySelectorAll('.admin-sidebar-link').forEach(link => link.classList.remove('active'));
-            document.getElementById(`admin-${activeTab}-link`).classList.add('active');
-            
-            if (activeTab === 'dashboard') { await renderAdminDashboard(); } 
-            else if (activeTab === 'listings') { await renderAdminListingsTable(); } 
-            else if (activeTab === 'users') { await renderAdminUsersTable(); }
-            else if (activeTab === 'packages') { await renderAdminPackageRequestsTable(); }
-        }
-        
-        async function renderAdminDashboard() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            try {
-                const [listingsSnapshot, usersSnapshot] = await Promise.all([
-                    getDocs(query(listingsCollection)),
-                    getDocs(query(usersCollection))
-                ]);
-                const totalListings = listingsSnapshot.size;
-                const totalUsers = usersSnapshot.size;
-                let activePackages = 0;
-                usersSnapshot.forEach(doc => { 
-                    const user = doc.data();
-                    if (user.package && user.package.expiryDate && user.package.expiryDate.toDate() > new Date()) {
-                        activePackages++;
-                    }
-                });
-                adminMainContent.innerHTML = '';
-                const dashboardGrid = createElement('div', ['grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'gap-6']);
-                const createStatCard = (title, value, iconClass, colorClass) => {
-                    const card = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md', 'flex', 'items-center', 'gap-4']);
-                    const iconDiv = createElement('div', [`w-12`, `h-12`, 'rounded-full', 'flex', 'items-center', 'justify-center', colorClass]);
-                    iconDiv.innerHTML = `<i class="fas ${iconClass} text-white text-xl"></i>`;
-                    const textDiv = createElement('div');
-                    textDiv.appendChild(createElement('p', ['text-3xl', 'font-bold'], value.toLocaleString()));
-                    textDiv.appendChild(createElement('p', ['text-gray-500'], title));
-                    card.append(iconDiv, textDiv);
-                    return card;
-                }
-                dashboardGrid.appendChild(createStatCard('ประกาศทั้งหมด', totalListings, 'fa-list-alt', 'bg-blue-500'));
-                dashboardGrid.appendChild(createStatCard('ผู้ใช้ทั้งหมด', totalUsers, 'fa-users', 'bg-green-500'));
-                dashboardGrid.appendChild(createStatCard('ผู้ใช้มีแพ็กเกจ', activePackages, 'fa-box-open', 'bg-purple-500'));
-                adminMainContent.appendChild(dashboardGrid);
-            } catch (error) {
-                console.error("Error loading admin dashboard:", error);
-                adminMainContent.innerHTML = `<div class="bg-white p-6 rounded-lg shadow-md text-red-500">เกิดข้อผิดพลาด: ${error.message}</div>`;
-            }
-        }
-
-        async function renderAdminListingsTable() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = '';
-            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', {id: 'admin-listings-search', name: 'admin-listings-search', type: 'text', placeholder: 'ค้นหาประกาศด้วยชื่อ หรืออีเมลผู้ใช้...'});
-            const tableContainer = createElement('div', ['overflow-x-auto']);
-            container.append(searchInput, tableContainer);
-            adminMainContent.appendChild(container);
-            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
-            try {
-                const querySnapshot = await getDocs(query(listingsCollection, orderBy("createdAt", "desc")));
-                currentAdminListings = [];
-                querySnapshot.forEach((doc) => { currentAdminListings.push({ id: doc.id, ...doc.data() }); });
-                searchInput.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const filtered = currentAdminListings.filter(l => 
-                        l.title.toLowerCase().includes(searchTerm) || 
-                        l.ownerUsername.toLowerCase().includes(searchTerm) ||
-                        l.ownerEmail.toLowerCase().includes(searchTerm)
-                    );
-                    populateAdminListingsTable(tableContainer, filtered);
-                });
-                populateAdminListingsTable(tableContainer, currentAdminListings);
-            } catch (error) {
-                console.error("Error fetching for admin panel:", error);
-                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาด (อาจไม่มีสิทธิ์เข้าถึง)</div>`;
-            }
-        }
-        
-        function populateAdminListingsTable(container, listings) {
-             container.innerHTML = '';
-            if (listings.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบประกาศ</p>`; return; }
-            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">หัวข้อประกาศ</th><th class="p-3">ผู้ลงประกาศ</th><th class="p-3">ประเภท</th><th class="p-3">ราคา</th><th class="p-3">วันที่ลง</th><th class="p-3">จัดการ</th></tr></thead>`;
-            const tbody = createElement('tbody');
-            listings.forEach(listing => {
-                const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], listing.title));
-                tr.appendChild(createElement('td', ['p-3'], listing.ownerUsername || listing.ownerEmail));
-                tr.appendChild(createElement('td', ['p-3'], listing.type));
-                tr.appendChild(createElement('td', ['p-3'], getPriceDisplay(listing.priceRent)));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(listing.createdAt)));
-                const actionsCell = createElement('td', ['p-3', 'flex', 'gap-3', 'items-center']);
-                const viewBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], '', {title: 'ดูประกาศ'});
-                viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
-                viewBtn.onclick = () => navigateToListing(listing.id);
-                const editBtn = createElement('button', ['text-amber-500', 'hover:text-amber-700'], '', {title: 'แก้ไข'});
-                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-                editBtn.onclick = () => editListing(listing.id);
-                const deleteBtn = createElement('button', ['text-red-500', 'hover:text-red-700'], '', {title: 'ลบ'});
-                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteBtn.onclick = () => deleteListing(listing.id);
-
-                actionsCell.append(viewBtn, editBtn, deleteBtn);
-                tr.appendChild(actionsCell);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            container.appendChild(table);
-        }
-
-        async function renderAdminUsersTable() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = '';
-            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            const searchInput = createElement('input', ['w-full', 'p-2', 'border', 'rounded-lg', 'mb-4'], '', {id: 'admin-users-search', name: 'admin-users-search', type: 'text', placeholder: 'ค้นหาผู้ใช้ด้วย Username หรืออีเมล...'});
-            const tableContainer = createElement('div', ['overflow-x-auto']);
-            container.append(searchInput, tableContainer);
-            adminMainContent.appendChild(container);
-            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
-            try {
-                const querySnapshot = await getDocs(query(usersCollection, orderBy("createdAt", "desc")));
-                currentAdminUsers = [];
-                querySnapshot.forEach((doc) => { currentAdminUsers.push({ id: doc.id, ...doc.data() }); });
-                searchInput.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const filtered = currentAdminUsers.filter(u => u.username.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm));
-                    populateAdminUsersTable(tableContainer, filtered);
-                });
-                populateAdminUsersTable(tableContainer, currentAdminUsers);
-            } catch (error) {
-                console.error("Error fetching users for admin panel:", error);
-                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาด (อาจไม่มีสิทธิ์เข้าถึง)</div>`;
-            }
-        }
-
-        function populateAdminUsersTable(container, users) {
-             container.innerHTML = '';
-            if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่พบผู้ใช้</p>`; return; }
-            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">อีเมล</th><th class="p-3">แพ็กเกจ</th><th class="p-3">วันที่สมัคร</th><th class="p-3">จัดการ</th></tr></thead>`;
-            const tbody = createElement('tbody');
-            users.forEach(user => {
-                const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], user.username));
-                tr.appendChild(createElement('td', ['p-3'], user.email));
-                
-                let packageInfo = 'ไม่มี';
-                if (user.package && user.package.expiryDate && user.package.expiryDate.toDate() > new Date()) {
-                    packageInfo = `${user.package.name} (หมดอายุ ${formatTimestamp(user.package.expiryDate, true)})`;
-                } else if (user.packageRequest?.status === 'pending') {
-                    packageInfo = 'รออนุมัติ';
-                }
-                tr.appendChild(createElement('td', ['p-3'], packageInfo));
-
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(user.createdAt, true)));
-                const actionsCell = createElement('td', ['p-3']);
-                const viewProfileBtn = createElement('button', ['text-blue-500', 'hover:text-blue-700'], ' ดูโปรไฟล์', {title: 'ดูโปรไฟล์'});
-                viewProfileBtn.prepend(createElement('i', ['fas', 'fa-user-circle', 'mr-1']));
-                viewProfileBtn.onclick = () => navigateToProfile(user.id);
-                actionsCell.append(viewProfileBtn);
-                tr.appendChild(actionsCell);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            container.appendChild(table);
-        }
-
-        // --- Admin Package Management ---
-        async function renderAdminPackageRequestsTable() {
-            const adminMainContent = document.getElementById('admin-main-content');
-            adminMainContent.innerHTML = '';
-            const container = createElement('div', ['bg-white', 'p-6', 'rounded-lg', 'shadow-md']);
-            container.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4'], 'คำขอซื้อแพ็กเกจที่รอการอนุมัติ'));
-            const tableContainer = createElement('div', ['overflow-x-auto']);
-            container.appendChild(tableContainer);
-            adminMainContent.appendChild(container);
-            
-            tableContainer.innerHTML = `<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>`;
-            try {
-                const q = query(usersCollection, where("packageRequest.status", "==", "pending"));
-                const querySnapshot = await getDocs(q);
-                const pendingRequests = [];
-                querySnapshot.forEach(doc => pendingRequests.push({ id: doc.id, ...doc.data() }));
-
-                pendingRequests.sort((a, b) => (b.packageRequest.requestedAt?.toMillis() || 0) - (a.packageRequest.requestedAt?.toMillis() || 0));
-
-                populateAdminPackageRequestsTable(tableContainer, pendingRequests);
-            } catch (error) {
-                console.error("Error fetching pending packages:", error);
-                tableContainer.innerHTML = `<div class="text-center text-red-500 p-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
-            }
-        }
-
-        function populateAdminPackageRequestsTable(container, users) {
-            container.innerHTML = '';
-            if (users.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-4">ไม่มีคำขอที่รอการอนุมัติ</p>`; return; }
-            
-            const table = createElement('table', ['w-full', 'text-sm', 'text-left']);
-            table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-3">Username</th><th class="p-3">แพ็กเกจที่ขอ</th><th class="p-3">ราคา</th><th class="p-3">วันที่ขอ</th><th class="p-3">จัดการ</th></tr></thead>`;
-            const tbody = createElement('tbody');
-            
-            users.forEach(user => {
-                const plan = servicePlans.find(p => p.id === user.packageRequest.planId);
-                const tr = createElement('tr', ['border-b']);
-                tr.appendChild(createElement('td', ['p-3', 'font-medium'], user.username));
-                tr.appendChild(createElement('td', ['p-3'], plan ? plan.title : 'N/A'));
-                tr.appendChild(createElement('td', ['p-3'], `฿${user.packageRequest.price || 'N/A'}`));
-                tr.appendChild(createElement('td', ['p-3'], formatTimestamp(user.packageRequest.requestedAt)));
-                
-                const actionsCell = createElement('td', ['p-3', 'flex', 'gap-2']);
-                const approveBtn = createElement('button', ['px-3', 'py-1', 'bg-green-500', 'text-white', 'rounded', 'hover:bg-green-600', 'text-xs'], 'อนุมัติ');
-                approveBtn.onclick = () => openAdminApprovePackageModal(user.id, user.username, user.packageRequest.planId);
-                
-                const rejectBtn = createElement('button', ['px-3', 'py-1', 'bg-red-500', 'text-white', 'rounded', 'hover:bg-red-600', 'text-xs'], 'ไม่อนุมัติ');
-                rejectBtn.onclick = () => rejectPackage(user.id);
-
-                actionsCell.append(approveBtn, rejectBtn);
-                tr.appendChild(actionsCell);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            container.appendChild(table);
-        }
-        
-        function openAdminApprovePackageModal(userId, username, requestedPlanId) {
-            document.getElementById('admin-package-username').textContent = `${username} (${userId})`;
-            const form = document.getElementById('admin-approve-package-form');
-            const plansContainer = document.getElementById('admin-package-plans-container');
-            plansContainer.innerHTML = '';
-
-            servicePlans.forEach((plan) => {
-                const div = createElement('div', ['flex', 'items-center']);
-                const input = createElement('input', ['mr-2'], '', {type: 'radio', id: `admin_${plan.id}`, name: 'package_plan', value: plan.id});
-                if (plan.id === requestedPlanId) {
-                    input.checked = true;
-                }
-                const label = createElement('label', [], `${plan.title} (${plan.description})`, {for: `admin_${plan.id}`});
-                div.append(input, label);
-                plansContainer.appendChild(div);
-            });
-            
-            form.onsubmit = (e) => {
-                e.preventDefault();
-                const selectedPlanId = new FormData(form).get('package_plan');
-                if (selectedPlanId) {
-                    approvePackage(userId, selectedPlanId);
-                } else {
-                    showAlertModal("กรุณาเลือกแพ็กเกจ");
-                }
-            };
-
-            openModal('adminApprovePackageModal');
-        }
-
-        async function approvePackage(userId, planId) {
-            const plan = servicePlans.find(p => p.id === planId);
-            if (!plan) {
-                showAlertModal("ไม่พบข้อมูลแพ็กเกจ");
-                return;
-            }
-
-            openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการอนุมัติแพ็กเกจ "${plan.title}" ให้กับผู้ใช้?`, async () => {
-                try {
-                    const userDocRef = doc(db, "users", userId);
-                    const expiryDate = new Date();
-                    expiryDate.setDate(expiryDate.getDate() + plan.durationDays);
-                    
-                    await updateDoc(userDocRef, {
-                        packageRequest: null,
-                        package: {
-                            name: plan.title,
-                            planId: plan.id,
-                            listingsAllowed: plan.listingsAllowed,
-                            listingsPosted: 0,
-                            expiryDate: expiryDate,
-                            purchasedAt: serverTimestamp()
-                        }
-                    });
-
-                    closeModal('adminApprovePackageModal');
-                    showAlertModal("อนุมัติแพ็กเกจสำเร็จ!");
-                    renderAdminView('packages');
-                } catch (error) {
-                    console.error("Error approving package:", error);
-                    showAlertModal("เกิดข้อผิดพลาดในการอนุมัติ");
-                }
-            }, 'bg-green-500 hover:bg-green-600');
-        }
-        
-        async function rejectPackage(userId) {
-             openConfirmModal(`คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?`, async () => {
-                 try {
-                     const userDocRef = doc(db, "users", userId);
-                     await updateDoc(userDocRef, {
-                         packageRequest: { status: 'rejected' }
-                     });
-                     showAlertModal("ปฏิเสธคำขอสำเร็จ");
-                     renderAdminView('packages');
-                 } catch (error) {
-                      console.error("Error rejecting package:", error);
-                      showAlertModal("เกิดข้อผิดพลาด");
-                 }
-             }, 'bg-red-500 hover:bg-red-600');
-        }
-
         // --- USER PROFILE PAGE ---
         function renderProfilePagination(userId, totalListings, listingsPerPage, currentPage) {
             const paginationContainer = document.getElementById('profile-pagination-container');
@@ -1825,24 +1357,6 @@
                     container.appendChild(profilePicContainer);
                     container.appendChild(createElement('h3', ['text-3xl', 'font-bold', 'mt-4'], userData.username));
                     
-                    // [FIX] Show simple package badge to everyone
-                    const userPackage = userData.package;
-                    const userHasActivePackage = userPackage && userPackage.expiryDate && userPackage.expiryDate.toDate() > new Date();
-
-                    if (userHasActivePackage) {
-                        const planDetails = servicePlans.find(p => p.id === userPackage.planId);
-                        if (planDetails) {
-                            const packageBadge = createElement('div', ['inline-block', 'px-3', 'py-1', 'text-sm', 'font-semibold', 'rounded-full', 'mt-2']);
-                            let textColorClass = 'text-gray-800';
-                            if (planDetails.colorClass.includes('blue')) textColorClass = 'text-blue-800';
-                            if (planDetails.colorClass.includes('purple')) textColorClass = 'text-purple-800';
-                            if (planDetails.colorClass.includes('amber')) textColorClass = 'text-amber-800';
-                            packageBadge.classList.add(planDetails.colorClass, textColorClass);
-                            packageBadge.textContent = planDetails.title;
-                            container.appendChild(packageBadge);
-                        }
-                    }
-
                     container.appendChild(createElement('p', ['text-gray-500', 'mt-1'], userData.email));
                     const joinedDate = userData.createdAt ? formatTimestamp(userData.createdAt, true) : 'ไม่ระบุ';
                     const joinedP = createElement('p', ['text-sm', 'text-gray-400', 'mt-4'], `เข้าร่วมเมื่อ ${joinedDate}`);
@@ -1866,40 +1380,6 @@
                 };
                 profileCard.appendChild(profileCardContent());
                 profileCol.appendChild(profileCard);
-
-                // [FIX] Show detailed package card ONLY to the owner
-                if (currentUser && currentUser.uid === userId) {
-                    const packageCard = createElement('div', ['p-6', 'rounded-xl', 'shadow-md', 'h-fit']);
-                    packageCard.appendChild(createElement('h4', ['text-xl', 'font-bold', 'mb-4', 'text-center'], 'สถานะแพ็กเกจ'));
-                    
-                    if (userData.packageRequest?.status === 'pending') {
-                        const status = createElement('div', ['text-center', 'p-4', 'bg-yellow-100', 'text-yellow-800', 'rounded-lg']);
-                        status.innerHTML = '<i class="fas fa-clock mr-2"></i><p class="font-semibold">รอการอนุมัติ</p><p class="text-sm">ทีมงานกำลังตรวจสอบการชำระเงินของคุณ</p>';
-                        packageCard.appendChild(status);
-                    } else if (userData.package && userData.package.expiryDate && userData.package.expiryDate.toDate() > new Date()) {
-                        const currentPackage = userData.package;
-                        const currentPlanDetails = servicePlans.find(p => p.id === currentPackage.planId);
-                        
-                        if (currentPlanDetails) {
-                            packageCard.classList.add(currentPlanDetails.colorClass, currentPlanDetails.borderColor, 'border-l-4');
-                        }
-
-                        packageCard.appendChild(createElement('p', ['text-lg', 'font-bold', 'text-gray-800', 'text-center'], currentPackage.name));
-                        packageCard.appendChild(createElement('p', ['text-center', 'text-gray-600', 'mt-2'], `ลงประกาศแล้ว: ${currentPackage.listingsPosted} / ${currentPackage.listingsAllowed}`));
-                        const progressContainer = createElement('div', ['w-full', 'bg-gray-200', 'rounded-full', 'h-2.5', 'my-2']);
-                        const progressBar = createElement('div', ['bg-blue-600', 'h-2.5', 'rounded-full'], '', {style: `width: ${(currentPackage.listingsPosted / currentPackage.listingsAllowed) * 100}%`});
-                        progressContainer.appendChild(progressBar);
-                        packageCard.appendChild(progressContainer);
-                        packageCard.appendChild(createElement('p', ['text-center', 'text-sm', 'text-gray-500'], `หมดอายุ: ${formatTimestamp(currentPackage.expiryDate, true)}`));
-                    } else {
-                        packageCard.appendChild(createElement('p', ['text-center', 'text-gray-500'], 'คุณยังไม่มีแพ็กเกจที่ใช้งาน'));
-                    }
-
-                    const upgradeBtn = createElement('button', ['mt-4', 'w-full', 'py-2', 'bg-purple-600', 'text-white', 'font-bold', 'rounded-lg', 'hover:bg-purple-700'], 'ซื้อ / อัปเกรดแพ็กเกจ');
-                    upgradeBtn.onclick = openPackageModal;
-                    packageCard.appendChild(upgradeBtn);
-                    profileCol.appendChild(packageCard);
-                }
 
                 // Listings Column
                 listingsCol.appendChild(createElement('h4', ['text-2xl', 'font-bold', 'mb-4'], `ประกาศทั้งหมด (${totalListings})`));
@@ -2232,23 +1712,7 @@
                 showAlertModal('กรุณาเข้าสู่ระบบก่อนลงประกาศ');
                 return;
             }
-            const pkg = currentUser.package;
-            const hasActivePackage = pkg && pkg.expiryDate && pkg.expiryDate.toDate() > new Date();
-
-            if (!hasActivePackage) {
-                openConfirmModal('คุณต้องมีแพ็กเกจเพื่อลงประกาศ ซื้อแพ็กเกจเลยไหม?', () => {
-                    openPackageModal();
-                }, 'bg-green-500 hover:bg-green-600');
-                return;
-            }
-
-            if (pkg.listingsPosted >= pkg.listingsAllowed) {
-                openConfirmModal('คุณใช้โควต้าลงประกาศของแพ็กเกจจนครบแล้ว ต้องการอัปเกรดแพ็กเกจไหม?', () => {
-                    openPackageModal();
-                }, 'bg-green-500 hover:bg-green-600');
-                return;
-            }
-            
+            // Grand Opening: Allow everyone to post
             openModal('postModal');
         }
 
@@ -2259,7 +1723,6 @@
             document.getElementById('admin-dashboard-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/dashboard'; });
             document.getElementById('admin-listings-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/listings'; });
             document.getElementById('admin-users-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/users'; });
-            document.getElementById('admin-packages-link').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#admin/packages'; });
             
             if (slides.length > 0) {
                 slides.forEach((_, i) => {
