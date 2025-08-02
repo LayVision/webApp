@@ -1517,12 +1517,20 @@
                 if (!userDocSnap.exists()) { profileView.innerHTML = `<p class="text-center text-red-500">ไม่พบข้อมูลผู้ใช้</p>`; return; }
                 const userData = userDocSnap.data();
                 
-                const listingsQuery = query(listingsCollection, where("ownerUid", "==", userId));
+                // Fetch and sort listings directly from Firestore
+                // This improves performance and ensures correct ordering.
+                // NOTE: This requires a composite index in Firestore. 
+                // The console will provide a link to create it if it's missing.
+                const listingsQuery = query(
+                    listingsCollection, 
+                    where("ownerUid", "==", userId),
+                    orderBy("createdAt", "desc")
+                );
                 const listingsSnapshot = await getDocs(listingsQuery);
-                let userListings = [];
-                listingsSnapshot.forEach(doc => { userListings.push({ id: doc.id, ...doc.data() }); });
-                
-                userListings.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                const userListings = [];
+                listingsSnapshot.forEach(doc => {
+                    userListings.push({ id: doc.id, ...doc.data() });
+                });
 
                 const totalListings = userListings.length;
                 const start = (currentPage - 1) * profileListingsPerPage;
